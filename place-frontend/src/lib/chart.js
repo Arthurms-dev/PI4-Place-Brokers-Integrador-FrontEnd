@@ -1,7 +1,3 @@
-/**
- * Calcula um máximo "redondo" e os ticks do eixo Y.
- * Sem dados (peak <= 0) usa `fallbackMax`, para o gráfico vazio manter a escala.
- */
 export function niceScale(peak, tickCount = 4, fallbackMax = 100) {
   if (peak <= 0) {
     return {

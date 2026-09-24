@@ -1,6 +1,5 @@
 import { cn } from "@/lib/cn";
 
-/** Logo provisório. Troque pelo arquivo oficial (SVG/PNG) em /public quando disponível. */
 export function Logo({ className }) {
   return (
     <svg viewBox="0 0 150 46" role="img" aria-label="Place Brokers" className={cn("h-9 w-auto", className)}>

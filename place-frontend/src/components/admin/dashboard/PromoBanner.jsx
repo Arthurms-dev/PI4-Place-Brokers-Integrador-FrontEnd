@@ -1,7 +1,6 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
-/** Banner institucional. TODO: definir destino do botão "Conheça mais". */
 export function PromoBanner() {
   return (
     <Card className="relative flex flex-col justify-end overflow-hidden bg-linear-to-b from-[#16305a] to-card-2 p-4">

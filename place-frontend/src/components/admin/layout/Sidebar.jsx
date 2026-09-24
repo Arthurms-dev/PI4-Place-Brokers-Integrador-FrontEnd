@@ -20,7 +20,6 @@ export function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {/* Fundo escuro quando o menu abre no mobile */}
       {open && (
         <button
           type="button"

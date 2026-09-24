@@ -11,7 +11,6 @@ export function DashboardHeader({ firstName, period }) {
         </p>
       </div>
 
-      {/* TODO: abrir seletor de período e recarregar os dados */}
       <button
         type="button"
         aria-label="Alterar período"

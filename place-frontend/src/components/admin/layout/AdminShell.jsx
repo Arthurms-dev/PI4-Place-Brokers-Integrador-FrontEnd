@@ -3,10 +3,6 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { Footer } from "./Footer";
 
-/**
- * Casca do painel privado (sidebar + topbar + rodapé).
- * Layout-base do ADMIN: todas as telas em /admin/* renderizam dentro dele.
- */
 export function AdminShell({ user, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
 

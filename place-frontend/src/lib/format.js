@@ -4,19 +4,16 @@ export function formatNumber(value, maxFractionDigits = 0) {
   return value.toLocaleString("pt-BR", { maximumFractionDigits: maxFractionDigits });
 }
 
-/** "2025-04-30" -> "30/04" */
 export function formatShortDate(iso) {
   const [, m, d] = iso.split("-");
   return `${d}/${m}`;
 }
 
-/** "2025-04-30" -> "30/04/2025" */
 export function formatDate(iso) {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
 
-/** ISO 8601 -> "30/04/2025 14:32" */
 export function formatDateTime(iso) {
   const date = new Date(iso);
   const day = date.toLocaleDateString("pt-BR", { timeZone: TZ });

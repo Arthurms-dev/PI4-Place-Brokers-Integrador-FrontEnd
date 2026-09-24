@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 /**
- * Executa uma função assíncrona (ex.: chamada à API) ao montar o componente.
- * `fetcher` deve ter referência estável (função declarada fora do componente).
  * @returns {{ data: any, loading: boolean, error: Error | null }}
  */
 export function useAsyncData(fetcher) {
