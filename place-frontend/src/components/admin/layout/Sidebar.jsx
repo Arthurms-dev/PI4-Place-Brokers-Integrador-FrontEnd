@@ -15,7 +15,13 @@ const NAV_ITEMS = [
   { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
 ];
 
-export function Sidebar({ open, onClose }) {
+export function Sidebar({
+  open,
+  onClose,
+  items = NAV_ITEMS,
+  home = "/admin/dashboard",
+  promo = <SidebarPromo />,
+}) {
   const { pathname } = useLocation();
 
   return (
@@ -38,14 +44,16 @@ export function Sidebar({ open, onClose }) {
         )}
       >
         <div className="flex h-20 items-center border-b border-line-soft px-6">
-          <Link to="/admin/dashboard" aria-label="Place Brokers - início">
+          <Link to={home} aria-label="Place Brokers - início">
             <Logo />
           </Link>
         </div>
 
         <nav aria-label="Menu principal" className="flex flex-col gap-1 px-3.5 pt-4">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          {items.map((item) => {
+            const active = item.end
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
@@ -66,13 +74,13 @@ export function Sidebar({ open, onClose }) {
           })}
         </nav>
 
-        <SidebarPromo />
+        {promo}
       </aside>
     </>
   );
 }
 
-function SidebarPromo() {
+export function SidebarPromo() {
   return (
     <div className="relative mx-4 mt-auto overflow-hidden rounded-xl border border-line bg-linear-to-br from-[#1b3a66] to-[#0c1d3a] px-4 pb-4 pt-22">
       <svg

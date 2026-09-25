@@ -49,4 +49,7 @@ body {
     transition: none !important;
     animation: none !important;
   }
+
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--color-card); color: var(--color-ink); }
+.leaflet-popup-content a { color: var(--color-gold); font-weight: 500; }
 }

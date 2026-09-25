@@ -5,6 +5,8 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AdminLayout from "@/pages/admin/AdminLayout";
+import CorretorLayout from "@/pages/corretor/CorretorLayout";
+import CorretorHomePage from "@/pages/corretor/CorretorHomePage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
@@ -18,7 +20,10 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      <Route path="/corretor" element={<ComingSoonPage />} />
+      <Route path="/corretor" element={<CorretorLayout />}>
+        <Route index element={<CorretorHomePage />} />
+        <Route path="*" element={<ComingSoonPage />} />
+      </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />

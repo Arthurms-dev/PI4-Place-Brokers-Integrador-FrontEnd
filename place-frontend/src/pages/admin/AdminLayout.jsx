@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { AdminShell } from "@/components/admin/layout/AdminShell";
+import { AdminShell } from "@/components/layout/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { getCurrentUser } from "@/services/session";
 
