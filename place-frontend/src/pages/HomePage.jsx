@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
-// Mock data de imóveis para demonstração no front
 const MOCK_PROPERTIES = [
   {
     id: 1,
@@ -64,7 +63,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0b132b] text-white flex flex-col justify-between font-sans">
-      {/* Topo / Hero */}
       <header className="px-6 pt-10 pb-6 max-w-5xl mx-auto text-center w-full">
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
           Place Brokers
@@ -73,14 +71,12 @@ export default function HomePage() {
           Encontre os melhores imóveis e conecte-se aos melhores corretores.
         </p>
 
-        {/* Link original para Login preservado */}
         <div className="mt-4">
           <Link to="/login" className="text-gold hover:underline text-sm font-medium">
             Acesso restrito (administrador ou corretor)
           </Link>
         </div>
 
-        {/* Formulário de Busca */}
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto mt-8">
           <input
             type="text"
@@ -99,7 +95,6 @@ export default function HomePage() {
         </form>
       </header>
 
-      {/* Resultados de Imóveis */}
       <main className="flex-1 px-6 max-w-6xl mx-auto w-full my-8">
         <h2 className="text-xl font-semibold mb-6 border-b border-slate-800 pb-2 text-slate-200">
           {searched ? "Resultados da Busca" : "Imóveis em Destaque"}
@@ -144,7 +139,6 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Rodapé */}
       <footer className="border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
         <p>© 2026 Place Brokers. Todos os direitos reservados.</p>
       </footer>

@@ -6,7 +6,7 @@ import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
 
-const ROLE_HOME = { ADMIN: "/admin/dashboard", CORRETOR: "/corretor" };
+const ROLE_HOME = { admin: "/admin/dashboard", corretor: "/corretor", viabilizador: "/viabilizador" };
 
 export default function LoginPage() {
   usePageTitle("Entrar");
