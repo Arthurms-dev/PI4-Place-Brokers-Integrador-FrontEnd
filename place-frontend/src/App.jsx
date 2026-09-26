@@ -7,6 +7,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import CorretorLayout from "@/pages/corretor/CorretorLayout";
 import CorretorHomePage from "@/pages/corretor/CorretorHomePage";
+import MapaGeralPage from "@/pages/corretor/MapaGeralPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
@@ -22,8 +23,9 @@ export default function App() {
 
       <Route path="/corretor" element={<CorretorLayout />}>
         <Route index element={<CorretorHomePage />} />
+        <Route path="mapa" element={<MapaGeralPage />} />
         <Route path="*" element={<ComingSoonPage />} />
-      </Route>
+    </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
