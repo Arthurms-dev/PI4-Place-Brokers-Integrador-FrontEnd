@@ -1,3 +1,6 @@
+import { supabase } from "@/lib/supabase";
+import { gerarSlug, uploadBook, uploadCapa, uploadGaleria, uploadTabela } from "@/services/storage";
+
 export const STATUS = {
   lancamento: { label: "Lançamento", color: "var(--color-ok)" },
   obras: { label: "Em obras", color: "var(--color-info)" },
@@ -5,14 +8,93 @@ export const STATUS = {
   outros: { label: "Outros", color: "var(--color-ink-3)" },
 };
 
-const base = { quartos: "2 e 3 quartos", vagas: "1 e 2 vagas", lazer: "Lazer completo", capa: null };
+export function formatarFaixa(min, max, singular, plural) {
+  if (min == null && max == null) return "";
+  if (max == null || min === max) return `${min} ${min === 1 ? singular : plural}`;
+  return `${min} e ${max} ${plural}`;
+}
 
-export const EMPREENDIMENTOS = [
-  { ...base, id: 1, nome: "Mirante Belvedere", bairro: "Boa Viagem", cidade: "Recife", uf: "PE", status: "lancamento", lat: -8.1187, lng: -34.904, atualizadoEm: "2026-09-23" },
-  { ...base, id: 2, nome: "Vila do Paraíso", bairro: "Piedade", cidade: "Jaboatão dos Guararapes", uf: "PE", status: "obras", lat: -8.169, lng: -34.916, atualizadoEm: "2026-09-22" },
-  { ...base, id: 3, nome: "Parque São Lucas", bairro: "Mooca", cidade: "São Paulo", uf: "SP", status: "pronto", lat: -23.5505, lng: -46.6333, atualizadoEm: "2026-09-20" },
-  { ...base, id: 4, nome: "Jardins do Pina", bairro: "Pina", cidade: "Recife", uf: "PE", status: "pronto", lat: -8.09, lng: -34.885, atualizadoEm: "2026-09-18" },
-  { ...base, id: 5, nome: "Casa Forte Residence", bairro: "Casa Forte", cidade: "Recife", uf: "PE", status: "lancamento", lat: -8.033, lng: -34.918, atualizadoEm: "2026-09-15" },
-  { ...base, id: 6, nome: "Graças Prime", bairro: "Graças", cidade: "Recife", uf: "PE", status: "obras", lat: -8.042, lng: -34.899, atualizadoEm: "2026-09-12" },
-  { ...base, id: 7, nome: "Imbiribeira Park", bairro: "Imbiribeira", cidade: "Recife", uf: "PE", status: "outros", lat: -8.113, lng: -34.916, atualizadoEm: "2026-09-10" },
-];
+/**
+ */
+export async function listarEmpreendimentos() {
+  const { data, error } = await supabase
+    .from("empreendimentos")
+    .select("*, construtora:construtoras(nome)")
+    .order("atualizado_em", { ascending: false });
+
+  if (error) throw new Error("Não foi possível carregar os empreendimentos.");
+  return data;
+}
+
+export async function buscarEmpreendimentoPorId(id) {
+  const { data, error } = await supabase
+    .from("empreendimentos")
+    .select("*, construtora:construtoras(nome), imagens:empreendimento_imagens(url, ordem)")
+    .eq("id", id)
+    .single();
+
+  if (error) throw new Error("Empreendimento não encontrado.");
+  return data;
+}
+
+/**
+ * @param {{
+ *   nome: string, construtoraId?: string, status: string, descricao?: string,
+ *   uf: string, cidade: string, bairro: string, endereco?: string,
+ *   latitude?: number, longitude?: number,
+ *   quartosMin?: number, quartosMax?: number, vagasMin?: number, vagasMax?: number,
+ *   precoMin?: number, precoMax?: number, lazer?: string[], publicado?: boolean,
+ *   capa?: File, galeria?: File[], book?: File, tabela?: File,
+ * }} dados
+ */
+export async function criarEmpreendimento(dados) {
+  const slug = gerarSlug(dados.nome);
+
+  const [capaUrl, galeriaUrls, bookUrl, tabelaUrl] = await Promise.all([
+    dados.capa ? uploadCapa(slug, dados.capa) : Promise.resolve(null),
+    dados.galeria?.length ? uploadGaleria(slug, dados.galeria) : Promise.resolve([]),
+    dados.book ? uploadBook(slug, dados.book) : Promise.resolve(null),
+    dados.tabela ? uploadTabela(slug, dados.tabela) : Promise.resolve(null),
+  ]);
+
+  const { data: empreendimento, error } = await supabase
+    .from("empreendimentos")
+    .insert({
+      nome: dados.nome,
+      slug,
+      construtora_id: dados.construtoraId ?? null,
+      status: dados.status,
+      descricao: dados.descricao ?? null,
+      uf: dados.uf,
+      cidade: dados.cidade,
+      bairro: dados.bairro,
+      endereco: dados.endereco ?? null,
+      latitude: dados.latitude ?? null,
+      longitude: dados.longitude ?? null,
+      quartos_min: dados.quartosMin ?? null,
+      quartos_max: dados.quartosMax ?? null,
+      vagas_min: dados.vagasMin ?? null,
+      vagas_max: dados.vagasMax ?? null,
+      preco_min: dados.precoMin ?? null,
+      preco_max: dados.precoMax ?? null,
+      lazer: dados.lazer ?? [],
+      capa_url: capaUrl,
+      book_url: bookUrl,
+      book_atualizado_em: bookUrl ? new Date().toISOString() : null,
+      tabela_url: tabelaUrl,
+      tabela_atualizado_em: tabelaUrl ? new Date().toISOString() : null,
+      publicado: dados.publicado ?? false,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error("Não foi possível salvar o empreendimento: " + error.message);
+
+  if (galeriaUrls.length) {
+    const linhas = galeriaUrls.map((url, i) => ({ empreendimento_id: empreendimento.id, url, ordem: i }));
+    const { error: erroGaleria } = await supabase.from("empreendimento_imagens").insert(linhas);
+    if (erroGaleria) throw new Error("Empreendimento salvo, mas a galeria falhou: " + erroGaleria.message);
+  }
+
+  return empreendimento;
+}

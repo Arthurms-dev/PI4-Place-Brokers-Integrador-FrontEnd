@@ -1,5 +1,5 @@
-import { Outlet } from "react-router-dom";
-import { AdminShell } from "@/components/admin/layout/AdminShell";
+import { Navigate, Outlet } from "react-router-dom";
+import { AdminShell } from "@/components/layout/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { getCurrentUser } from "@/services/session";
 
@@ -15,10 +15,13 @@ const CORRETOR_NAV_ITEMS = [
 ];
 
 export default function CorretorLayout() {
-  const { data: user } = useAsyncData(getCurrentUser);
+  const { data: user, loading } = useAsyncData(getCurrentUser);
 
-  if (!user) {
+  if (loading) {
     return <div className="grid min-h-screen place-items-center text-ink-2">Carregando…</div>;
+  }
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
   return (
