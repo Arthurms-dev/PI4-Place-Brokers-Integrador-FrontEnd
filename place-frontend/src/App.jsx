@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import AcessoNegadoPage from "@/pages/AcessoNegadoPage";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -9,12 +10,14 @@ import CorretorLayout from "@/pages/corretor/CorretorLayout";
 import CorretorHomePage from "@/pages/corretor/CorretorHomePage";
 import MapaGeralPage from "@/pages/corretor/MapaGeralPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
+import PainelAdmPage from "@/pages/admin/PainelAdmPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/acesso-negado" element={<AcessoNegadoPage />} />
 
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
@@ -28,7 +31,7 @@ export default function App() {
     </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route index element={<PainelAdmPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
 
         <Route path="*" element={<ComingSoonPage />} />
