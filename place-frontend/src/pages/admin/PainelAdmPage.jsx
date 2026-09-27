@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { DashboardAcessCard } from "@/components/admin/painel-adm/DashboardAcesso";
+import { DashboardAcesso } from "@/components/admin/painel-adm/DashboardAcesso";
 import { FeedCard } from "@/components/admin/painel-adm/FeedCard";
 import { useAsyncData} from "@/hooks/useAsyncData";
 import { usePageTitle} from "@/hooks/usePageTitle";
@@ -20,7 +20,7 @@ export default function PainelAdmPage (){
             <p className="mt-0.5 text-sm text-ink-2"> Acompanhe o que precisa da sua atenção no painel.</p>
             </div>
 
-            <DashboardAcessCard/>
+            <DashboardAcesso/>
 
             <section className="grid gap-4 lg:grid-cols-3">
                 <FeedCard title="Avisos de Segurança" description="Alertas que precisam da sua atenção" icon="bell" feed={alerts} emptyLabel="Nenhum aviso no momento." />
