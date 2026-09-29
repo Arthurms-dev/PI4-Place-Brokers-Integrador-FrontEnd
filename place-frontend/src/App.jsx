@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import AcessoNegadoPage from "@/pages/AcessoNegadoPage";
+import PerfilPage from "@/pages/PerfilPage";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -27,12 +28,14 @@ export default function App() {
       <Route path="/corretor" element={<CorretorLayout />}>
         <Route index element={<CorretorHomePage />} />
         <Route path="mapa" element={<MapaGeralPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
         <Route path="*" element={<ComingSoonPage />} />
-    </Route>
+      </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<PainelAdmPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
 
         <Route path="*" element={<ComingSoonPage />} />
       </Route>

@@ -1,7 +1,17 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
+import { authService } from "@/services/authService";
 
-export function Topbar({ user, menuOpen, onMenuToggle }) {
+export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin" }) {
+  const [perfilAberto, setPerfilAberto] = useState(false);
+
+  function sair() {
+    authService.logout();
+    window.location.href = "/login";
+  }
+
   return (
     <header className="sticky top-0 z-10 flex h-16.5 items-center gap-4 border-b border-line-soft bg-page px-4.5 sm:gap-6 lg:px-7.5">
       <button
@@ -35,13 +45,48 @@ export function Topbar({ user, menuOpen, onMenuToggle }) {
           )}
         </button>
 
-        <div className="flex items-center gap-3 border-l border-line-soft pl-4.5">
-          <Avatar name={user.name} src={user.avatarUrl} />
-          <div className="hidden sm:block">
-            <div className="text-[13px] font-medium">{user.name}</div>
-            <div className="text-[11px] text-ink-3">{user.role}</div>
-          </div>
-          <Icon name="chevronDown" className="hidden size-3.5 sm:block" />
+        <div className="relative border-l border-line-soft pl-4.5">
+          <button
+            type="button"
+            onClick={() => setPerfilAberto((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={perfilAberto}
+            className="flex items-center gap-3"
+          >
+            <Avatar name={user.name} src={user.avatarUrl} />
+            <div className="hidden text-left sm:block">
+              <div className="text-[13px] font-medium">{user.name}</div>
+              <div className="text-[11px] text-ink-3">{user.role}</div>
+            </div>
+            <Icon name="chevronDown" className="hidden size-3.5 sm:block" />
+          </button>
+
+          {perfilAberto && (
+            <>
+              <button
+                type="button"
+                aria-label="Fechar menu de perfil"
+                onClick={() => setPerfilAberto(false)}
+                className="fixed inset-0 z-20"
+              />
+              <div className="absolute right-0 top-full z-30 mt-2 w-48 overflow-hidden rounded-lg border border-line bg-card shadow-lg">
+                <Link
+                  to={`${home}/perfil`}
+                  onClick={() => setPerfilAberto(false)}
+                  className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink hover:bg-white/5"
+                >
+                  <Icon name="user" className="size-4" /> Ver perfil
+                </Link>
+                <button
+                  type="button"
+                  onClick={sair}
+                  className="flex w-full items-center gap-2.5 border-t border-line-soft px-4 py-3 text-left text-[13px] text-danger hover:bg-white/5"
+                >
+                  <Icon name="arrowRight" className="size-4" /> Sair
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>

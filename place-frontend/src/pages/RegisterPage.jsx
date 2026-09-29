@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
 
-const ROLES = [
-  { value: "CORRETOR", label: "Corretor" },
-  { value: "ADMIN", label: "Administrador" },
+const VINCULOS = [
+  { value: "interno", label: "Corretor da Place Brokers" },
+  { value: "externo", label: "Corretor parceiro (externo)" },
 ];
 
 export default function RegisterPage() {
   usePageTitle("Criar conta");
-  const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", role: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", vinculo: "", creci: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [enviado, setEnviado] = useState(false);
 
   const handleChange = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -28,12 +28,15 @@ export default function RegisterPage() {
     setFieldErrors({});
     setSubmitting(true);
     try {
-      await authService.register(form);
-      navigate("/login", { replace: true });
+      await authService.register({ ...form, role: "CORRETOR" });
+      setEnviado(true);
     } catch (err) {
       if (err instanceof AuthError) {
-        setFieldErrors(err.fieldErrors ?? {});
-        if (err.code !== "VALIDATION_ERROR") setFormError(err.message);
+        const erros = { ...(err.fieldErrors ?? {}) };
+        if (erros.nome) erros.name = erros.nome;
+        setFieldErrors(erros);
+        if (erros.role) setFormError(erros.role);
+        else if (err.code !== "VALIDATION_ERROR") setFormError(err.message);
       } else {
         setFormError("Erro inesperado. Tente novamente.");
       }
@@ -42,10 +45,25 @@ export default function RegisterPage() {
     }
   }
 
+  if (enviado) {
+    return (
+      <Card>
+        <h1 className="mb-1 text-xl font-medium">Cadastro enviado</h1>
+        <p className="mb-6 text-sm text-ink-2">
+          Recebemos seus dados. Um administrador vai analisar o cadastro
+          {form.vinculo === "externo" ? " e conferir o seu CRECI" : ""}. Você poderá entrar assim que ele for aprovado.
+        </p>
+        <Link to="/login" className="text-sm text-gold hover:underline">
+          Voltar para o login
+        </Link>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <h1 className="mb-1 text-xl font-medium">Criar conta</h1>
-      <p className="mb-6 text-sm text-ink-2">Cadastro para administradores e corretores.</p>
+      <p className="mb-6 text-sm text-ink-2">Cadastro de corretores. Sua conta fica pendente até o administrador aprovar.</p>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="Nome completo" error={fieldErrors.name}>
@@ -62,18 +80,27 @@ export default function RegisterPage() {
           />
         </FormField>
 
-        <FormField label="Perfil" error={fieldErrors.role}>
-          <select value={form.role} onChange={handleChange("role")} className={fieldInputClass(fieldErrors.role)}>
+        <FormField label="Você é" error={fieldErrors.vinculo}>
+          <select value={form.vinculo} onChange={handleChange("vinculo")} className={fieldInputClass(fieldErrors.vinculo)}>
             <option value="" disabled>
-              Selecione…
+              Selecione...
             </option>
-            {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+            {VINCULOS.map((v) => (
+              <option key={v.value} value={v.value}>
+                {v.label}
               </option>
             ))}
           </select>
         </FormField>
+
+        {form.vinculo && (
+          <FormField
+            label={form.vinculo === "externo" ? "CRECI (obrigatório)" : "CRECI (opcional)"}
+            error={fieldErrors.creci}
+          >
+            <input value={form.creci} onChange={handleChange("creci")} className={fieldInputClass(fieldErrors.creci)} />
+          </FormField>
+        )}
 
         <FormField label="Senha" error={fieldErrors.password}>
           <input
@@ -102,7 +129,7 @@ export default function RegisterPage() {
         )}
 
         <Button type="submit" disabled={submitting} className="mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60">
-          {submitting ? "Criando conta…" : "Criar conta"}
+          {submitting ? "Enviando..." : "Criar conta"}
         </Button>
       </form>
 
