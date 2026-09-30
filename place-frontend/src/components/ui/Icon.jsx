@@ -92,12 +92,6 @@ const paths = {
       <path d="M9 3v15M15 6v15" />
     </>
   ),
-  mapPin: (
-    <>
-      <path d="M12 22s7-7.6 7-12.5A7 7 0 1 0 5 9.5C5 14.4 12 22 12 22z" />
-      <circle cx="12" cy="9.5" r="2.5" />
-    </>
-  ),
   userPlus: (
     <>
       <path d="M13 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -127,12 +121,6 @@ const paths = {
       <path d="M12 7v5l3 3" />
     </>
   ),
-  list: (
-    <>
-      <path d="M8 6h13M8 12h13M8 18h13" />
-      <path d="M3 6h.01M3 12h.01M3 18h.01" />
-    </>
-  ),
   refresh: (
     <>
       <path d="M21 12a9 9 0 1 1-3-6.7" />
@@ -160,6 +148,32 @@ const paths = {
       <path d="m10 15 5-3-5-3z" />
     </>
   ),
+  x: <path d="M18 6 6 18M6 6l12 12" />,
+  phone: (
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+  ),
+  mail: (
+    <>
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </>
+  ),
+  list: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />,
+  columns: (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18M15 3v18" />
+    </>
+  ),
+  messageCircle: <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />,
+  mapPin: (
+    <>
+      <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </>
+  ),
+  chevronLeft: <path d="m15 18-6-6 6-6" />,
+  chevronRight: <path d="m9 18 6-6-6-6" />,
 };
 
 export function Icon({ name, className, ...props }) {

@@ -13,6 +13,7 @@ import MapaGeralPage from "@/pages/corretor/MapaGeralPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import PainelAdmPage from "@/pages/admin/PainelAdmPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
+import LeadsPage from "@/pages/admin/LeadsPage";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<PainelAdmPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="leads" element={<LeadsPage />} />
         <Route path="perfil" element={<PerfilPage />} />
 
         <Route path="*" element={<ComingSoonPage />} />

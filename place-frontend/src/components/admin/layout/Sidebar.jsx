@@ -5,8 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
-  { label: "Imóveis", href: "/admin/imoveis", icon: "home" },
+  { label: "Início", href: "/admin/dashboard", icon: "dashboard" },
   { label: "Leads", href: "/admin/leads", icon: "users" },
   { label: "Clientes", href: "/admin/clientes", icon: "user" },
   { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },
@@ -95,9 +94,15 @@ export function SidebarPromo() {
           <rect x="110" y="42" width="34" height="68" />
         </g>
         <g fill="#e9ad5a" opacity=".75">
-          <rect x="24" y="40" width="4" height="6" /><rect x="34" y="52" width="4" height="6" /><rect x="44" y="40" width="4" height="6" />
-          <rect x="72" y="20" width="4" height="6" /><rect x="84" y="34" width="4" height="6" /><rect x="72" y="58" width="4" height="6" /><rect x="92" y="20" width="4" height="6" />
-          <rect x="118" y="54" width="4" height="6" /><rect x="128" y="68" width="4" height="6" />
+          <rect x="24" y="40" width="4" height="6" />
+          <rect x="34" y="52" width="4" height="6" />
+          <rect x="44" y="40" width="4" height="6" />
+          <rect x="72" y="20" width="4" height="6" />
+          <rect x="84" y="34" width="4" height="6" />
+          <rect x="72" y="58" width="4" height="6" />
+          <rect x="92" y="20" width="4" height="6" />
+          <rect x="118" y="54" width="4" height="6" />
+          <rect x="128" y="68" width="4" height="6" />
         </g>
       </svg>
       <div className="absolute inset-0 bg-linear-to-b from-transparent via-page/85 to-page" />
@@ -107,7 +112,9 @@ export function SidebarPromo() {
           <br />
           para o seu imóvel
         </h4>
-        <p className="mb-3.5 mt-1.5 text-[11px] text-ink-2">Invista em tecnologia e alcance mais clientes.</p>
+        <p className="mb-3.5 mt-1.5 text-[11px] text-ink-2">
+          Invista em tecnologia e alcance mais clientes.
+        </p>
         <ButtonLink to="/admin/imoveis/novo" className="w-full">
           Cadastrar imóvel
         </ButtonLink>
