@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { registrarEvento } from "@/services/eventos";
 import imagemEngenhoPaulista from '../assets/eng-paulista.png'; 
 import imagemParqueCoqueiros from '../assets/parque-dos-coqueiros.png'; 
 import React, { useState } from "react";
@@ -46,7 +48,7 @@ const MOCK_PROPERTIES = [
 
 export default function HomePage() {
   usePageTitle("Início");
-
+  useEffect(() => { registrarEvento({ tipo: "visualizacao_site" }); }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProperties, setFilteredProperties] = useState(MOCK_PROPERTIES);
   const [searched, setSearched] = useState(false);
