@@ -1,19 +1,19 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import AcessoNegadoPage from "@/pages/AcessoNegadoPage";
 import PerfilPage from "@/pages/PerfilPage";
+import AreaLayout from "@/pages/AreaLayout";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import AdminLayout from "@/pages/admin/AdminLayout";
-import CorretorLayout from "@/pages/corretor/CorretorLayout";
 import CorretorHomePage from "@/pages/corretor/CorretorHomePage";
 import MapaGeralPage from "@/pages/corretor/MapaGeralPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import PainelAdmPage from "@/pages/admin/PainelAdmPage";
-import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 import LeadsPage from "@/pages/admin/LeadsPage";
+import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
 export default function App() {
   return (
@@ -26,9 +26,21 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      <Route path="/corretor" element={<CorretorLayout />}>
+      <Route path="/corretor" element={<AreaLayout cargo="corretor" />}>
         <Route index element={<CorretorHomePage />} />
         <Route path="mapa" element={<MapaGeralPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<ComingSoonPage />} />
+      </Route>
+
+      <Route path="/gerente" element={<AreaLayout cargo="gerente" />}>
+        <Route index element={<ComingSoonPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<ComingSoonPage />} />
+      </Route>
+
+      <Route path="/viabilizador" element={<AreaLayout cargo="viabilizador" />}>
+        <Route index element={<ComingSoonPage />} />
         <Route path="perfil" element={<PerfilPage />} />
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
@@ -38,7 +50,6 @@ export default function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="leads" element={<LeadsPage />} />
         <Route path="perfil" element={<PerfilPage />} />
-
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
 

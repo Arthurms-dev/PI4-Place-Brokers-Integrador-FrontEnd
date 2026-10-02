@@ -6,6 +6,11 @@ import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
 
+const ROLES = [
+  { value: "CORRETOR", label: "Corretor" },
+  { value: "VIABILIZADOR", label: "Viabilizador" },
+];
+
 const VINCULOS = [
   { value: "interno", label: "Corretor da Place Brokers" },
   { value: "externo", label: "Corretor parceiro (externo)" },
@@ -14,12 +19,15 @@ const VINCULOS = [
 export default function RegisterPage() {
   usePageTitle("Criar conta");
 
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", vinculo: "", creci: "" });
+  const [form, setForm] = useState({
+    name: "", email: "", role: "", vinculo: "", creci: "", password: "", confirmPassword: "",
+  });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
+  const ehCorretor = form.role === "CORRETOR";
   const handleChange = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleSubmit(e) {
@@ -28,15 +36,19 @@ export default function RegisterPage() {
     setFieldErrors({});
     setSubmitting(true);
     try {
-      await authService.register({ ...form, role: "CORRETOR" });
+      const payload = { ...form };
+      if (!ehCorretor) {
+        payload.vinculo = undefined;
+        payload.creci = undefined;
+      }
+      await authService.register(payload);
       setEnviado(true);
     } catch (err) {
       if (err instanceof AuthError) {
         const erros = { ...(err.fieldErrors ?? {}) };
         if (erros.nome) erros.name = erros.nome;
         setFieldErrors(erros);
-        if (erros.role) setFormError(erros.role);
-        else if (err.code !== "VALIDATION_ERROR") setFormError(err.message);
+        if (err.code !== "VALIDATION_ERROR") setFormError(err.message);
       } else {
         setFormError("Erro inesperado. Tente novamente.");
       }
@@ -51,7 +63,8 @@ export default function RegisterPage() {
         <h1 className="mb-1 text-xl font-medium">Cadastro enviado</h1>
         <p className="mb-6 text-sm text-ink-2">
           Recebemos seus dados. Um administrador vai analisar o cadastro
-          {form.vinculo === "externo" ? " e conferir o seu CRECI" : ""}. Você poderá entrar assim que ele for aprovado.
+          {ehCorretor && form.vinculo === "externo" ? " e conferir o seu CRECI" : ""}. Você poderá entrar assim que ele
+          for aprovado.
         </p>
         <Link to="/login" className="text-sm text-gold hover:underline">
           Voltar para o login
@@ -63,7 +76,7 @@ export default function RegisterPage() {
   return (
     <Card>
       <h1 className="mb-1 text-xl font-medium">Criar conta</h1>
-      <p className="mb-6 text-sm text-ink-2">Cadastro de corretores. Sua conta fica pendente até o administrador aprovar.</p>
+      <p className="mb-6 text-sm text-ink-2">Cadastro para corretores e viabilizadores. A conta fica pendente até o administrador aprovar.</p>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="Nome completo" error={fieldErrors.name}>
@@ -80,26 +93,40 @@ export default function RegisterPage() {
           />
         </FormField>
 
-        <FormField label="Você é" error={fieldErrors.vinculo}>
-          <select value={form.vinculo} onChange={handleChange("vinculo")} className={fieldInputClass(fieldErrors.vinculo)}>
+        <FormField label="Perfil" error={fieldErrors.role}>
+          <select value={form.role} onChange={handleChange("role")} className={fieldInputClass(fieldErrors.role)}>
             <option value="" disabled>
               Selecione...
             </option>
-            {VINCULOS.map((v) => (
-              <option key={v.value} value={v.value}>
-                {v.label}
+            {ROLES.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
               </option>
             ))}
           </select>
         </FormField>
 
-        {form.vinculo && (
-          <FormField
-            label={form.vinculo === "externo" ? "CRECI (obrigatório)" : "CRECI (opcional)"}
-            error={fieldErrors.creci}
-          >
-            <input value={form.creci} onChange={handleChange("creci")} className={fieldInputClass(fieldErrors.creci)} />
-          </FormField>
+        {ehCorretor && (
+          <>
+            <FormField label="Você é" error={fieldErrors.vinculo}>
+              <select value={form.vinculo} onChange={handleChange("vinculo")} className={fieldInputClass(fieldErrors.vinculo)}>
+                <option value="" disabled>
+                  Selecione...
+                </option>
+                {VINCULOS.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+
+            {form.vinculo && (
+              <FormField label={form.vinculo === "externo" ? "CRECI (obrigatório)" : "CRECI (opcional)"} error={fieldErrors.creci}>
+                <input value={form.creci} onChange={handleChange("creci")} className={fieldInputClass(fieldErrors.creci)} />
+              </FormField>
+            )}
+          </>
         )}
 
         <FormField label="Senha" error={fieldErrors.password}>
