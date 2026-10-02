@@ -4,9 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { ROLE_HOME } from "@/lib/areas";
 import { authService, AuthError } from "@/services/authService";
-
-const ROLE_HOME = { admin: "/admin/dashboard", corretor: "/corretor", viabilizador: "/viabilizador" };
 
 export default function LoginPage() {
   usePageTitle("Entrar");
@@ -42,7 +41,7 @@ export default function LoginPage() {
   return (
     <Card>
       <h1 className="mb-1 text-xl font-medium">Área restrita</h1>
-      <p className="mb-6 text-sm text-ink-2">Acesso para administradores e corretores.</p>
+      <p className="mb-6 text-sm text-ink-2">Acesso para a equipe e parceiros da Place Brokers.</p>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="E-mail" error={fieldErrors.email}>
@@ -72,7 +71,7 @@ export default function LoginPage() {
         )}
 
         <Button type="submit" disabled={submitting} className="mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60">
-          {submitting ? "Entrando…" : "Entrar"}
+          {submitting ? "Entrando..." : "Entrar"}
         </Button>
       </form>
 

@@ -1,23 +1,46 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
+import { ROLE_HOME } from "@/lib/areas";
 import { getCurrentUser } from "@/services/session";
 
-const ADMIN_NAV_ITEMS = [
-  { label: "Início", href: "/admin", icon: "home", end: true },
-  { label: "Usuários", href: "/admin/usuarios", icon: "users" },
+const MENU_SIMPLES = [
+  { label: "Visão Geral", href: "/admin", icon: "home", end: true },
+  { label: "Equipe", href: "/admin/equipe", icon: "team" },
+  { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
+];
+
+// Menu de todo o resto do admin
+const MENU_COMPLETO = [
+  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard", end: true },
+  { label: "Imóveis", href: "/admin/imoveis", icon: "home" },
+  { label: "Leads", href: "/admin/leads", icon: "users" },
+  { label: "Clientes", href: "/admin/clientes", icon: "user" },
+  { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },
+  { label: "Relatórios", href: "/admin/relatorios", icon: "chart" },
+  { label: "Equipe", href: "/admin/equipe", icon: "team" },
   { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
 ];
 
 export default function AdminLayout() {
-  const { data: user } = useAsyncData(getCurrentUser);
+  const { pathname } = useLocation();
+  const { data: user, loading } = useAsyncData(getCurrentUser);
 
-  if (!user) {
+  if (loading) {
     return <div className="grid min-h-screen place-items-center text-ink-2">Carregando…</div>;
   }
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.cargo !== "admin") return <Navigate to={ROLE_HOME[user.cargo] ?? "/acesso-negado"} replace />;
+
+  const naVisaoGeral = pathname === "/admin" || pathname === "/admin/";
 
   return (
-    <AdminShell user={user} items={ADMIN_NAV_ITEMS} home="/admin" promo={null}>
+    <AdminShell
+      user={user}
+      items={naVisaoGeral ? MENU_SIMPLES : MENU_COMPLETO}
+      home={naVisaoGeral ? "/admin" : "/admin/dashboard"}
+      promo={null}
+    >
       <Outlet context={{ user }} />
     </AdminShell>
   );
