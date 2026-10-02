@@ -71,7 +71,7 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin" }) {
               />
               <div className="absolute right-0 top-full z-30 mt-2 w-48 overflow-hidden rounded-lg border border-line bg-card shadow-lg">
                 <Link
-                  to={`${home}/perfil`}
+                  to={`/${home.split("/")[1]}/perfil`}
                   onClick={() => setPerfilAberto(false)}
                   className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink hover:bg-white/5"
                 >
