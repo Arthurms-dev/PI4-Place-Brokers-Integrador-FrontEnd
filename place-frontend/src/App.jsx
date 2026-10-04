@@ -15,10 +15,16 @@ import PainelAdmPage from "@/pages/admin/PainelAdmPage";
 import LeadsPage from "@/pages/admin/LeadsPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
+import ImovelDetalhes from "@/pages/ImovelDetalhes";
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      
+      {/* 2. Rota dinâmica adicionada para os detalhes do imóvel */}
+      <Route path="/imoveis/:id" element={<ImovelDetalhes />} />
+
       <Route path="/acesso-negado" element={<AcessoNegadoPage />} />
 
       <Route element={<AuthLayout />}>

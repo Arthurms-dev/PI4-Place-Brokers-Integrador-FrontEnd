@@ -1,0 +1,81 @@
+import imagemEngenhoPaulista from '../assets/eng-paulista.png'; 
+import imagemParqueCoqueiros from '../assets/parque-dos-coqueiros.png'; 
+import imagemCarneiros from '../assets/carneiros-park.png';
+import imagemPortoCarolina from '../assets/carolinas-porto.png';
+import imagemAracaPrime from '../assets/araca-prime.png';
+import imagemCandeiasLife from '../assets/candeias-life.png';
+
+export const MOCK_PROPERTIES = [
+  {
+    id: 1,
+    title: 'Engenho Paulista',
+    type: 'Lançamento',
+    city: 'Paulista, PE',
+    price: 'Sob Consulta',
+    bedrooms: 2,
+    bathrooms: 1,
+    area: '48 m²',
+    image: imagemEngenhoPaulista,
+    description: 'Excelente empreendimento com 2 quartos, sala para 2 ambientes, cozinha, área de serviço e banheiro social.',
+  },
+  {
+    id: 2,
+    title: 'Parque dos Coqueiros',
+    type: 'Destaque',
+    city: 'Paulista, PE',
+    price: 'Sob Consulta',
+    bedrooms: 2,
+    bathrooms: 1,
+    area: '50 m²',
+    image: imagemParqueCoqueiros,
+    description: 'Condomínio fechado composto por 4 torres com estrutura de lazer completa para toda a família e apartamentos de 2 quartos.',
+  },
+  {
+    id: 3,
+    title: 'Carneiros Park',
+    type: 'Flat',
+    city: 'Praia dos Carneiros, PE',
+    price: 'Sob Consulta',
+    bedrooms: 1,
+    bathrooms: 1,
+    area: '45 m²',
+    image: imagemCarneiros,
+    description: 'Flat moderno próximo ao mar, excelente para investimento ou moradia na Praia dos Carneiros.',
+  },
+  {
+    id: 4,
+    title: 'Porto Carolina',
+    type: 'Lançamento',
+    city: 'Porto de Galinhas, PE',
+    price: 'Sob Consulta',
+    bedrooms: 2,
+    bathrooms: 1,
+    area: '52 m²',
+    image: imagemPortoCarolina,
+    description: 'Empreendimento completo com área de lazer equipada e espaço Coworking para seu conforto.',
+  },
+  {
+    id: 5,
+    title: 'Araçá Prime',
+    type: 'Destaque',
+    city: 'Recife, PE',
+    price: 'Sob Consulta',
+    bedrooms: 2,
+    bathrooms: 1,
+    area: '36 m²',
+    image: imagemAracaPrime,
+    description: 'Pertinho da Lagoa do Araçá. Conta com sala de estar, sala de jantar e 2 quartos bem distribuídos.',
+  },
+  {
+    id: 6,
+    title: 'Candeias Life Club',
+    type: 'Lançamento',
+    city: 'Jaboatão dos Guararapes, PE',
+    price: 'Sob Consulta',
+    bedrooms: 2,
+    bathrooms: 1,
+    area: '54 m²',
+    image: imagemCandeiasLife,
+    description: 'Apartamentos com sala integrada, varanda e dois quartos. Localizado a 2ª esquerda após o girador da Abdo Cabus.',
+  },
+];
