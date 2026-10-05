@@ -14,6 +14,7 @@ import DashboardPage from "@/pages/admin/DashboardPage";
 import PainelAdmPage from "@/pages/admin/PainelAdmPage";
 import LeadsPage from "@/pages/admin/LeadsPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
+import AgendamentosPage from "@/pages/admin/AgendamentosPage";
 
 import ImovelDetalhes from "@/pages/ImovelDetalhes";
 
@@ -22,7 +23,6 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       
-      {/* 2. Rota dinâmica adicionada para os detalhes do imóvel */}
       <Route path="/imoveis/:id" element={<ImovelDetalhes />} />
 
       <Route path="/acesso-negado" element={<AcessoNegadoPage />} />
@@ -56,6 +56,7 @@ export default function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="leads" element={<LeadsPage />} />
         <Route path="perfil" element={<PerfilPage />} />
+        <Route path="agendamentos" element={<AgendamentosPage />} />
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
 
