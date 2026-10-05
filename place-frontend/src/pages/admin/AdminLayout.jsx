@@ -10,7 +10,6 @@ const MENU_SIMPLES = [
   { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
 ];
 
-// Menu de todo o resto do admin
 const MENU_COMPLETO = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard", end: true },
   { label: "Imóveis", href: "/admin/imoveis", icon: "home" },
