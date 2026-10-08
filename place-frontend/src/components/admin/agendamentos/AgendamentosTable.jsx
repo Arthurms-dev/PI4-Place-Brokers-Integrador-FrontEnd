@@ -5,7 +5,7 @@ function formatarDataHora(iso) {
   return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 }
 
-export default function AgendamentosTable({ agendamentos, onSelecionar }) {
+export default function AgendamentosTable({ agendamentos = [], onSelecionar }) {
   if (!agendamentos.length) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icon from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 import AgendamentoStatusBadge from "./AgendamentoStatusBadge";
 import AgendamentoTipoBadge from "./AgendamentoTipoBadge";
 

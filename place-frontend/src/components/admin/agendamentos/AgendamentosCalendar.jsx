@@ -13,7 +13,7 @@ function mesmoDia(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-export default function AgendamentosCalendar({ agendamentos, semanaBase, onMudarSemana, onSelecionar }) {
+export default function AgendamentosCalendar({ agendamentos = [], semanaBase, onMudarSemana,onSelecionar }) {
   const inicio = inicioDaSemana(semanaBase);
   const dias = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(inicio);

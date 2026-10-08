@@ -5,7 +5,7 @@ import {
   atualizarStatusAgendamento,
   getClientes,
   getEmpreendimentos,
-} from "../../services/admin/agendamento";
+} from "../../services/admin/agendamentos";
 import { getCorretores } from "@/services/admin/leads";
 import AgendamentosSummary from "../../components/admin/agendamentos/AgendamentosSummary";
 import AgendamentosToolbar from "../../components/admin/agendamentos/AgendamentosToolbar";
@@ -33,25 +33,28 @@ export default function AgendamentosPage() {
   }, []);
 
   async function carregarTudo() {
-    setCarregando(true);
-    setErro("");
-    try {
-      const [listaAgendamentos, listaCorretores, listaClientes, listaEmpreendimentos] = await Promise.all([
-        getAgendamentos(),
-        getCorretores(),
-        getClientes().catch(() => []),
-        getEmpreendimentos().catch(() => []),
-      ]);
-      setAgendamentos(listaAgendamentos);
-      setCorretores(listaCorretores);
-      setClientes(listaClientes);
-      setEmpreendimentos(listaEmpreendimentos);
-    } catch (err) {
-      setErro(err.message ?? "Não foi possível carregar os agendamentos.");
-    } finally {
-      setCarregando(false);
+  setCarregando(true);
+  setErro("");
+  try {
+    const [resAgendamentos, resCorretores, resClientes, resEmpreendimentos] = await Promise.allSettled([
+      getAgendamentos(),
+      getCorretores(),
+      getClientes(),
+      getEmpreendimentos(),
+    ]);
+
+    setAgendamentos(resAgendamentos.status === "fulfilled" ? resAgendamentos.value : []);
+    setCorretores(resCorretores.status === "fulfilled" ? resCorretores.value : []);
+    setClientes(resClientes.status === "fulfilled" ? resClientes.value : []);
+    setEmpreendimentos(resEmpreendimentos.status === "fulfilled" ? resEmpreendimentos.value : []);
+
+    if (resAgendamentos.status === "rejected") {
+      setErro(resAgendamentos.reason?.message ?? "Não foi possível carregar os agendamentos.");
     }
+  } finally {
+    setCarregando(false);
   }
+}
 
   const agendamentosFiltrados = agendamentos.filter((a) => {
     if (filtros.status && a.status !== filtros.status) return false;

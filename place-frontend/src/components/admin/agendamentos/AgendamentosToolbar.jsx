@@ -1,4 +1,4 @@
-import Icon from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 
 const STATUS_OPCOES = [
   { value: "", label: "Todos os status" },

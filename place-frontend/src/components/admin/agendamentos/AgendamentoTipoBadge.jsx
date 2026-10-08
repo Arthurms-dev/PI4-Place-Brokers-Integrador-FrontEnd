@@ -1,4 +1,4 @@
-import Icon from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 
 export default function AgendamentoTipoBadge({ tipo }) {
   const ehVisita = tipo === "visita_imovel";
