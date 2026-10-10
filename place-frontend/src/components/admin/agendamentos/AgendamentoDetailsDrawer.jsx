@@ -1,145 +1,162 @@
 import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import AgendamentoDrawer from "./AgendamentoDrawer";
 import AgendamentoStatusBadge from "./AgendamentoStatusBadge";
 import AgendamentoTipoBadge from "./AgendamentoTipoBadge";
 
-export default function AgendamentoDetailsDrawer({ agendamento, onFechar, onAtualizarStatus }) {
-  const [motivoCancelamento, setMotivoCancelamento] = useState("");
-  const [mostrarCancelamento, setMostrarCancelamento] = useState(false);
+const ENCERRADOS = ["realizado", "cancelado", "nao_compareceu"];
+const paraInput = (d) => {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+const zap = (tel, nome) => `https://wa.me/55${(tel ?? "").replace(/\D/g, "")}?text=${encodeURIComponent(`Olá, ${nome}! Aqui é da Place Brokers.`)}`;
+const BOTAO = "h-12 w-full rounded-xl border text-sm font-medium transition-colors disabled:opacity-50";
+
+function Linha({ rotulo, children }) {
+  return (
+    <div className="flex justify-between gap-4 px-4 py-3">
+      <dt className="text-ink-3">{rotulo}</dt>
+      <dd className="text-right font-medium">{children}</dd>
+    </div>
+  );
+}
+
+export default function AgendamentoDetailsDrawer({ agendamento, onFechar, onAtualizarStatus, onRemarcar }) {
+  const [motivo, setMotivo] = useState("");
+  const [cancelando, setCancelando] = useState(false);
+  const [remarcando, setRemarcando] = useState(false);
+  const [novaData, setNovaData] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
 
   if (!agendamento) return null;
 
-  async function mudarStatus(status, extra = {}) {
+  const encerrado = ENCERRADOS.includes(agendamento.status);
+  const passou = new Date(agendamento.dataHora) <= new Date();
+
+  async function executar(acao) {
     setErro("");
     setEnviando(true);
     try {
-      await onAtualizarStatus(agendamento.id, status, extra);
-      setMostrarCancelamento(false);
-      setMotivoCancelamento("");
+      await acao();
     } catch (err) {
-      setErro(err.message ?? "Não foi possível atualizar o status.");
+      setErro(err.message ?? "Não foi possível concluir a ação.");
     } finally {
       setEnviando(false);
     }
   }
+  const mudarStatus = (status, extra = {}) =>
+    executar(async () => {
+      await onAtualizarStatus(agendamento.id, status, extra);
+      setCancelando(false);
+      setMotivo("");
+    });
+  const remarcar = () =>
+    executar(async () => {
+      await onRemarcar(agendamento.id, new Date(novaData).toISOString());
+      setRemarcando(false);
+    });
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/30">
-      <div className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Agendamento</h2>
-          <button type="button" onClick={onFechar} className="rounded-md p-1 hover:bg-slate-100">
-            <Icon name="x" className="h-5 w-5" />
-          </button>
-        </div>
+    <AgendamentoDrawer titulo="Agendamento" onFechar={onFechar}>
+      <div className="space-y-4 text-sm">
+        {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-danger">{erro}</p>}
 
-        {erro && <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</div>}
-
-        <div className="space-y-3 text-sm">
+        <div className="space-y-2">
           <AgendamentoTipoBadge tipo={agendamento.tipo} />
-          <p className="text-lg font-medium text-slate-900">
+          <p className="text-xl font-semibold capitalize">
             {new Date(agendamento.dataHora).toLocaleString("pt-BR", { dateStyle: "full", timeStyle: "short" })}
           </p>
-          <div><AgendamentoStatusBadge status={agendamento.status} /></div>
-
-          <dl className="divide-y divide-slate-100 rounded-lg border border-slate-200">
-            <div className="flex justify-between px-3 py-2">
-              <dt className="text-slate-500">Cliente</dt>
-              <dd className="font-medium text-slate-800">{agendamento.cliente?.nome ?? "—"}</dd>
-            </div>
-            <div className="flex justify-between px-3 py-2">
-              <dt className="text-slate-500">Corretor</dt>
-              <dd className="font-medium text-slate-800">{agendamento.corretor?.nome ?? "—"}</dd>
-            </div>
-            {agendamento.tipo === "visita_imovel" ? (
-              <div className="flex justify-between px-3 py-2">
-                <dt className="text-slate-500">Imóvel</dt>
-                <dd className="font-medium text-slate-800">{agendamento.empreendimento?.nome ?? "—"}</dd>
-              </div>
-            ) : (
-              <div className="flex justify-between px-3 py-2">
-                <dt className="text-slate-500">Local</dt>
-                <dd className="font-medium text-slate-800">{agendamento.local ?? "—"}</dd>
-              </div>
-            )}
-            {agendamento.observacoes && (
-              <div className="px-3 py-2">
-                <dt className="text-slate-500">Observações</dt>
-                <dd className="mt-1 text-slate-700">{agendamento.observacoes}</dd>
-              </div>
-            )}
-            {agendamento.motivoCancelamento && (
-              <div className="px-3 py-2">
-                <dt className="text-slate-500">Motivo do cancelamento</dt>
-                <dd className="mt-1 text-slate-700">{agendamento.motivoCancelamento}</dd>
-              </div>
-            )}
-          </dl>
+          <AgendamentoStatusBadge status={agendamento.status} />
         </div>
 
-        {!["cancelado", "realizado", "nao_compareceu"].includes(agendamento.status) && (
-          <div className="mt-6 space-y-2">
-            {agendamento.status === "agendado" && (
-              <button
-                type="button"
-                disabled={enviando}
-                onClick={() => mudarStatus("confirmado")}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-              >
-                Confirmar presença
-              </button>
-            )}
+        <dl className="divide-y divide-line-soft rounded-2xl border border-line bg-card-2">
+          <Linha rotulo="Cliente">{agendamento.cliente?.nome ?? "—"}</Linha>
+          <Linha rotulo="Corretor">{agendamento.corretor?.nome ?? "—"}</Linha>
+          {agendamento.tipo === "visita_imovel" ? (
+            <Linha rotulo="Imóvel">{agendamento.empreendimento?.nome ?? "—"}</Linha>
+          ) : (
+            <Linha rotulo="Local">{agendamento.local ?? "—"}</Linha>
+          )}
+          {agendamento.observacoes && (
+            <div className="px-4 py-3">
+              <dt className="text-ink-3">Observações</dt>
+              <dd className="mt-1 text-ink-2">{agendamento.observacoes}</dd>
+            </div>
+          )}
+          {agendamento.motivoCancelamento && (
+            <div className="px-4 py-3">
+              <dt className="text-ink-3">Motivo do cancelamento</dt>
+              <dd className="mt-1 text-ink-2">{agendamento.motivoCancelamento}</dd>
+            </div>
+          )}
+        </dl>
 
-            <button
-              type="button"
-              disabled={enviando}
-              onClick={() => mudarStatus("realizado")}
-              className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
-              Marcar como realizado
-            </button>
+        <div className="space-y-2">
+          {agendamento.cliente?.telefone && (
+            <a href={zap(agendamento.cliente.telefone, agendamento.cliente.nome)} target="_blank" rel="noreferrer"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-semibold text-[#06210f] transition hover:brightness-105">
+              <Icon name="messageCircle" className="size-5" /> Chamar no WhatsApp
+            </a>
+          )}
 
-            <button
-              type="button"
-              disabled={enviando}
-              onClick={() => mudarStatus("nao_compareceu")}
-              className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
-              Cliente não compareceu
-            </button>
-
-            {!mostrarCancelamento ? (
-              <button
-                type="button"
-                onClick={() => setMostrarCancelamento(true)}
-                className="w-full rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600"
-              >
-                Cancelar agendamento
-              </button>
-            ) : (
-              <div className="space-y-2 rounded-lg border border-red-200 p-3">
-                <label className="block text-sm font-medium text-slate-700">Motivo do cancelamento</label>
-                <textarea
-                  value={motivoCancelamento}
-                  onChange={(e) => setMotivoCancelamento(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                />
-                <button
-                  type="button"
-                  disabled={enviando || !motivoCancelamento.trim()}
-                  onClick={() => mudarStatus("cancelado", { motivoCancelamento })}
-                  className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-                >
-                  Confirmar cancelamento
+          {!encerrado && (
+            <>
+              {agendamento.status === "agendado" && (
+                <button type="button" disabled={enviando} onClick={() => mudarStatus("confirmado")} className={`${BOTAO} border-sky-400/40 text-sky-300 hover:bg-sky-500/10`}>
+                  Confirmar presença
                 </button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+              {passou && (
+                <>
+                  <button type="button" disabled={enviando} onClick={() => mudarStatus("realizado")} className={`${BOTAO} border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10`}>
+                    Marcar como realizado
+                  </button>
+                  <button type="button" disabled={enviando} onClick={() => mudarStatus("nao_compareceu")} className={`${BOTAO} border-amber-400/40 text-amber-300 hover:bg-amber-500/10`}>
+                    Cliente não compareceu
+                  </button>
+                </>
+              )}
+
+              {onRemarcar && !remarcando && (
+                <button type="button" onClick={() => { setNovaData(paraInput(new Date(agendamento.dataHora))); setRemarcando(true); }} className={`${BOTAO} border-line text-ink-2 hover:border-gold hover:text-ink`}>
+                  Remarcar
+                </button>
+              )}
+              {remarcando && (
+                <div className="animate-fade-in space-y-2 rounded-2xl border border-line p-3">
+                  <input type="datetime-local" value={novaData} onChange={(e) => setNovaData(e.target.value)} aria-label="Nova data e hora"
+                    className="h-12 w-full rounded-xl border border-line bg-card-2 px-3.5 text-sm outline-none focus:border-gold scheme-dark" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setRemarcando(false)} className={`${BOTAO} border-line text-ink-2`}>Voltar</button>
+                    <button type="button" disabled={enviando || !novaData} onClick={remarcar} className="h-12 rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] disabled:opacity-50">
+                      {enviando ? "Salvando..." : "Salvar"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!cancelando ? (
+                <button type="button" onClick={() => setCancelando(true)} className={`${BOTAO} border-danger/40 text-danger hover:bg-danger/10`}>
+                  Cancelar agendamento
+                </button>
+              ) : (
+                <div className="animate-fade-in space-y-2 rounded-2xl border border-danger/30 p-3">
+                  <label className="block text-xs text-ink-2">
+                    Motivo do cancelamento
+                    <textarea value={motivo} onChange={(e) => setMotivo(e.target.value)} rows={2}
+                      className="mt-1.5 w-full rounded-xl border border-line bg-card-2 px-3.5 py-3 text-sm outline-none focus:border-gold scheme-dark" />
+                  </label>
+                  <button type="button" disabled={enviando || !motivo.trim()} onClick={() => mudarStatus("cancelado", { motivoCancelamento: motivo.trim() })}
+                    className="h-12 w-full rounded-xl bg-danger text-sm font-semibold text-white disabled:opacity-50">
+                    Confirmar cancelamento
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </AgendamentoDrawer>
   );
 }

@@ -1,9 +1,9 @@
 const ESTILOS = {
-  agendado: "bg-slate-100 text-slate-700 ring-slate-200",
-  confirmado: "bg-blue-50 text-blue-700 ring-blue-200",
-  realizado: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  cancelado: "bg-red-50 text-red-700 ring-red-200",
-  nao_compareceu: "bg-amber-50 text-amber-800 ring-amber-200",
+  agendado: "bg-white/10 text-ink-2 ring-white/10",
+  confirmado: "bg-sky-500/15 text-sky-300 ring-sky-400/25",
+  realizado: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
+  cancelado: "bg-danger/15 text-danger ring-danger/25",
+  nao_compareceu: "bg-amber-500/15 text-amber-300 ring-amber-400/25",
 };
 
 const LABELS = {
@@ -19,7 +19,7 @@ export default function AgendamentoStatusBadge({ status }) {
   const label = LABELS[status] ?? status;
 
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${estilo}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ring-inset ${estilo}`}>
       {label}
     </span>
   );

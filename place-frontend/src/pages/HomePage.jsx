@@ -1,191 +1,327 @@
-import { useEffect, useState } from "react";
-import { registrarEvento } from "@/services/eventos";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Icon } from "@/components/ui/Icon";
+import { Logo } from "@/components/ui/Logo";
+import { ContatoProvider, useContato } from "@/components/site/ContatoProvider";
+import { EmpreendimentoModal } from "@/components/site/EmpreendimentoModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
-// Logo da Empresa
-import logoImg from "../assets/logo.png";
+import { registrarEvento } from "@/services/eventos";
 import { MOCK_PROPERTIES } from "../data/imoveis";
 
-export default function HomePage() {
-  usePageTitle("Início");
-  useEffect(() => { registrarEvento({ tipo: "visualizacao_site" }); }, []);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredProperties, setFilteredProperties] = useState(MOCK_PROPERTIES);
-  const [searched, setSearched] = useState(false);
+const INSTAGRAM_URL = "https://www.instagram.com/placebrokers.imobiliaria/";
+const EMAIL = "suporte@placebrokers.com.br";
+const WHATSAPP_URL = "https://wa.me/5581996298692";
+const WHATSAPP_LABEL = "(81) 99629-8692";
+const POR_PAGINA = 6;
 
-  const handleSearch = (e) => {
-    e?.preventDefault();
-    setSearched(true);
+const norm = (s = "") => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const cidadeDe = (p) => p.city.split(",")[0].trim(); // "Paulista, PE" -> "Paulista"
+const uniq = (lista) => [...new Set(lista)].sort((a, b) => a.localeCompare(b));
+const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const precoDe = (p) => (p.parcelaAPartir ? `${brl(p.parcelaAPartir)}/mês` : p.price);
+const irPara = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    if (!searchTerm.trim()) {
-      setFilteredProperties(MOCK_PROPERTIES);
-      return;
-    }
-
-    const results = MOCK_PROPERTIES.filter(
-      (property) =>
-        property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    setFilteredProperties(results);
-  };
-
+function InstagramIcon({ className }) {
   return (
-    <div className="min-h-screen bg-[#0b132b] text-white flex flex-col justify-between font-sans">
-      <header className="px-6 pt-10 pb-6 max-w-5xl mx-auto text-center w-full">
-        <img 
-          src={logoImg} 
-          alt="Place Brokers" 
-          className="h-16 w-auto mx-auto mb-4 object-contain" 
-        />
-        <p className="mt-2 text-slate-300">
-          Encontre os melhores imóveis e conecte-se aos melhores corretores.
-        </p>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
 
-        <div className="mt-4">
-          <Link to="/login" className="text-gold hover:underline text-sm font-medium">
-            Acesso restrito (administrador ou corretor)
+function Selecao({ valor, onChange, rotulo, children }) {
+  return (
+    <select
+      value={valor}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={rotulo}
+      className={`h-12 w-full rounded-xl border bg-card-2 px-3 text-sm text-ink outline-none transition-colors focus:border-gold scheme-dark ${
+        valor ? "border-gold/60" : "border-line"
+      }`}
+    >
+      <option value="">{rotulo}</option>
+      {children}
+    </select>
+  );
+}
+
+function Fotos({ p }) {
+  const imagens = p.galeria?.length ? p.galeria : [p.image];
+  const [atual, setAtual] = useState(0);
+  return (
+    <div className="absolute inset-0 overflow-hidden bg-card-2">
+      <div
+        onScroll={(e) => setAtual(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+        className="flex size-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {imagens.map((src, i) => (
+          <img key={src + i} src={src} alt={`${p.title} — foto ${i + 1}`} loading="lazy" decoding="async" className="size-full shrink-0 snap-center object-cover" />
+        ))}
+      </div>
+      <span className="absolute left-3 top-3 rounded-full bg-page/80 px-3 py-1 text-[11px] font-medium text-gold backdrop-blur">{p.type}</span>
+      {imagens.length > 1 && (
+        <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+          {imagens.map((_, i) => (
+            <span key={i} className={`size-1.5 rounded-full transition-colors ${i === atual ? "bg-white" : "bg-white/40"}`} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Specs({ p }) {
+  const itens = [
+    `${p.bedrooms} ${p.bedrooms === 1 ? "quarto" : "quartos"}`,
+    p.bathrooms != null && `${p.bathrooms} ${p.bathrooms === 1 ? "banheiro" : "banheiros"}`,
+    p.vagas != null && `${p.vagas} ${p.vagas === 1 ? "vaga" : "vagas"}`,
+    p.area,
+  ].filter(Boolean);
+  return (
+    <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink-2">
+      {itens.map((t) => <li key={t}>{t}</li>)}
+    </ul>
+  );
+}
+
+function ItemLista({ p, i, onFalar }) {
+  const para = `/imoveis/${p.id}`;
+  return (
+    <article
+      style={{ animationDelay: `${Math.min(i, 5) * 60}ms` }}
+      className="animate-fade-up overflow-hidden rounded-2xl border border-line bg-card transition-colors hover:border-gold/50 sm:flex"
+    >
+      <Link to={para} aria-label={`Ver ${p.title}`} className="relative block aspect-16/10 sm:aspect-auto sm:min-h-56 sm:w-72 sm:shrink-0 lg:w-80">
+        <Fotos p={p} />
+      </Link>
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        {p.parcelaAPartir && <span className="text-[11px] text-ink-3">Parcelas a partir de</span>}
+        <div className="text-xl font-semibold text-gold">{precoDe(p)}</div>
+        <Link to={para} className="mt-1 text-base font-semibold transition-colors hover:text-gold">{p.title}</Link>
+        <p className="mt-0.5 flex items-center gap-1.5 text-[13px] text-ink-3">
+          <Icon name="mapPin" className="size-3.5" /> {p.city}
+        </p>
+        <Specs p={p} />
+        <p className="mt-2 hidden text-[13px] text-ink-3 sm:line-clamp-2">{p.description}</p>
+        <div className="mt-auto flex gap-2 pt-4">
+          <button type="button" onClick={() => onFalar(p)} className="h-11 flex-1 rounded-xl bg-gold-gradient px-5 text-sm font-semibold text-[#1a1408] transition hover:brightness-110 sm:flex-none">
+            Falar com especialista
+          </button>
+          <Link to={para} className="inline-flex h-11 items-center justify-center rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">
+            Ver detalhes
           </Link>
         </div>
+      </div>
+    </article>
+  );
+}
 
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto mt-8">
-          <input
-            type="text"
-            id="propertySearch"
-            placeholder="Digite a cidade, bairro ou tipo de imóvel..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors cursor-pointer"
-          >
-            Buscar imóvel
-          </button>
-        </form>
+function CardDestaque({ p, i }) {
+  return (
+    <Link
+      to={`/imoveis/${p.id}`}
+      style={{ animationDelay: `${i * 70}ms` }}
+      className="animate-fade-up group block overflow-hidden rounded-2xl border border-line bg-card transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-xl hover:shadow-black/30"
+    >
+      <div className="relative aspect-16/10 overflow-hidden bg-card-2">
+        <img src={p.image} alt={p.title} loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" />
+        <span className="absolute left-3 top-3 rounded-full bg-page/80 px-3 py-1 text-[11px] font-medium text-gold backdrop-blur">{p.type}</span>
+        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 to-transparent px-4 pb-3 pt-12">
+          <div className="text-lg font-semibold text-gold">{precoDe(p)}</div>
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className="truncate text-[15px] font-semibold">{p.title}</h3>
+        <p className="mt-0.5 flex items-center gap-1.5 text-[13px] text-ink-3"><Icon name="mapPin" className="size-3.5" /> {p.city}</p>
+      </div>
+    </Link>
+  );
+}
+
+function Home() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { abrirContato } = useContato();
+  const falar = useCallback((p) => abrirContato(p ? { id: p.id, title: p.title } : null), [abrirContato]);
+
+  const aberto = id ? MOCK_PROPERTIES.find((p) => String(p.id) === id) ?? null : null;
+  usePageTitle(aberto ? aberto.title : "Início");
+
+  useEffect(() => {
+    registrarEvento({ tipo: "visualizacao_site" });
+  }, []);
+  useEffect(() => {
+    if (id && !aberto) navigate("/", { replace: true });
+  }, [id, aberto, navigate]);
+  const fechar = useCallback(() => navigate("/"), [navigate]);
+
+  const [f, setF] = useState({ busca: "", cidade: "", tipo: "", quartos: "" });
+  const [limite, setLimite] = useState(POR_PAGINA);
+  const atualizar = (campo, valor) => {
+    setF((s) => ({ ...s, [campo]: valor }));
+    setLimite(POR_PAGINA);
+  };
+  const limpar = () => setF({ busca: "", cidade: "", tipo: "", quartos: "" });
+
+  const cidades = useMemo(() => uniq(MOCK_PROPERTIES.map(cidadeDe)), []);
+  const tipos = useMemo(() => uniq(MOCK_PROPERTIES.map((p) => p.type)), []);
+  const destaques = useMemo(() => {
+    const melhores = MOCK_PROPERTIES.filter((p) => ["Destaque", "Lançamento"].includes(p.type)).slice(0, 3);
+    return melhores.length ? melhores : MOCK_PROPERTIES.slice(0, 3);
+  }, []);
+
+  const resultados = useMemo(() => {
+    const q = norm(f.busca.trim());
+    return MOCK_PROPERTIES.filter(
+      (p) =>
+        (!f.cidade || cidadeDe(p) === f.cidade) &&
+        (!f.tipo || p.type === f.tipo) &&
+        (!f.quartos || p.bedrooms >= Number(f.quartos)) &&
+        (!q || norm(`${p.title} ${p.city} ${p.type}`).includes(q)),
+    );
+  }, [f]);
+
+  const filtrando = Boolean(f.busca || f.cidade || f.tipo || f.quartos);
+  const lista = filtrando ? resultados : resultados.filter((p) => !destaques.includes(p));
+  const chips = [
+    f.busca && ["busca", `“${f.busca}”`],
+    f.cidade && ["cidade", f.cidade],
+    f.tipo && ["tipo", f.tipo],
+    f.quartos && ["quartos", `${f.quartos}+ quartos`],
+  ].filter(Boolean);
+
+  return (
+    <div className="min-h-screen bg-page text-ink">
+      <header className="sticky top-0 z-30 border-b border-line-soft bg-page/90 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
+          <Link to="/" aria-label="Place Brokers - início"><Logo className="h-8 sm:h-9" /></Link>
+          <div className="flex items-center gap-4">
+            <Link to="/login" className="hidden text-[13px] text-ink-2 transition-colors hover:text-ink sm:inline">Área restrita</Link>
+            <button type="button" onClick={() => falar(null)} className="h-10 rounded-full bg-gold-gradient px-5 text-[13px] font-semibold text-[#1a1408] transition hover:brightness-110">
+              Fale com especialista
+            </button>
+          </div>
+        </div>
       </header>
 
-      <main className="flex-1 px-6 max-w-6xl mx-auto w-full my-8">
-        <h2 className="text-xl font-semibold mb-6 border-b border-slate-800 pb-2 text-slate-200">
-          {searched ? "Resultados da Busca" : "Imóveis em Destaque"}
-        </h2>
+      <section className="relative isolate overflow-hidden border-b border-line-soft">
+        {destaques[0] && <img src={destaques[0].image} alt="" fetchPriority="high" className="absolute inset-0 -z-10 size-full object-cover" />}
+        <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/70 via-black/55 to-page" />
+        <div className="mx-auto max-w-6xl px-4 pb-8 pt-10 sm:px-6 sm:pb-12 sm:pt-16">
+          <h1 className="animate-fade-up max-w-2xl text-3xl font-semibold tracking-tight sm:text-5xl">Lançamentos em Pernambuco</h1>
+          <p className="animate-fade-up mt-2 max-w-xl text-sm text-ink-2 sm:text-base" style={{ animationDelay: "70ms" }}>
+            Escolha o seu e fale com um especialista para conhecer valores e condições.
+          </p>
 
-        {filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((item) => (
-              <div
-                key={item.id}
-                className="bg-slate-800/60 rounded-xl overflow-hidden border border-slate-700/50 hover:border-slate-500 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <img src={item.image} alt={item.title} className="w-full h-48 object-cover" />
-                  <div className="p-5">
-                    <span className="text-xs font-semibold px-2 py-1 bg-blue-900/60 text-blue-300 rounded-md">
-                      {item.type}
-                    </span>
-                    <h3 className="text-lg font-bold mt-2 mb-1 text-white">{item.title}</h3>
-                    <p className="text-sm text-slate-400 mb-3">{item.city}</p>
-                    
-                    <div className="border-t border-slate-700/50 pt-3 mt-2 flex justify-between items-center">
-                      <span className="text-sm text-slate-300">{item.bedrooms} quartos • {item.area}</span>
-                      <span className="text-lg font-bold text-green-400">{item.price}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5 pt-0">
-                  <Link
-                    to={`/imoveis/${item.id}`}
-                    className="block w-full text-center py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors"
-                  >
-                    Ver Detalhes
-                  </Link>
-                </div>
+          <form
+            onSubmit={(e) => { e.preventDefault(); irPara("lista"); }}
+            className="animate-fade-up mt-6 rounded-2xl border border-line bg-card/95 p-3 shadow-2xl shadow-black/40 backdrop-blur sm:p-4"
+            style={{ animationDelay: "140ms" }}
+          >
+            <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_1fr_1fr_auto]">
+              <input
+                value={f.busca}
+                onChange={(e) => atualizar("busca", e.target.value)}
+                placeholder="Nome do empreendimento ou região"
+                aria-label="Buscar"
+                className="h-12 w-full rounded-xl border border-line bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-gold"
+              />
+              <div className="grid grid-cols-3 gap-2 md:contents">
+                <Selecao valor={f.cidade} onChange={(v) => atualizar("cidade", v)} rotulo="Cidade">
+                  {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
+                </Selecao>
+                <Selecao valor={f.tipo} onChange={(v) => atualizar("tipo", v)} rotulo="Tipo">
+                  {tipos.map((t) => <option key={t} value={t}>{t}</option>)}
+                </Selecao>
+                <Selecao valor={f.quartos} onChange={(v) => atualizar("quartos", v)} rotulo="Quartos">
+                  <option value="1">1 ou mais</option>
+                  <option value="2">2 ou mais</option>
+                  <option value="3">3 ou mais</option>
+                </Selecao>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-slate-400">
-            <p>Nenhum imóvel encontrado. Tente pesquisar por outro termo.</p>
-          </div>
+              <button type="submit" className="h-12 rounded-xl bg-gold-gradient px-8 text-sm font-semibold text-[#1a1408] transition hover:brightness-110">Buscar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-6xl px-4 sm:px-6">
+        {!filtrando && (
+          <section className="pt-8" aria-label="Destaques">
+            <h2 className="mb-3 text-lg font-semibold">Em destaque</h2>
+            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+              {destaques.map((p, i) => (
+                <div key={p.id} className="w-[82%] shrink-0 snap-start sm:w-[calc((100%-2rem)/3)]"><CardDestaque p={p} i={i} /></div>
+              ))}
+            </div>
+          </section>
         )}
 
-        <section className="mt-16 bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <section id="lista" className="scroll-mt-20 pb-14 pt-8">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1 uppercase tracking-wide border-b border-blue-500/30 pb-2 inline-block">
-                Atendimento
-              </h2>
-
-              <div className="mt-4 space-y-4 text-slate-300">
-                <div>
-                  <h3 className="text-sm font-semibold text-white">Fale conosco</h3>
-                  <p className="text-xs text-slate-400">Envie sua dúvida, sugestão ou solicitação:</p>
-                  <a href="mailto:suporte@placebrokers.com.br" className="text-sm text-blue-400 hover:underline">
-                    suporte@placebrokers.com.br
-                  </a>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-white">Teleatendimento / WhatsApp</h3>
-                  <p className="text-sm text-slate-300">(81) 98888-8888</p>
-                  <span className="text-xs text-slate-400">(08h às 18h)</span>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-white">Horário de Funcionamento</h3>
-                  <p className="text-xs text-slate-400">Segunda a Sexta-feira: 08h às 18h</p>
-                </div>
-              </div>
+              <h2 className="text-lg font-semibold">{filtrando ? "Resultados da busca" : "Mais empreendimentos"}</h2>
+              <p className="text-[13px] text-ink-3">{resultados.length} {resultados.length === 1 ? "empreendimento" : "empreendimentos"}</p>
             </div>
-
-            <div className="flex flex-col items-center md:items-end justify-center border-t md:border-t-0 md:border-l border-slate-700/50 pt-6 md:pt-0 md:pl-8">
-              <p className="text-sm font-medium text-slate-300 mb-4">Siga nossas redes sociais:</p>
-              
-              <div className="flex gap-4">
-                <a 
-                  href="https://instagram.com" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  aria-label="Instagram"
-                  className="w-12 h-12 rounded-full border border-slate-600 bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 hover:text-white transition-all hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                  </svg>
-                </a>
-                <a 
-                  href="https://tiktok.com" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  aria-label="TikTok"
-                  className="w-12 h-12 rounded-full border border-slate-600 bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 hover:text-white transition-all hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.56-1.32 1.56-1.28 2.56.02.93.53 1.82 1.32 2.3 1.03.65 2.4.63 3.39-.06.81-.55 1.28-1.52 1.27-2.52.01-4.78 0-9.56.01-14.34z"/>
-                  </svg>
-                </a>
-
-                <a 
-                  href="mailto:suporte@placebrokers.com.br" 
-                  aria-label="E-mail de Suporte"
-                  className="w-12 h-12 rounded-full border border-slate-600 bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 hover:text-white transition-all hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </a>
-              </div>
-            </div>
+            {filtrando && <button type="button" onClick={limpar} className="text-[13px] text-gold hover:underline">Limpar filtros</button>}
           </div>
+
+          {chips.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {chips.map(([campo, texto]) => (
+                <button key={campo} type="button" onClick={() => atualizar(campo, "")} aria-label={`Remover filtro ${texto}`}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 pl-3.5 pr-2.5 text-[13px] text-gold">
+                  {texto} <Icon name="x" className="size-4" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {resultados.length === 0 ? (
+            <div className="rounded-2xl border border-line bg-card p-8 text-center text-sm text-ink-2">
+              Nenhum empreendimento com esses filtros.
+              <button type="button" onClick={limpar} className="ml-1 text-gold hover:underline">Ver todos</button>
+              <div className="mt-4">
+                <button type="button" onClick={() => falar(null)} className="h-11 rounded-xl border border-line px-5 text-sm hover:border-gold">Falar com um especialista</button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {lista.slice(0, limite).map((p, i) => <ItemLista key={p.id} p={p} i={i} onFalar={falar} />)}
+            </div>
+          )}
+
+          {lista.length > limite && (
+            <button type="button" onClick={() => setLimite((l) => l + POR_PAGINA)} className="mx-auto mt-6 block h-12 rounded-full border border-line px-8 text-sm transition-colors hover:border-gold">
+              Ver mais empreendimentos
+            </button>
+          )}
         </section>
       </main>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
-        <p>© 2026 Place Brokers. Todos os direitos reservados.</p>
+      <footer className="border-t border-line-soft pb-24 sm:pb-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-[12px] text-ink-3 sm:flex-row sm:px-6">
+          <Logo className="h-7" />
+          <div className="flex items-center gap-5">
+            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="transition-colors hover:text-gold">{WHATSAPP_LABEL}</a>
+            <a href={`mailto:${EMAIL}`} className="transition-colors hover:text-gold">{EMAIL}</a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label="Instagram da Place Brokers" className="transition-colors hover:text-gold"><InstagramIcon className="size-5" /></a>
+          </div>
+          <p>© 2026 Place Brokers</p>
+        </div>
       </footer>
+
+      {aberto && <EmpreendimentoModal imovel={aberto} onClose={fechar} />}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <ContatoProvider>
+      <Home />
+    </ContatoProvider>
   );
 }

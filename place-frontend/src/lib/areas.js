@@ -1,5 +1,5 @@
 export const ROLE_HOME = {
-  admin: "/admin",
+  admin: "/admin/dashboard",
   gerente: "/gerente",
   corretor: "/corretor",
   viabilizador: "/viabilizador",
@@ -15,6 +15,8 @@ export const AREAS = {
       { label: "Ver Book e Tabelas", href: "/corretor/books", icon: "book" },
       { label: "Cadastrar Cliente", href: "/corretor/clientes/novo", icon: "userPlus" },
       { label: "Meus Leads", href: "/corretor/leads", icon: "users" },
+      { label: "Agenda", href: "/corretor/agenda", icon: "calendar" },
+      { label: "Vendas", href: "/corretor/vendas", icon: "chart" },
       { label: "Configurações", href: "/corretor/configuracoes", icon: "settings" },
     ],
   },

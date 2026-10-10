@@ -15,8 +15,13 @@ import PainelAdmPage from "@/pages/admin/PainelAdmPage";
 import LeadsPage from "@/pages/admin/LeadsPage";
 import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 import AgendamentosPage from "@/pages/admin/AgendamentosPage";
-
+import AgendaPage from "@/pages/corretor/AgendaPage";
 import ImovelDetalhes from "@/pages/ImovelDetalhes";
+import { Navigate } from "react-router-dom";
+import EquipePage from "@/pages/admin/EquipePage";
+import EmpreendimentosPage from "@/pages/admin/EmpreendimentosPage";
+import VendasPage from "@/pages/VendasPage";
+import MeusLeadsPage from "@/pages/corretor/MeusLeadsPage";
 
 export default function App() {
   return (
@@ -33,6 +38,10 @@ export default function App() {
       </Route>
 
       <Route path="/corretor" element={<AreaLayout cargo="corretor" />}>
+      <Route path="leads" element={<MeusLeadsPage />} />
+        <Route path="clientes/novo" element={<MeusLeadsPage abrirCadastro />} />
+        <Route path="agenda" element={<AgendaPage />} />
+        <Route path="vendas" element={<VendasPage />} />
         <Route index element={<CorretorHomePage />} />
         <Route path="mapa" element={<MapaGeralPage />} />
         <Route path="perfil" element={<PerfilPage />} />
@@ -40,6 +49,7 @@ export default function App() {
       </Route>
 
       <Route path="/gerente" element={<AreaLayout cargo="gerente" />}>
+      <Route path="vendas" element={<VendasPage />} />
         <Route index element={<ComingSoonPage />} />
         <Route path="perfil" element={<PerfilPage />} />
         <Route path="*" element={<ComingSoonPage />} />
@@ -57,6 +67,10 @@ export default function App() {
         <Route path="leads" element={<LeadsPage />} />
         <Route path="perfil" element={<PerfilPage />} />
         <Route path="agendamentos" element={<AgendamentosPage />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="imoveis" element={<EmpreendimentosPage />} />
+        <Route path="equipe" element={<EquipePage />} />
+        <Route path="vendas" element={<VendasPage />} />
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
 

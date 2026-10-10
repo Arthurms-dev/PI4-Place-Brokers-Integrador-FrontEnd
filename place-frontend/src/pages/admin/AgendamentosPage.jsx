@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import {
-  getAgendamentos,
-  criarAgendamento,
   atualizarStatusAgendamento,
+  criarAgendamento,
+  getAgendamentos,
   getClientes,
   getEmpreendimentos,
-} from "../../services/admin/agendamentos";
+  remarcarAgendamento,
+} from "@/services/admin/agendamentos";
 import { getCorretores } from "@/services/admin/leads";
-import AgendamentosSummary from "../../components/admin/agendamentos/AgendamentosSummary";
-import AgendamentosToolbar from "../../components/admin/agendamentos/AgendamentosToolbar";
-import AgendamentosTable from "../../components/admin/agendamentos/AgendamentosTable";
-import AgendamentosCalendar from "../../components/admin/agendamentos/AgendamentosCalendar";
-import AgendamentoFormDrawer from "../../components/admin/agendamentos/AgendamentoFormDrawer";
-import AgendamentoDetailsDrawer from "../../components/admin/agendamentos/AgendamentoDetailsDrawer";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import AgendamentosSummary from "@/components/admin/agendamentos/AgendamentosSummary";
+import AgendamentosToolbar from "@/components/admin/agendamentos/AgendamentosToolbar";
+import AgendamentosTable from "@/components/admin/agendamentos/AgendamentosTable";
+import AgendamentosCalendar from "@/components/admin/agendamentos/AgendamentosCalendar";
+import AgendamentoFormDrawer from "@/components/admin/agendamentos/AgendamentoFormDrawer";
+import AgendamentoDetailsDrawer from "@/components/admin/agendamentos/AgendamentoDetailsDrawer";
 
 export default function AgendamentosPage() {
+  usePageTitle("Agendamentos");
   const [agendamentos, setAgendamentos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [corretores, setCorretores] = useState([]);
@@ -33,28 +36,26 @@ export default function AgendamentosPage() {
   }, []);
 
   async function carregarTudo() {
-  setCarregando(true);
-  setErro("");
-  try {
-    const [resAgendamentos, resCorretores, resClientes, resEmpreendimentos] = await Promise.allSettled([
-      getAgendamentos(),
-      getCorretores(),
-      getClientes(),
-      getEmpreendimentos(),
-    ]);
-
-    setAgendamentos(resAgendamentos.status === "fulfilled" ? resAgendamentos.value : []);
-    setCorretores(resCorretores.status === "fulfilled" ? resCorretores.value : []);
-    setClientes(resClientes.status === "fulfilled" ? resClientes.value : []);
-    setEmpreendimentos(resEmpreendimentos.status === "fulfilled" ? resEmpreendimentos.value : []);
-
-    if (resAgendamentos.status === "rejected") {
-      setErro(resAgendamentos.reason?.message ?? "Não foi possível carregar os agendamentos.");
+    setCarregando(true);
+    setErro("");
+    try {
+      const [resAgendamentos, resCorretores, resClientes, resEmpreendimentos] = await Promise.allSettled([
+        getAgendamentos(),
+        getCorretores(),
+        getClientes(),
+        getEmpreendimentos(),
+      ]);
+      setAgendamentos(resAgendamentos.status === "fulfilled" ? resAgendamentos.value : []);
+      setCorretores(resCorretores.status === "fulfilled" ? resCorretores.value : []);
+      setClientes(resClientes.status === "fulfilled" ? resClientes.value : []);
+      setEmpreendimentos(resEmpreendimentos.status === "fulfilled" ? resEmpreendimentos.value : []);
+      if (resAgendamentos.status === "rejected") {
+        setErro(resAgendamentos.reason?.message ?? "Não foi possível carregar os agendamentos.");
+      }
+    } finally {
+      setCarregando(false);
     }
-  } finally {
-    setCarregando(false);
   }
-}
 
   const agendamentosFiltrados = agendamentos.filter((a) => {
     if (filtros.status && a.status !== filtros.status) return false;
@@ -75,6 +76,12 @@ export default function AgendamentosPage() {
     setAgendamentoSelecionado(atualizado);
   }
 
+  async function handleRemarcar(id, dataHora) {
+    const atualizado = await remarcarAgendamento(id, dataHora);
+    setAgendamentos((lista) => lista.map((a) => (a.id === id ? atualizado : a)));
+    setAgendamentoSelecionado(atualizado);
+  }
+
   function mudarSemana(dias) {
     setSemanaBase((data) => {
       const nova = new Date(data);
@@ -84,17 +91,25 @@ export default function AgendamentosPage() {
   }
 
   if (carregando) {
-    return <p className="p-6 text-sm text-slate-500">Carregando agendamentos...</p>;
+    return (
+      <div className="space-y-5" aria-busy="true" aria-label="Carregando agendamentos">
+        <div className="h-9 w-56 animate-pulse rounded-xl bg-card" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-card" />)}
+        </div>
+        <div className="h-72 animate-pulse rounded-2xl bg-card" />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Agendamentos</h1>
-        <p className="text-sm text-slate-500">Visitas a imóveis e reuniões marcadas com os clientes.</p>
+    <div className="space-y-5">
+      <div className="animate-fade-up">
+        <h1 className="text-xl font-semibold">Agendamentos</h1>
+        <p className="text-[13px] text-ink-2">Visitas a imóveis e reuniões marcadas com os clientes.</p>
       </div>
 
-      {erro && <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{erro}</div>}
+      {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
       <AgendamentosSummary agendamentos={agendamentos} />
 
@@ -128,9 +143,11 @@ export default function AgendamentosPage() {
       />
 
       <AgendamentoDetailsDrawer
+        key={agendamentoSelecionado?.id ?? "nenhum"}
         agendamento={agendamentoSelecionado}
         onFechar={() => setAgendamentoSelecionado(null)}
         onAtualizarStatus={handleAtualizarStatus}
+        onRemarcar={handleRemarcar}
       />
     </div>
   );

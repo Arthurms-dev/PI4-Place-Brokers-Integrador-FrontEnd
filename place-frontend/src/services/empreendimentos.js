@@ -65,3 +65,16 @@ export async function criarEmpreendimento(dados) {
   }
   return data;
 }
+
+export async function atualizarEmpreendimento(id, mudancas) {
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(mudancas),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw Object.assign(new Error(data.message ?? "Não foi possível salvar."), { fieldErrors: data.fieldErrors ?? {} });
+  }
+  return data;
+}

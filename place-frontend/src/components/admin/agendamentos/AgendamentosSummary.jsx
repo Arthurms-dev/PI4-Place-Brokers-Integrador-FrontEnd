@@ -1,21 +1,16 @@
-function isHoje(dataISO) {
-  const data = new Date(dataISO);
-  const hoje = new Date();
-  return (
-    data.getFullYear() === hoje.getFullYear() &&
-    data.getMonth() === hoje.getMonth() &&
-    data.getDate() === hoje.getDate()
-  );
+function mesmoDia(dataISO, ref = new Date()) {
+  const d = new Date(dataISO);
+  return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate();
 }
 
 function isMesAtual(dataISO) {
-  const data = new Date(dataISO);
+  const d = new Date(dataISO);
   const hoje = new Date();
-  return data.getFullYear() === hoje.getFullYear() && data.getMonth() === hoje.getMonth();
+  return d.getFullYear() === hoje.getFullYear() && d.getMonth() === hoje.getMonth();
 }
 
-export default function AgendamentosSummary({ agendamentos }) {
-  const hoje = agendamentos.filter((a) => isHoje(a.dataHora) && a.status !== "cancelado").length;
+export default function AgendamentosSummary({ agendamentos = [] }) {
+  const hoje = agendamentos.filter((a) => mesmoDia(a.dataHora) && a.status !== "cancelado").length;
   const confirmados = agendamentos.filter((a) => a.status === "confirmado").length;
   const pendentes = agendamentos.filter((a) => a.status === "agendado").length;
 
@@ -29,15 +24,19 @@ export default function AgendamentosSummary({ agendamentos }) {
     { label: "Hoje", valor: hoje },
     { label: "Confirmados", valor: confirmados },
     { label: "Aguardando confirmação", valor: pendentes },
-    { label: "Taxa de não comparecimento (mês)", valor: `${taxaNoShow}%` },
+    { label: "Não comparecimento (mês)", valor: `${taxaNoShow}%` },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {cartoes.map((c) => (
-        <div key={c.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">{c.label}</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{c.valor}</p>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {cartoes.map((c, i) => (
+        <div
+          key={c.label}
+          style={{ animationDelay: `${i * 70}ms` }}
+          className="animate-fade-up rounded-2xl border border-line bg-card p-4 transition-colors hover:border-gold/40"
+        >
+          <p className="text-[12px] text-ink-3">{c.label}</p>
+          <p className="mt-1 text-2xl font-semibold">{c.valor}</p>
         </div>
       ))}
     </div>

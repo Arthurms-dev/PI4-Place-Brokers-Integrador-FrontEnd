@@ -1,63 +1,72 @@
-const pad = (n) => String(n).padStart(2, "0");
-const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+import { getToken } from "@/lib/authToken";
 
-/** Últimos `n` dias (inclui hoje), do mais antigo ao mais recente. */
-function lastDays(n) {
-  const today = new Date();
-  return Array.from({ length: n }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (n - 1 - i));
-    return toISO(d);
-  });
-}
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+const NOTA = "em relação ao período anterior";
+
+const STATUS_DO_LEAD = { novo: "novo", em_atendimento: "atendimento", convertido: "convertido" };
 
 /**
- * Busca os dados do dashboard.
+ * @param {{ de?: string, ate?: string, equipeId?: string, diretoriaId?: string }} [filtros] datas em AAAA-MM-DD
  * @returns {Promise<import("@/types/dashboard").DashboardData>}
- *
- * Por enquanto NÃO há backend: devolve tudo zerado.
- * Quando a API existir, troque o corpo por:
- *
- *   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`, { cache: "no-store" });
- *   if (!res.ok) throw new Error("Falha ao carregar o dashboard");
- *   return res.json();
  */
-export async function getDashboardData() {
-  const days30 = lastDays(30);
-  const days7 = days30.slice(-7);
-  const monthNote = "em relação ao mês anterior";
+export async function getDashboardData(filtros = {}) {
+  const query = new URLSearchParams(Object.entries(filtros).filter(([, v]) => v)).toString();
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}/metricas/dashboard${query ? `?${query}` : ""}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.message ?? "Falha ao carregar o dashboard");
+  }
+  const d = await res.json();
+  if (!d?.vgv || !d?.acessos || !d?.imoveis || !d?.agendamentos || !d?.leads || !d?.avaliacoes) {
+    throw new Error(
+      `A API respondeu num formato inesperado (campos recebidos: ${Object.keys(d ?? {}).join(", ") || "nenhum"}). ` +
+        "Atualize o back-end com o metricasService e o metricasController desta versão.",
+    );
+  }
 
   return {
-    period: { start: days30[0], end: days30[days30.length - 1] },
+    period: { start: d.periodo.de, end: d.periodo.ate },
     kpis: [
-      { id: "visits", label: "Acessos no site", value: 0, delta: 0, footnote: monthNote },
-      { id: "topProperties", label: "Imóveis mais procurados", value: 0, delta: 0, footnote: monthNote },
-      { id: "bookings", label: "Agendamentos de visitas", value: 0, delta: 0, footnote: monthNote },
-      { id: "rating", label: "Avaliações de clientes", value: 0, delta: 0, footnote: "com base em 0 avaliações" },
+      { id: "vgv", label: "VGV", value: d.vgv.total, delta: d.vgv.variacao, footnote: `${d.vgv.quantidade} vendas confirmadas` },
+      { id: "visits", label: "Acessos no site", value: d.acessos.total, delta: d.acessos.variacao, footnote: NOTA },
+      { id: "topProperties", label: "Imóveis mais procurados", value: d.imoveis.visualizacoes.total, delta: d.imoveis.visualizacoes.variacao, footnote: NOTA },
+      { id: "bookings", label: "Agendamentos de visitas", value: d.agendamentos.total, delta: d.agendamentos.variacao, footnote: NOTA },
+      { id: "rating", label: "Avaliações de clientes", value: d.avaliacoes.media, delta: 0, footnote: `com base em ${d.avaliacoes.total} avaliações` },
     ],
-    visits: days7.map((date) => ({ date, value: 0 })),
-    topProperties: [],
-    bookings: days30.map((date) => ({ date, value: 0 })),
-    bookingsTotal: 0,
+    visits: d.acessos.porDia.map(({ dia, acessos }) => ({ date: dia, value: acessos })),
+    topProperties: d.imoveis.maisProcurados.map((i) => ({
+      id: i.id,
+      title: i.nome,
+      city: i.cidade,
+      state: i.uf,
+      views: i.visualizacoes,
+      imageUrl: i.capaUrl ?? undefined,
+    })),
+    bookings: d.agendamentos.porDia.map(({ dia, total }) => ({ date: dia, value: total })),
+    bookingsTotal: d.agendamentos.total,
     rating: {
-      average: 0,
-      total: 0,
-      distribution: [
-        { stars: 5, percent: 0 },
-        { stars: 4, percent: 0 },
-        { stars: 3, percent: 0 },
-        { stars: 2, percent: 0 },
-        { stars: 1, percent: 0 },
-      ],
+      average: d.avaliacoes.media,
+      total: d.avaliacoes.total,
+      distribution: d.avaliacoes.distribuicao.map(({ estrelas, percentual }) => ({ stars: estrelas, percent: percentual })),
     },
-    locations: [],
-    recentLeads: [],
+    locations: [], // ainda não guardamos a cidade do cliente
+    recentLeads: d.leads.recentes.map((l) => ({
+      id: l.id,
+      name: l.nome,
+      property: l.empreendimento ?? "—",
+      createdAt: l.criadoEm,
+      status: STATUS_DO_LEAD[l.status] ?? "novo",
+    })),
     platform: [
-      { id: "visits", label: "Acessos no site", delta: 0 },
-      { id: "propertyViews", label: "Imóveis visualizados", delta: 0 },
-      { id: "bookings", label: "Agendamentos", delta: 0 },
-      { id: "leads", label: "Leads captados", delta: 0 },
-      { id: "conversion", label: "Conversão de leads", delta: 0 },
+      { id: "visits", label: "Acessos no site", delta: d.acessos.variacao },
+      { id: "propertyViews", label: "Imóveis visualizados", delta: d.imoveis.visualizacoes.variacao },
+      { id: "bookings", label: "Agendamentos", delta: d.agendamentos.variacao },
+      { id: "leads", label: "Leads captados", delta: d.leads.variacao },
+      { id: "conversion", label: "Conversão de leads", delta: d.leads.conversao.variacao },
     ],
   };
 }
