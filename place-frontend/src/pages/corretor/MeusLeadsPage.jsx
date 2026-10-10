@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { atualizarStatusLead, criarCliente, listarClientes, listarMeusLeads } from "@/services/meusLeads";
+import { listarVendas } from "@/services/vendas";
 
 const STATUS = {
   novo: { label: "Novo", cls: "bg-gold/15 text-gold" },
@@ -121,11 +122,35 @@ function CadastrarClienteModal({ onClose, onCriado }) {
   );
 }
 
+const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const VENDA = {
+  confirmada: ["bg-emerald-500/15 text-emerald-300", "Venda confirmada"],
+  pendente: ["bg-amber-500/15 text-amber-300", "Venda aguardando"],
+  recusada: ["bg-danger/15 text-danger", "Venda recusada"],
+};
+
+function VendasDoCliente({ vendas = [] }) {
+  if (!vendas.length) return null;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {vendas.map((v) => {
+        const [cls, rotulo] = VENDA[v.status] ?? VENDA.pendente;
+        return (
+          <span key={v.id} className={`rounded-full px-3 py-1 text-[12px] font-medium ${cls}`}>
+            {rotulo} · {brl(v.valor)}{v.empreendimento?.nome ? ` · ${v.empreendimento.nome}` : ""}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function MeusLeadsPage({ abrirCadastro = false }) {
   usePageTitle("Meus leads");
   const [aba, setAba] = useState("leads");
   const [leads, setLeads] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [vendas, setVendas] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -142,8 +167,8 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
 
   useEffect(() => {
     let ativo = true;
-    Promise.all([listarMeusLeads(), listarClientes()])
-      .then(([l, c]) => ativo && (setLeads(l), setClientes(c)))
+    Promise.all([listarMeusLeads(), listarClientes(), listarVendas().catch(() => [])])
+      .then(([l, c, v]) => ativo && (setLeads(l), setClientes(c), setVendas(v)))
       .catch((e) => ativo && setErro(e.message))
       .finally(() => ativo && setCarregando(false));
     return () => {
@@ -163,6 +188,12 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
       setSalvando(null);
     }
   }, []);
+
+  const vendasPorCliente = useMemo(() => {
+    const mapa = new Map();
+    for (const v of vendas) if (v.cliente_id) mapa.set(v.cliente_id, [...(mapa.get(v.cliente_id) ?? []), v]);
+    return mapa;
+  }, [vendas]);
 
   const visiveis = useMemo(() => leads.filter((l) => !filtro || l.status === filtro), [leads, filtro]);
 
@@ -221,7 +252,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                   <div className="flex flex-wrap gap-2">
                     <BotaoZap telefone={l.telefone} nome={l.nome} />
                     {l.status === "convertido" ? (
-                      <span className="inline-flex h-11 items-center px-2 text-[13px] text-ink-3">Convertido pelo admin</span>
+                      <span className="inline-flex h-11 items-center px-2 text-[13px] text-ink-3">Convertido em cliente</span>
                     ) : (
                       <select value={l.status} disabled={salvando === l.id} onChange={(e) => mudarStatus(l.id, e.target.value)} aria-label={`Status de ${l.nome}`}
                         className="h-11 rounded-xl border border-line bg-card-2 px-3 text-sm outline-none focus:border-gold scheme-dark">
@@ -252,7 +283,13 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                 </div>
                 <p className="text-[13px] text-ink-2">{mascarar(c.telefone ?? "")}{c.email ? ` · ${c.email}` : ""}</p>
                 {c.observacoes && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{c.observacoes}</p>}
-                {c.telefone && <BotaoZap telefone={c.telefone} nome={c.nome} />}
+                <VendasDoCliente vendas={vendasPorCliente.get(c.id)} />
+                <div className="flex flex-wrap gap-2">
+                  {c.telefone && <BotaoZap telefone={c.telefone} nome={c.nome} />}
+                  <Link to={`/corretor/vendas?cliente=${c.id}`} className="inline-flex h-11 items-center rounded-xl border border-line px-4 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">
+                    Lançar venda
+                  </Link>
+                </div>
               </li>
             ))}
           </ul>

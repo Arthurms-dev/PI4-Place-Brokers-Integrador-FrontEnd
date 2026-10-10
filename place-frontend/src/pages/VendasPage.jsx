@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Campo, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -47,10 +47,10 @@ function Indicador({ rotulo, destaque, children, rodape, atraso }) {
 const soDigitos = (s) => s.replace(/\D/g, "");
 const moeda = (digitos) => (digitos ? (Number(digitos) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "");
 
-function LancarVenda({ onClose, onCriada }) {
+function LancarVenda({ clienteInicial = "", onClose, onCriada }) {
   const [empreendimentos, setEmpreendimentos] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [f, setF] = useState({ empreendimentoId: "", clienteId: "", centavos: "" });
+  const [f, setF] = useState({ empreendimentoId: "", clienteId: clienteInicial, centavos: "" });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -173,13 +173,15 @@ export default function VendasPage() {
   const { user } = useOutletContext();
   const ehCorretor = user.cargo === "corretor";
   const decide = !ehCorretor;
+  const [params, setParams] = useSearchParams();
+  const clienteInicial = params.get("cliente") ?? "";
 
   const [vendas, setVendas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [filtro, setFiltro] = useState("");
   const [busca, setBusca] = useState("");
-  const [lancando, setLancando] = useState(false);
+  const [lancando, setLancando] = useState(ehCorretor && Boolean(clienteInicial));
   const filtroDefinido = useRef(false);
 
   useEffect(() => {
@@ -199,6 +201,11 @@ export default function VendasPage() {
       ativo = false;
     };
   }, [decide]);
+
+  const fecharLancamento = useCallback(() => {
+    setLancando(false);
+    setParams({}, { replace: true });
+  }, [setParams]);
 
   const decidir = useCallback(async (id, status) => {
     setErro("");
@@ -284,7 +291,7 @@ export default function VendasPage() {
       )}
 
       {lancando && (
-        <LancarVenda onClose={() => setLancando(false)} onCriada={(nova) => { setVendas((l) => [nova, ...l]); setFiltro(""); setLancando(false); }} />
+        <LancarVenda clienteInicial={clienteInicial} onClose={fecharLancamento} onCriada={(nova) => { setVendas((l) => [nova, ...l]); setFiltro(""); fecharLancamento(); }} />
       )}
     </div>
   );

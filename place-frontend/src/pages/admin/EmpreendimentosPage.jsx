@@ -54,8 +54,8 @@ function Cartao({ e, indice, onEditar, onMudar }) {
           {[quartos, vagas, e.preco_min != null ? `a partir de ${brl(e.preco_min)}` : null].filter(Boolean).join(" · ") || "Sem características preenchidas"}
         </p>
         <div className="flex flex-wrap gap-1.5 text-[11px]">
-          <Selo tom={e.book_url ? "ok" : "neutro"}>{e.book_url ? "Book ✓" : "Sem book"}</Selo>
-          <Selo tom={e.tabela_url ? "ok" : "neutro"}>{e.tabela_url ? "Tabela ✓" : "Sem tabela"}</Selo>
+          <Selo tom={e.tem_book ? "ok" : "neutro"}>{e.tem_book ? "Book ✓" : "Sem book"}</Selo>
+          <Selo tom={e.tem_tabela ? "ok" : "neutro"}>{e.tem_tabela ? "Tabela ✓" : "Sem tabela"}</Selo>
           <Selo tom={e.latitude != null ? "ok" : "alerta"}>{e.latitude != null ? "No mapa" : "Sem coordenadas"}</Selo>
         </div>
         <div className="flex gap-2">

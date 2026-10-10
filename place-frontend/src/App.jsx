@@ -22,6 +22,9 @@ import EquipePage from "@/pages/admin/EquipePage";
 import EmpreendimentosPage from "@/pages/admin/EmpreendimentosPage";
 import VendasPage from "@/pages/VendasPage";
 import MeusLeadsPage from "@/pages/corretor/MeusLeadsPage";
+import CatalogoPage from "@/pages/corretor/CatalogoPage";
+import ClientesPage from "@/pages/admin/ClientesPage";
+import RelatoriosPage from "@/pages/admin/RelatoriosPage";
 
 export default function App() {
   return (
@@ -38,7 +41,9 @@ export default function App() {
       </Route>
 
       <Route path="/corretor" element={<AreaLayout cargo="corretor" />}>
-      <Route path="leads" element={<MeusLeadsPage />} />
+         <Route path="empreendimentos" element={<CatalogoPage />} />
+        <Route path="books" element={<CatalogoPage modo="books" />} />
+        <Route path="leads" element={<MeusLeadsPage />} />
         <Route path="clientes/novo" element={<MeusLeadsPage abrirCadastro />} />
         <Route path="agenda" element={<AgendaPage />} />
         <Route path="vendas" element={<VendasPage />} />
@@ -62,6 +67,8 @@ export default function App() {
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
+         <Route path="clientes" element={<ClientesPage />} />
+        <Route path="relatorios" element={<RelatoriosPage />} />
         <Route index element={<PainelAdmPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="leads" element={<LeadsPage />} />

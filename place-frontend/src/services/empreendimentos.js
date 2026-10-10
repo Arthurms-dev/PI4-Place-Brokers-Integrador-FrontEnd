@@ -78,3 +78,10 @@ export async function atualizarEmpreendimento(id, mudancas) {
   }
   return data;
 }
+
+export async function urlDoDocumento(id, tipo) {
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos/${tipo}`, { headers: authHeaders() });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message ?? "Não foi possível abrir o documento.");
+  return data.url;
+}
