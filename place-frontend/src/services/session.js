@@ -45,3 +45,16 @@ export async function atualizarPerfil(dados) {
   if (!response.ok) throw new Error(data.message ?? "Não foi possível atualizar o perfil.");
   return data.user;
 }
+
+export async function alterarSenha({ senhaAtual, novaSenha, confirmarSenha }) {
+  const response = await fetch(`${BASE_URL}/auth/senha`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+    body: JSON.stringify({ senhaAtual, novaSenha, confirmarSenha }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw Object.assign(new Error(data.message ?? "Não foi possível alterar a senha."), { fieldErrors: data.fieldErrors ?? {} });
+  }
+  return true;
+}

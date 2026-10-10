@@ -11,6 +11,8 @@ const ROLES = [
   { value: "VIABILIZADOR", label: "Viabilizador" },
 ];
 
+const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+
 const VINCULOS = [
   { value: "interno", label: "Corretor da Place Brokers" },
   { value: "externo", label: "Corretor parceiro (externo)" },
@@ -20,7 +22,7 @@ export default function RegisterPage() {
   usePageTitle("Criar conta");
 
   const [form, setForm] = useState({
-    name: "", email: "", role: "", vinculo: "", creci: "", password: "", confirmPassword: "",
+    name: "", email: "", role: "", vinculo: "", creci: "", uf: "", password: "", confirmPassword: "",
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -41,6 +43,7 @@ export default function RegisterPage() {
         payload.vinculo = undefined;
         payload.creci = undefined;
       }
+      if (payload.vinculo !== "externo") payload.uf = undefined;
       await authService.register(payload);
       setEnviado(true);
     } catch (err) {
@@ -124,6 +127,21 @@ export default function RegisterPage() {
             {form.vinculo && (
               <FormField label={form.vinculo === "externo" ? "CRECI (obrigatório)" : "CRECI (opcional)"} error={fieldErrors.creci}>
                 <input value={form.creci} onChange={handleChange("creci")} className={fieldInputClass(fieldErrors.creci)} />
+              </FormField>
+            )}
+
+            {form.vinculo === "externo" && (
+              <FormField label="Estado em que você atua" error={fieldErrors.uf}>
+                <select value={form.uf} onChange={handleChange("uf")} className={fieldInputClass(fieldErrors.uf)}>
+                  <option value="" disabled>
+                    Selecione...
+                  </option>
+                  {UFS.map((uf) => (
+                    <option key={uf} value={uf}>
+                      {uf}
+                    </option>
+                  ))}
+                </select>
               </FormField>
             )}
           </>

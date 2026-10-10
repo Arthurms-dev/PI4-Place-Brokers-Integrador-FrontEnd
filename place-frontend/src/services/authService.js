@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   /** @param {{ name?, email?, password?, confirmPassword?, role?, vinculo?, creci? }} payload */
-  validateRegister({ name, email, password, confirmPassword, role, vinculo, creci } = {}) {
+  validateRegister({ name, email, password, confirmPassword, role, vinculo, creci, uf } = {}) {
     const errors = this.validateLogin({ email, password });
     if (!name?.trim()) errors.name = "Informe o nome completo.";
     if (confirmPassword !== password) errors.confirmPassword = "As senhas não coincidem.";
@@ -63,6 +63,7 @@ export class AuthService {
     if (role === "CORRETOR") {
       if (!vinculo) errors.vinculo = "Informe se é corretor da Place ou parceiro externo.";
       if (vinculo === "externo" && !creci?.trim()) errors.creci = "CRECI é obrigatório para corretores externos.";
+      if (vinculo === "externo" && !uf) errors.uf = "Informe o estado em que você atua.";
     }
     return errors;
   }
@@ -80,6 +81,7 @@ export class AuthService {
       role: payload.role.toLowerCase(),
       vinculo: payload.vinculo ?? null,
       creci: payload.creci?.trim() || null,
+      uf: payload.uf || null,
     });
   }
 
