@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   /** @param {{ name?, email?, password?, confirmPassword?, role?, vinculo?, creci? }} payload */
-  validateRegister({ name, email, password, confirmPassword, role, vinculo, creci, uf } = {}) {
+  validateRegister({ name, email, password, confirmPassword, role, vinculo, creci, uf, construtoraId } = {}) {
     const errors = this.validateLogin({ email, password });
     if (!name?.trim()) errors.name = "Informe o nome completo.";
     if (confirmPassword !== password) errors.confirmPassword = "As senhas não coincidem.";
@@ -65,6 +65,7 @@ export class AuthService {
       if (vinculo === "externo" && !creci?.trim()) errors.creci = "CRECI é obrigatório para corretores externos.";
       if (vinculo === "externo" && !uf) errors.uf = "Informe o estado em que você atua.";
     }
+    if (role === "VIABILIZADOR" && !construtoraId) errors.construtoraId = "Selecione a construtora em que você trabalha.";
     return errors;
   }
 
@@ -82,6 +83,7 @@ export class AuthService {
       vinculo: payload.vinculo ?? null,
       creci: payload.creci?.trim() || null,
       uf: payload.uf || null,
+      construtoraId: payload.role === "VIABILIZADOR" ? payload.construtoraId : null,
     });
   }
 

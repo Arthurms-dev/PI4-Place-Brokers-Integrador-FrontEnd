@@ -5,13 +5,16 @@ import CorretoresTab from "@/components/admin/equipe/CorretoresTab";
 import EquipesTab from "@/components/admin/equipe/EquipesTab";
 import { ModalDiretoria, ModalEquipe, ModalGerente } from "@/components/admin/equipe/modais";
 import { ehAutonomo } from "@/components/admin/equipe/ui";
+import ViabilizadoresTab from "@/components/admin/equipe/ViabilizadoresTab";
 import * as api from "@/services/admin/equipe";
+import { listarConstrutoras } from "@/services/construtoras";
 
 export default function EquipePage() {
   usePageTitle("Equipe");
   const [membros, setMembros] = useState([]);
   const [times, setTimes] = useState([]);
   const [diretorias, setDiretorias] = useState([]);
+  const [construtoras, setConstrutoras] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [aba, setAba] = useState("equipes");
@@ -20,10 +23,11 @@ export default function EquipePage() {
 
   const recarregar = useCallback(async () => {
     try {
-      const [m, t, d] = await Promise.all([api.listarMembros(), api.listarTimes(), api.listarDiretorias()]);
+      const [m, t, d, c] = await Promise.all([api.listarMembros(), api.listarTimes(), api.listarDiretorias(), listarConstrutoras().catch(() => [])]);
       setMembros(m);
       setTimes(t);
       setDiretorias(d);
+      setConstrutoras(c);
       if (!abaDefinida.current) {
         abaDefinida.current = true;
         if (m.some((x) => x.status === "pendente" && ["corretor", "viabilizador"].includes(x.cargo))) setAba("aprovacoes");
@@ -67,12 +71,14 @@ export default function EquipePage() {
   const aprovadosPlace = useMemo(() => corretores.filter((m) => m.status === "aprovado" && m.ativo && !ehAutonomo(m)), [corretores]);
   const gerentes = useMemo(() => membros.filter((m) => m.cargo === "gerente"), [membros]);
   const autonomos = useMemo(() => corretores.filter(ehAutonomo), [corretores]);
+  const viabilizadores = useMemo(() => membros.filter((m) => m.cargo === "viabilizador" && m.status === "aprovado"), [membros]);
 
   const abas = [
     ["aprovacoes", "Aprovações", pendentes.length],
     ["equipes", "Equipes da Place", times.length],
     ["autonomos", "Autônomos", autonomos.length],
     ["todos", "Todos os corretores", corretores.length],
+    ["viabilizadores", "Viabilizadores", viabilizadores.length],
   ];
 
   if (carregando) {
@@ -105,7 +111,7 @@ export default function EquipePage() {
       </div>
 
       <div key={aba} className="animate-fade-in">
-        {aba === "aprovacoes" && <AprovacoesTab pendentes={pendentes} onMudar={mudar} />}
+        {aba === "aprovacoes" && <AprovacoesTab pendentes={pendentes} construtoras={construtoras} onMudar={mudar} />}
         {aba === "equipes" && (
           <EquipesTab
             times={times} diretorias={diretorias} corretoresPlace={aprovadosPlace} gerentes={gerentes} onMudar={mudar}
@@ -115,6 +121,7 @@ export default function EquipePage() {
         )}
         {aba === "autonomos" && <CorretoresTab modo="autonomos" corretores={corretores} times={times} onMudar={mudar} />}
         {aba === "todos" && <CorretoresTab modo="todos" corretores={corretores} times={times} onMudar={mudar} />}
+        {aba === "viabilizadores" && <ViabilizadoresTab viabilizadores={viabilizadores} construtoras={construtoras} onMudar={mudar} />}
       </div>
 
       {modal?.tipo === "equipe" && (

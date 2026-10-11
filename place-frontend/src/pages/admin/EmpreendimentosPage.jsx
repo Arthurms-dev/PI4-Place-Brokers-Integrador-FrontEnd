@@ -25,6 +25,7 @@ function Cartao({ e, indice, onEditar, onMudar }) {
     try {
       await onMudar(e.id, { [campo]: !e[campo] });
     } catch {
+      /* erro no topo */
     } finally {
       setOcupado(false);
     }
@@ -77,7 +78,7 @@ export default function EmpreendimentosPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
   const [publicacao, setPublicacao] = useState("");
-  const [form, setForm] = useState(null); // { emp? }
+  const [form, setForm] = useState(null);
 
   useEffect(() => {
     let ativo = true;

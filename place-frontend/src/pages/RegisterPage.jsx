@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
+import { listarConstrutoras } from "@/services/construtoras";
 
 const ROLES = [
   { value: "CORRETOR", label: "Corretor" },
@@ -22,7 +23,7 @@ export default function RegisterPage() {
   usePageTitle("Criar conta");
 
   const [form, setForm] = useState({
-    name: "", email: "", role: "", vinculo: "", creci: "", uf: "", password: "", confirmPassword: "",
+    name: "", email: "", role: "", vinculo: "", creci: "", uf: "", construtoraId: "", password: "", confirmPassword: "",
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -30,6 +31,11 @@ export default function RegisterPage() {
   const [enviado, setEnviado] = useState(false);
 
   const ehCorretor = form.role === "CORRETOR";
+  const ehViabilizador = form.role === "VIABILIZADOR";
+  const [construtoras, setConstrutoras] = useState([]);
+  useEffect(() => {
+    if (ehViabilizador && construtoras.length === 0) listarConstrutoras().then(setConstrutoras).catch(() => {});
+  }, [ehViabilizador, construtoras.length]);
   const handleChange = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleSubmit(e) {
@@ -44,6 +50,7 @@ export default function RegisterPage() {
         payload.creci = undefined;
       }
       if (payload.vinculo !== "externo") payload.uf = undefined;
+      if (!ehViabilizador) payload.construtoraId = undefined;
       await authService.register(payload);
       setEnviado(true);
     } catch (err) {
@@ -145,6 +152,24 @@ export default function RegisterPage() {
               </FormField>
             )}
           </>
+        )}
+
+        {ehViabilizador && (
+          <FormField label="Construtora em que você trabalha" error={fieldErrors.construtoraId}>
+            <select value={form.construtoraId} onChange={handleChange("construtoraId")} className={fieldInputClass(fieldErrors.construtoraId)}>
+              <option value="" disabled>
+                {construtoras.length ? "Selecione..." : "Carregando construtoras..."}
+              </option>
+              {construtoras.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 block text-[11px] text-ink-3">
+              Não encontrou a sua construtora? Fale com a Place Brokers para cadastrá-la antes.
+            </span>
+          </FormField>
         )}
 
         <FormField label="Senha" error={fieldErrors.password}>

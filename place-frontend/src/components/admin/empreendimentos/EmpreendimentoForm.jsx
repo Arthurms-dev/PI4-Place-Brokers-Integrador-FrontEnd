@@ -87,7 +87,7 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [novaConstrutora, setNovaConstrutora] = useState(null); // null = fechado, string = digitando
+  const [novaConstrutora, setNovaConstrutora] = useState(null);
 
   const set = (c) => (e) => setF((s) => ({ ...s, [c]: e.target.value }));
   const coords = useMemo(() => lerCoords(f.coords), [f.coords]);
