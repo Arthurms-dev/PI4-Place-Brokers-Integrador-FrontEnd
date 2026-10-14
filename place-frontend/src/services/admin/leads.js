@@ -1,11 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL;
-
-function getAuthToken() {
-  return localStorage.getItem("placebrokers_token");
-}
+import { getToken } from "@/lib/authToken";
 
 function authHeaders() {
-  const token = getAuthToken();
+  const token = getToken();
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -60,5 +57,5 @@ export async function convertLeadToCliente(id) {
     method: "POST",
     headers: authHeaders(),
   });
-  return parseResposta(res); 
+  return parseResposta(res);
 }
