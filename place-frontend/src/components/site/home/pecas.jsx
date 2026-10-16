@@ -4,7 +4,18 @@ export function Foto({ p, className = "" }) {
   return p.image ? (
     <img src={p.image} alt={p.title} loading="lazy" decoding="async" className={className} />
   ) : (
-    <div className={`grid place-items-center bg-card-2 text-gold/50 ${className}`}><Icon name="building" className="size-10" /></div>
+    <div
+      className={`relative grid place-items-center overflow-hidden bg-card-2 ${className}`}
+      style={{
+        backgroundImage:
+          "radial-gradient(120% 120% at 20% 0%, rgb(233 173 90 / 0.14), transparent 60%), radial-gradient(100% 100% at 100% 100%, rgb(233 173 90 / 0.08), transparent 55%)",
+      }}
+    >
+      <Icon name="building" className="size-10 text-gold/40" />
+      <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-wide text-ink-3/70">
+        Foto em breve
+      </span>
+    </div>
   );
 }
 

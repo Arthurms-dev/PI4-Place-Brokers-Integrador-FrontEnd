@@ -15,7 +15,7 @@ export default function SiteHeader() {
   const naHome = pathname === "/" || pathname.startsWith("/imoveis/");
 
   useEffect(() => {
-    const aoRolar = () => setRolou(window.scrollY > 24);
+    const aoRolar = () => setRolou(window.scrollY > 160);
     aoRolar();
     window.addEventListener("scroll", aoRolar, { passive: true });
     return () => window.removeEventListener("scroll", aoRolar);
@@ -31,7 +31,7 @@ export default function SiteHeader() {
   const link = "rounded-lg px-3 py-2 text-[13px] text-ink-2 transition-colors hover:text-ink";
 
   return (
-    <header className={`sticky top-0 z-40 border-b transition-colors duration-300 ${rolou || menu ? "border-line-soft bg-page/90 backdrop-blur" : "border-transparent bg-page/30 backdrop-blur-sm"}`}>
+    <header className={`sticky top-0 z-40 border-b transition-all duration-500 ${ rolou || menu ? "border-line-soft bg-page/90 backdrop-blur shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]" : "border-transparent bg-transparent backdrop-blur-0" }`}>
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
         <Link to="/" aria-label="Place Brokers - início" className="mr-4 shrink-0"><Logo className="h-9" /></Link>
 

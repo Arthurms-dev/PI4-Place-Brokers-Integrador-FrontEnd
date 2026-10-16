@@ -27,12 +27,12 @@ export default function Destaques({ itens, onFalar }) {
         </div>
       </Reveal>
 
-      <div ref={trilho} className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      <div ref={trilho} className="-mx-4 flex scroll-smooth snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
         {lista.map((p, i) => (
           <Reveal key={p.id} atraso={i * 70} className="w-[84%] shrink-0 snap-start sm:w-[calc((100%-2rem)/3)]">
-            <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-card transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-xl hover:shadow-black/30">
+            <article className="group rounded-2xl border border-line bg-card transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-1.5 hover:border-gold/60 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.45)]">
               <Link to={`/imoveis/${p.id}`} className="relative block aspect-4/3 overflow-hidden" aria-label={`Ver ${p.title}`}>
-                <Foto p={p} className="size-full object-cover transition duration-700 group-hover:scale-105" />
+                <Foto p={p} className="size-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.08]" />
                 <div className="absolute left-3 top-3"><Etiquetas p={p} /></div>
                 <BotaoFavorito id={p.id} titulo={p.title} className="absolute right-3 top-3" />
                 <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 to-transparent px-4 pb-3 pt-14">

@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 
-const TROCA_MS = 6500;
-
 function Campo({ rotulo, icone, className = "", children }) {
   return (
     <label className={`flex min-w-0 items-center gap-3 rounded-xl px-4 py-2.5 transition-colors hover:bg-white/5 focus-within:bg-white/5 md:rounded-full md:px-5 ${className}`}>
@@ -24,7 +22,7 @@ export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidad
 
   useEffect(() => {
     if (fotos.length < 2) return undefined;
-    const id = setInterval(() => setAtual((a) => (a + 1) % fotos.length), TROCA_MS);
+    const id = setInterval(() => setAtual(a => (a + 1) % fotos.length), 9000);
     return () => clearInterval(id);
   }, [fotos.length]);
 
@@ -33,19 +31,56 @@ export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidad
 
   return (
     <section className="relative isolate overflow-hidden">
+      <style>{`
+        @keyframes heroDrift {
+          0%   { transform: translate(0, 0) scale(1); }
+          50%  { transform: translate(3%, -4%) scale(1.08); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        .hero-drift { animation: heroDrift 22s ease-in-out infinite; }
+        .hero-drift-slow { animation: heroDrift 30s ease-in-out infinite reverse; }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-drift, .hero-drift-slow { animation: none; }
+        }
+      `}</style>
+
       <div className="absolute inset-0 -z-20 bg-card-2">
-        {fotos.map((f, i) => (
-          <img
-            key={f.id}
-            src={f.image}
-            alt=""
-            fetchPriority={i === 0 ? "high" : "auto"}
-            loading={i === 0 ? "eager" : "lazy"}
-            className={`absolute inset-0 size-full object-cover transition-opacity duration-[1400ms] ease-in-out ${i === atual ? "animate-kenburns opacity-100" : "opacity-0"}`}
+        {fotos.length > 0 ? (
+          fotos.map((f, i) => (
+            <img
+              key={f.id}
+              src={f.image}
+              alt=""
+              fetchPriority={i === 0 ? "high" : "auto"}
+              loading={i === 0 ? "eager" : "lazy"}
+              className={`absolute inset-0 size-full object-cover transition-opacity duration-[1800ms] ease-in-out ${
+                i === atual ? "animate-kenburns opacity-100 z-10" : "opacity-0 z-0"
+              }`}
+              style={{ willChange: "opacity, transform" }}
+            />
+          ))
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(1100px 560px at 85% -10%, rgb(233 173 90 / 0.16), transparent 60%), radial-gradient(900px 520px at 0% 110%, rgb(77 163 255 / 0.08), transparent 55%)",
+            }}
           />
-        ))}
+        )}
       </div>
       <div className="absolute inset-0 -z-10 bg-linear-to-b from-page/80 via-page/45 to-page" />
+
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div
+          className="hero-drift absolute -top-24 -right-24 size-[36rem] rounded-full blur-3xl opacity-20"
+          style={{ background: "radial-gradient(circle, rgb(233 173 90 / 0.55), transparent 70%)" }}
+        />
+        <div
+          className="hero-drift-slow absolute -bottom-32 -left-20 size-[30rem] rounded-full blur-3xl opacity-15"
+          style={{ background: "radial-gradient(circle, rgb(77 163 255 / 0.5), transparent 70%)" }}
+        />
+      </div>
 
       <div className="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pb-16 sm:pt-20 lg:pt-24">
         <p className="animate-fade-up text-[12px] font-medium uppercase tracking-[0.22em] text-gold">Lançamentos em Pernambuco</p>
