@@ -38,7 +38,6 @@ export default function LeadsPage() {
   const filtered = useMemo(() => filterLeads(leads, filters), [leads, filters]);
   const selected = leads.find((l) => l.id === selectedId) ?? null;
 
-  /** Atualiza a tela na hora e desfaz se a chamada à API falhar. */
   async function mutate(id, patch, request) {
     const previous = leads;
     setActionError("");

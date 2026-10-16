@@ -25,7 +25,6 @@ function Cartao({ e, indice, onEditar, onMudar }) {
     try {
       await onMudar(e.id, { [campo]: !e[campo] });
     } catch {
-      /* erro no topo */
     } finally {
       setOcupado(false);
     }

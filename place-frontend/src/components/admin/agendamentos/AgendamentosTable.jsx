@@ -41,7 +41,6 @@ export default function AgendamentosTable({ agendamentos = [], onSelecionar }) {
         </table>
       </div>
 
-      {/* celular: cartões */}
       <ul className="space-y-2 md:hidden">
         {agendamentos.map((a, i) => (
           <li key={a.id} style={{ animationDelay: `${Math.min(i, 6) * 50}ms` }} className="animate-fade-up">

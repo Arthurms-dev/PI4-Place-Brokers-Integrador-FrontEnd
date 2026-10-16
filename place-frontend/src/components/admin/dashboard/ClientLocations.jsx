@@ -38,7 +38,6 @@ export function ClientLocations({ locations }) {
   );
 }
 
-/** Mapa estilizado (placeholder). Troque por um SVG real do Brasil quando tiver. */
 function BrazilMap() {
   return (
     <svg viewBox="0 0 120 130" role="img" aria-label="Mapa do Brasil" className="h-auto max-h-37.5 w-full">

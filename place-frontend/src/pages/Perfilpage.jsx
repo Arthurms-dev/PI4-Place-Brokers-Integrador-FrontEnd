@@ -10,7 +10,7 @@ const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold
 
 function forca(s) {
   if (!s) return 0;
-  let pontos = Math.min(s.length, 12) * 5; // até 60
+  let pontos = Math.min(s.length, 12) * 5;
   if (/[a-z]/.test(s) && /[A-Z]/.test(s)) pontos += 15;
   if (/\d/.test(s)) pontos += 12;
   if (/[^A-Za-z0-9]/.test(s)) pontos += 13;

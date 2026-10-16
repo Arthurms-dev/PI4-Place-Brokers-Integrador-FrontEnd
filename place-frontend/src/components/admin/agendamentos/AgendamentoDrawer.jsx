@@ -6,7 +6,7 @@ export default function AgendamentoDrawer({ titulo, onFechar, children }) {
     const aoTeclar = (e) => e.key === "Escape" && onFechar();
     document.addEventListener("keydown", aoTeclar);
     const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden"; // a página de trás não rola
+    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", aoTeclar);
       document.body.style.overflow = overflow;

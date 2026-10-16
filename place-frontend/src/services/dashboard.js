@@ -6,7 +6,7 @@ const NOTA = "em relação ao período anterior";
 const STATUS_DO_LEAD = { novo: "novo", em_atendimento: "atendimento", convertido: "convertido" };
 
 /**
- * @param {{ de?: string, ate?: string, equipeId?: string, diretoriaId?: string }} [filtros] datas em AAAA-MM-DD
+ * @param {{ de?: string, ate?: string, equipeId?: string, diretoriaId?: string }} [filtros]
  * @returns {Promise<import("@/types/dashboard").DashboardData>}
  */
 export async function getDashboardData(filtros = {}) {
@@ -53,7 +53,7 @@ export async function getDashboardData(filtros = {}) {
       total: d.avaliacoes.total,
       distribution: d.avaliacoes.distribuicao.map(({ estrelas, percentual }) => ({ stars: estrelas, percent: percentual })),
     },
-    locations: [], // ainda não guardamos a cidade do cliente
+    locations: [],
     recentLeads: d.leads.recentes.map((l) => ({
       id: l.id,
       name: l.nome,
