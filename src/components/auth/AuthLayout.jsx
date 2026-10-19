@@ -1,0 +1,17 @@
+import { Link, Outlet } from "react-router-dom";
+import { Logo } from "@/components/ui/Logo";
+
+export function AuthLayout() {
+  return (
+    <div className="pb-auth grid min-h-screen place-items-center px-4 py-12 sm:px-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex justify-center">
+          <Link to="/" aria-label="Place Brokers - início">
+            <Logo className="h-10" />
+          </Link>
+        </div>
+        <Outlet />
+      </div>
+    </div>
+  );
+}
