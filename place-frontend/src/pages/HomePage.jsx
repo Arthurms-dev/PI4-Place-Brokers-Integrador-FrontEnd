@@ -29,7 +29,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { abrirContato } = useContato();
-  const { itens, carregando } = useEmpreendimentosPublicos();
+  const { itens, carregando, origem, erro } = useEmpreendimentosPublicos();
   const [filtros, setFiltros] = useState(VAZIO);
 
   const aberto = id ? itens.find((p) => p.id === id) ?? null : null;
@@ -83,6 +83,8 @@ export default function HomePage() {
 
   return (
     <main>
+      {erro && <p role="alert" className="mx-auto max-w-7xl px-4 py-3 text-sm text-red-300 sm:px-6">{erro} Verifique o back-end e tente recarregar a página.</p>}
+      {origem === 'mock' && <p role="status" className="bg-amber-100 px-4 py-2 text-center text-sm font-semibold text-amber-950">Modo demonstração: imóveis fictícios.</p>}
       <Hero itens={[...itens].sort((a, b) => Number(b.destaque) - Number(a.destaque))} filtros={filtros} onFiltros={setFiltros} tags={tags} sugestoes={sugestoes} cidades={cidades} onBuscar={buscar} />
 
       <section aria-label="Por que a Place Brokers" className="pb-trust-strip border-y border-line-soft bg-side/60">

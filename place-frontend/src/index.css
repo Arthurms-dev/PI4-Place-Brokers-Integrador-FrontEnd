@@ -425,7 +425,7 @@ select:-webkit-autofill {
 }
 .pb-hero .animate-kenburns { animation-duration: 18s; }
 .pb-hero-overlay {
-  background: linear-gradient(90deg, rgba(8,21,43,.98) 0%, rgba(8,21,43,.94) 26%, rgba(8,21,43,.76) 55%, rgba(8,21,43,.3) 100%),
+  background: linear-gradient(90deg, rgba(8,21,43,.94) 0%, rgba(8,21,43,.87) 28%, rgba(8,21,43,.57) 58%, rgba(8,21,43,.14) 100%),
               linear-gradient(0deg, var(--color-page) 0%, transparent 45%) !important;
 }
 .pb-hero .hero-drift, .pb-hero .hero-drift-slow { display: none; }

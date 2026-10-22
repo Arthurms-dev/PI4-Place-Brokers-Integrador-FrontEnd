@@ -6,10 +6,11 @@ export function Logo({ className, ...props }) {
     <img
       src={logo}
       alt="Place Brokers"
-      width={600}
-      height={258}
       decoding="async"
-      className={cn("h-9 w-auto select-none", className)}
+      className={cn(
+        "block h-auto max-h-12 w-auto max-w-full object-contain",
+        className
+      )}
       {...props}
     />
   );

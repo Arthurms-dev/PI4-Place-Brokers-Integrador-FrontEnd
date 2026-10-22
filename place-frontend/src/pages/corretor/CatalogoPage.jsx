@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -158,6 +159,8 @@ function Cartao({ e, indice, onAbrir }) {
 }
 
 export default function CatalogoPage({ modo = "catalogo" }) {
+  const { id: empreendimentoId } = useParams();
+  const navigate = useNavigate();
   const books = modo === "books";
   usePageTitle(books ? "Books e tabelas" : "Empreendimentos");
   const [lista, setLista] = useState([]);
@@ -179,6 +182,13 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       ativo = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!empreendimentoId || carregando) return;
+    const escolhido = lista.find((e) => String(e.id) === empreendimentoId);
+    if (escolhido) setAberto(escolhido);
+    else navigate('/corretor/empreendimentos', { replace: true });
+  }, [empreendimentoId, carregando, lista, navigate]);
 
   const cidades = useMemo(() => [...new Set(lista.map((e) => e.cidade))].sort((a, b) => a.localeCompare(b)), [lista]);
   const visiveis = useMemo(() => {
@@ -235,7 +245,10 @@ export default function CatalogoPage({ modo = "catalogo" }) {
         </ul>
       )}
 
-      {aberto && <Detalhe key={aberto.id} resumo={aberto} onClose={() => setAberto(null)} />}
+      {aberto && <Detalhe key={aberto.id} resumo={aberto} onClose={() => {
+        setAberto(null);
+        if (empreendimentoId) navigate('/corretor/empreendimentos');
+      }} />}
     </div>
   );
 }

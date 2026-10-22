@@ -60,6 +60,7 @@ export default function App() {
       <Route path="/corretor" element={<AreaLayout cargo="corretor" />}>
         <Route index element={<CorretorHomePage />} />
         <Route path="empreendimentos" element={<CatalogoPage />} />
+        <Route path="empreendimentos/:id" element={<CatalogoPage />} />
         <Route path="mapa" element={<MapaGeralPage />} />
         <Route path="books" element={<CatalogoPage modo="books" />} />
         <Route path="clientes/novo" element={<MeusLeadsPage abrirCadastro />} />

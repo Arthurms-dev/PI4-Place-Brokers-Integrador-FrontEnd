@@ -44,7 +44,7 @@ export function Sidebar({
       >
         <div className="flex min-h-24 items-center border-b border-line-soft px-6">
           <Link to={home} aria-label="Place Brokers - início" className="flex flex-col gap-1.5">
-            <Logo className="h-10" />
+            <Logo className="max-h-12" />
             <span className="pl-1 text-[9px] font-bold uppercase tracking-[0.27em] text-ink-3">Workspace · gestão imobiliária</span>
           </Link>
         </div>

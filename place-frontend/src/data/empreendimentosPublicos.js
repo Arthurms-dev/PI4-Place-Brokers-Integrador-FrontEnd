@@ -64,27 +64,32 @@ export function normalizarMock(m) {
   };
 }
 
+// Demo só é ativada explicitamente no .env do front (VITE_DEMO_MODE=true).
+const DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
 let cache = null;
 
 export function useEmpreendimentosPublicos() {
-  const [estado, setEstado] = useState(cache ?? { itens: [], carregando: true, origem: null });
+  const [estado, setEstado] = useState(cache ?? { itens: [], carregando: true, origem: null, erro: null });
 
   useEffect(() => {
     if (cache) return undefined;
     let ativo = true;
     listarEmpreendimentos()
-      .then((lista) => lista.filter((e) => e.publicado))
-      .catch(() => [])
       .then((lista) => {
-        const pronto = lista.length
-          ? { itens: lista.map(normalizarApi), carregando: false, origem: "api" }
-          : { itens: MOCK_PROPERTIES.map(normalizarMock), carregando: false, origem: "mock" };
+        const publicados = lista.filter((e) => e.publicado);
+        if (publicados.length) return { itens: publicados.map(normalizarApi), carregando: false, origem: 'api', erro: null };
+        return DEMO
+          ? { itens: MOCK_PROPERTIES.map(normalizarMock), carregando: false, origem: 'mock', erro: null }
+          : { itens: [], carregando: false, origem: 'api', erro: null };
+      })
+      .catch(() => DEMO
+        ? { itens: MOCK_PROPERTIES.map(normalizarMock), carregando: false, origem: 'mock', erro: null }
+        : { itens: [], carregando: false, origem: null, erro: 'Não foi possível consultar os empreendimentos na API.' })
+      .then((pronto) => {
         cache = pronto;
         if (ativo) setEstado(pronto);
       });
-    return () => {
-      ativo = false;
-    };
+    return () => { ativo = false; };
   }, []);
 
   return estado;

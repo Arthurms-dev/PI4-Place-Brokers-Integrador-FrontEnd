@@ -21,7 +21,7 @@ export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidad
   const [atual, setAtual] = useState(0);
 
   useEffect(() => {
-    if (fotos.length < 2) return undefined;
+    if (fotos.length < 2 || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return undefined;
     const id = setInterval(() => setAtual(a => (a + 1) % fotos.length), 9000);
     return () => clearInterval(id);
   }, [fotos.length]);

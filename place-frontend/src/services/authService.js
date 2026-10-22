@@ -12,25 +12,46 @@ export class AuthError extends Error {
   }
 }
 
-async function post(path, body) {
+
+async function post(
+  path,
+  body,
+  { fetchImpl = fetch, baseUrl = BASE_URL } = {}
+) {
   let response;
+
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
+    response = await fetchImpl(`${baseUrl}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
   } catch {
-    throw new AuthError("NETWORK_ERROR", "Não foi possível conectar ao servidor. Tente novamente.");
+    throw new AuthError(
+      "NETWORK_ERROR",
+      "Não foi possível conectar ao servidor. Tente novamente."
+    );
   }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new AuthError(data.code ?? "SERVER_ERROR", data.message ?? "Erro ao processar a solicitação.", data.fieldErrors ?? {});
+    const code =
+      data.code ??
+      (response.status === 401
+        ? "INVALID_CREDENTIALS"
+        : "SERVER_ERROR");
+
+    throw new AuthError(
+      code,
+      data.message ?? "Erro ao processar a solicitação.",
+      data.fieldErrors ?? {}
+    );
   }
+
   return data;
 }
+
 
 export class AuthService {
   validateLogin({ email, password } = {}) {
@@ -41,6 +62,12 @@ export class AuthService {
     else if (password.length < 6) errors.password = "A senha deve ter pelo menos 6 caracteres.";
     return errors;
   }
+  
+  constructor({ fetchImpl = fetch, baseUrl = BASE_URL } = {}) {
+    this.fetchImpl = fetchImpl;
+    this.baseUrl = baseUrl;
+  }
+
 
   /** @returns {Promise<{ user: { id, nome, email, role }, token: string }>} */
   async login(credentials) {
@@ -48,7 +75,7 @@ export class AuthService {
     if (Object.keys(fieldErrors).length) {
       throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", fieldErrors);
     }
-    const result = await post("/auth/login", credentials);
+    const result = await post("/auth/login", credentials, this);
     if (result.token) setToken(result.token);
     return result;
   }
@@ -74,17 +101,18 @@ export class AuthService {
     if (Object.keys(fieldErrors).length) {
       throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", fieldErrors);
     }
-    return post("/auth/register", {
-      nome: payload.name.trim(),
-      email: payload.email.trim().toLowerCase(),
-      password: payload.password,
-      confirmPassword: payload.confirmPassword,
-      role: payload.role.toLowerCase(),
-      vinculo: payload.vinculo ?? null,
-      creci: payload.creci?.trim() || null,
-      uf: payload.uf || null,
-      construtoraId: payload.role === "VIABILIZADOR" ? payload.construtoraId : null,
-    });
+  return post("/auth/register", {
+    nome: payload.name.trim(),
+    email: payload.email.trim().toLowerCase(),
+    password: payload.password,
+    confirmPassword: payload.confirmPassword,
+    role: payload.role.toLowerCase(),
+    vinculo: payload.vinculo ?? null,
+    creci: payload.creci?.trim() || null,
+    uf: payload.uf || null,
+    construtoraId:
+    payload.role === "VIABILIZADOR" ? payload.construtoraId : null,
+  }, this);
   }
 
   logout() {
