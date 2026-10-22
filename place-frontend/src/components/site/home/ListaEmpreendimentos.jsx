@@ -24,9 +24,9 @@ function Item({ p, i, onFalar }) {
           <p className="mt-0.5 flex items-center gap-1.5 text-[13px] text-ink-3"><Icon name="mapPin" className="size-3.5 shrink-0" /> {p.bairro ? `${p.bairro} · ` : ""}{p.city}</p>
           <Ficha p={p} className="mt-3" />
           {p.description && <p className="mt-2 hidden text-[13px] text-ink-3 sm:line-clamp-2">{p.description}</p>}
-          <div className="mt-auto flex gap-2 pt-4">
-            <button type="button" onClick={() => onFalar(p)} className="h-11 flex-1 rounded-xl bg-gold-gradient px-5 text-sm font-semibold text-[#1a1408] transition hover:brightness-110 sm:flex-none">Falar com especialista</button>
-            <Link to={para} className="inline-flex h-11 items-center justify-center rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Ver detalhes</Link>
+          <div className="mt-auto flex flex-col gap-2 pt-4 sm:flex-row">
+            <button type="button" onClick={() => onFalar(p)} className="h-11 w-full rounded-xl bg-gold-gradient px-5 text-sm font-semibold text-[#1a1408] transition hover:brightness-110 sm:w-auto">Falar com especialista</button>
+            <Link to={para} className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-line px-5 sm:w-auto text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Ver detalhes</Link>
           </div>
         </div>
       </article>

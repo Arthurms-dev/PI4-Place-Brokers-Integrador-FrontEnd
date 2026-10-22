@@ -57,7 +57,7 @@ export function ContatoProvider({ children }) {
   }, []);
   const fechar = useCallback(() => setAberto(false), []);
   const valor = useMemo(() => ({ abrirContato }), [abrirContato]);
-  const mostrarBotao = !ROTAS_PRIVADAS.test(pathname) && !aberto;
+  const mostrarBotao = !ROTAS_PRIVADAS.test(pathname) && !pathname.startsWith("/imoveis/") && !aberto;
 
   return (
     <ContatoContext.Provider value={valor}>
