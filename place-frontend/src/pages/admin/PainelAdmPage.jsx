@@ -4,15 +4,17 @@ import { ResumoOperacional } from "@/components/admin/painel-adm/ResumoOperacion
 import { FeedCard } from "@/components/admin/painel-adm/FeedCard";
 import { useAsyncData} from "@/hooks/useAsyncData";
 import { usePageTitle} from "@/hooks/usePageTitle";
-import { getAvisosSeguranca, getMelhorias, getModificacoes } from "@/services/painel";
+import { getAvisosSeguranca } from "@/services/painel";
+import { listarEmpreendimentos } from "@/services/empreendimentos";
+import { criarFeedsDoCatalogo } from "@/components/admin/painel-adm/catalogoFeeds";
 
 export default function PainelAdmPage (){
     usePageTitle("Painel Administrativo");
 
     const { user } = useOutletContext();
     const alerts = useAsyncData(getAvisosSeguranca);
-    const improvments = useAsyncData(getMelhorias);
-    const changes = useAsyncData(getModificacoes);
+    const catalogo = useAsyncData(listarEmpreendimentos);
+    const { pendencias, atualizacoes } = criarFeedsDoCatalogo(catalogo);
 
     return (
         <>
@@ -27,9 +29,9 @@ export default function PainelAdmPage (){
             <DashboardAcesso/>
 
             <section className="grid gap-4 lg:grid-cols-3">
-                <FeedCard title="Avisos de Segurança" description="Alertas que precisam da sua atenção" icon="bell" feed={alerts} emptyLabel="Nenhum aviso no momento." />
-                <FeedCard title="O que Pode Melhorar" description="Sugestões de melhoria para o site" icon="activity" feed={improvments} emptyLabel="Nenhuma sugestão registrada." />
-                <FeedCard title="Modificações no Site" description="Últimas alterações publicadas" icon="refresh" feed={changes} emptyLabel="Nenhuma modificação recente." />
+                <FeedCard title="Registros de Segurança" description="Ocorrências cadastradas; não representa monitoramento automático" icon="bell" feed={alerts} emptyLabel="Nenhum registro cadastrado. Isso não garante ausência de incidentes." />
+                <FeedCard title="Pendências dos Imóveis" description="Itens faltantes em empreendimentos publicados" icon="activity" feed={pendencias} emptyLabel="Nenhuma pendência identificada nos imóveis publicados." />
+                <FeedCard title="Cadastros Atualizados" description="Últimas alterações cadastrais; não é histórico de auditoria" icon="refresh" feed={atualizacoes} emptyLabel="Nenhum cadastro atualizado encontrado." />
             </section>
         </>
     );

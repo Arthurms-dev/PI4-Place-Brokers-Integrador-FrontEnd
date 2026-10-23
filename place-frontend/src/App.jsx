@@ -94,7 +94,7 @@ export default function App() {
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route index element={<Navigate to="painel" replace />} />
         <Route path="painel" element={<PainelAdmPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="imoveis" element={<EmpreendimentosPage />} />

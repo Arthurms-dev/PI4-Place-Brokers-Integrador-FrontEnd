@@ -1,3 +1,5 @@
+import { getCurrentUser } from "@/services/session";
+import { ROLE_HOME } from "@/lib/areas";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/ui/Logo";
@@ -12,6 +14,7 @@ export default function SiteHeader() {
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
   const [rolou, setRolou] = useState(false);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const naHome = pathname === "/" || pathname.startsWith("/imoveis/");
 
   useEffect(() => {
@@ -21,6 +24,16 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", aoRolar);
   }, []);
   useEffect(() => setMenu(false), [pathname]);
+
+  useEffect(() => {
+    let ativo = true;
+    getCurrentUser()
+      .then((usuario) => { if (ativo) setUsuarioLogado(usuario); })
+      .catch(() => { if (ativo) setUsuarioLogado(null); });
+    return () => { ativo = false; };
+  }, []);
+  const destinoAreaRestrita = usuarioLogado ? (ROLE_HOME[usuarioLogado.cargo] ?? "/login") : "/login";
+
 
   function irPara(id) {
     setMenu(false);
@@ -41,7 +54,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link to="/login" className="hidden rounded-lg px-3 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink lg:inline">Área restrita</Link>
+          <Link to={destinoAreaRestrita} className="hidden rounded-lg px-3 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink lg:inline">{usuarioLogado ? "Voltar ao painel" : "Área restrita"}</Link>
           <button type="button" onClick={() => abrirContato(null, "cabeçalho")} className="h-10 rounded-full bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] transition hover:brightness-110 sm:px-5">
             <span className="hidden sm:inline">Fale com especialista</span>
             <span className="sm:hidden">Especialista</span>
@@ -58,7 +71,7 @@ export default function SiteHeader() {
         <nav aria-label="Menu" className="animate-fade-in border-t border-line-soft px-4 pb-4 pt-2 md:hidden">
           {SECOES.map(([rotulo, id]) => <button key={id} type="button" onClick={() => irPara(id)} className="block h-12 w-full rounded-lg px-3 text-left text-[15px] text-ink-2 hover:bg-card">{rotulo}</button>)}
           {PAGINAS.map(([rotulo, para]) => <Link key={para} to={para} className="flex h-12 items-center rounded-lg px-3 text-[15px] text-ink-2 hover:bg-card">{rotulo}</Link>)}
-          <Link to="/login" className="flex h-12 items-center rounded-lg px-3 text-[15px] text-ink-3 hover:bg-card">Área restrita</Link>
+          <Link to={destinoAreaRestrita} className="flex h-12 items-center rounded-lg px-3 text-[15px] text-ink-3 hover:bg-card">{usuarioLogado ? "Voltar ao painel" : "Área restrita"}</Link>
         </nav>
       )}
     </header>

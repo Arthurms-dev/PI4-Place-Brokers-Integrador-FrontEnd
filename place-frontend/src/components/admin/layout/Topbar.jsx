@@ -62,6 +62,10 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <Link to="/" aria-label="Abrir o site publico da Place Brokers"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-lg border border-line px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-gold/50 hover:text-gold md:inline-flex">
+          <Icon name="home" className="size-4" /> Ver site
+        </Link>
         {Number(user?.unreadNotifications) > 0 && (
           <span role="status" title="Notificações não lidas" className="flex items-center gap-1.5 text-xs text-gold">
             <Icon name="bell" className="size-4" /> {user.unreadNotifications}
@@ -100,6 +104,10 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
                   className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink hover:bg-white/5"
                 >
                   <Icon name="user" className="size-4" /> Ver perfil
+                </Link>
+                <Link to="/" onClick={() => setPerfilAberto(false)}
+                  className="flex items-center gap-2.5 border-t border-line-soft px-4 py-3 text-[13px] text-ink hover:bg-white/5">
+                  <Icon name="home" className="size-4" /> Ver site
                 </Link>
                 <button
                   type="button"

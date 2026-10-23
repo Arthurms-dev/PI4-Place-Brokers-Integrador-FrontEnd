@@ -27,7 +27,7 @@ export default function AdminLayout() {
   if (user.cargo !== "admin") return <Navigate to={ROLE_HOME[user.cargo] ?? "/acesso-negado"} replace />;
 
   return (
-    <AdminShell user={user} items={MENU} home="/admin/dashboard" promo={null}>
+    <AdminShell user={user} items={MENU} home="/admin/painel" promo={null}>
       <Outlet context={{ user }} />
     </AdminShell>
   );
