@@ -168,7 +168,15 @@ select:-webkit-autofill {
   }
 }
 
-/* Painel corporativo: identidade preservada, densidade e hierarquia padronizadas. */
+
+.leaflet-control-attribution {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  background: rgba(8, 21, 43, 0.85) !important;
+  color: #c3cee0 !important;
+  border-radius: 4px 0 0 0;
+}
+
 .pb-workspace {
   min-width: 0;
   background: var(--color-page);
@@ -219,11 +227,6 @@ select:-webkit-autofill {
   .pb-workspace a { color: #08152b !important; }
 }
 
-/* ================================================================
-   PLACE BROKERS — DESIGN SYSTEM / EDIÇÃO 02
-   Cor-base institucional INALTERADA: azul-marinho e dourado.
-   Refino profissional: densidade, superfície, hierarquia e estados.
-   ================================================================ */
 :root {
   --pb-radius-xs: 8px;
   --pb-radius-sm: 12px;
@@ -238,7 +241,6 @@ select:-webkit-autofill {
   --pb-surface-hover: rgb(255 255 255 / .043);
 }
 
-/* Consistência de leitura. O sans é reservado ao dashboard, serif ao editorial. */
 .pb-workspace {
   background-color: var(--color-page);
   background-image: linear-gradient(135deg, rgb(77 163 255 / .018), transparent 30%);
@@ -289,7 +291,6 @@ select:-webkit-autofill {
 .pb-data-panel { min-height: 260px; }
 .pb-data-panel h2 { font-weight: 700; }
 
-/* Lateral — disciplina de alinhamento, item ativo reconhecível sem brilho excessivo. */
 .pb-sidebar {
   background: linear-gradient(175deg, var(--color-side), #08172e 80%);
   box-shadow: 6px 0 45px rgb(0 0 0 / .075);
@@ -325,7 +326,6 @@ select:-webkit-autofill {
   box-shadow: inset 0 0 0 1px var(--pb-gold-border);
 }
 
-/* KPIs com contexto visual e área útil de leitura. */
 .pb-kpi-card {
   display: flex;
   flex-direction: column;
@@ -400,7 +400,6 @@ select:-webkit-autofill {
 .pb-toolbar { padding: 14px; border: 1px solid var(--pb-calm-border); border-radius: 16px; background: var(--pb-surface-soft); }
 .pb-workspace :is(.text-ink-3) { color: #9fafc5; }
 
-/* Site público: direção de arte editorial para o mesmo azul e dourado. */
 .pb-site { isolation: isolate; }
 .pb-site h1, .pb-site h2 { text-wrap: balance; }
 .pb-site :is(h2) { letter-spacing: -.035em; }
@@ -457,7 +456,6 @@ select:-webkit-autofill {
 .pb-site footer { background: linear-gradient(180deg, #0a1a33, #08152b); }
 .pb-site :is(button, a) { -webkit-tap-highlight-color: transparent; }
 
-/* Formulários de autenticação: foco no conteúdo, sem competir com a marca. */
 .pb-auth {
   background: radial-gradient(ellipse at 30% 0%, rgb(233 173 90 / .07), transparent 52%), var(--color-page);
 }
@@ -500,7 +498,6 @@ select:-webkit-autofill {
   .pb-kpi-card:hover, .pb-nav-item:hover, .pb-primary-button:hover { transform: none; }
 }
 
-/* Identidade editorial do catálogo: títulos, números e fotografias com respiro. */
 .pb-site-eyebrow {
   font-size: 10px;
   font-weight: 700;

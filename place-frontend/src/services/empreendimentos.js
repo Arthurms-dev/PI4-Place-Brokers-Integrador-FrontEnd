@@ -79,6 +79,20 @@ export async function atualizarEmpreendimento(id, mudancas) {
   return data;
 }
 
+export async function listarDocumentosComerciais(id) {
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos`, { headers: authHeaders() });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message ?? 'Não foi possível consultar os documentos.');
+  return data;
+}
+
+export async function urlDoDocumentoPorId(id, docId) {
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos/arquivo/${docId}`, { headers: authHeaders() });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message ?? 'Não foi possível abrir o documento.');
+  return data.url;
+}
+
 export async function urlDoDocumento(id, tipo) {
   const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos/${tipo}`, { headers: authHeaders() });
   const data = await response.json().catch(() => ({}));

@@ -3,13 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, urlDoDocumento } from "@/services/empreendimentos";
+import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, listarDocumentosComerciais, urlDoDocumento, urlDoDocumentoPorId } from "@/services/empreendimentos";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
-function Documento({ empreendimentoId, tipo, disponivel, rotulo }) {
+function Documento({ empreendimentoId, tipo, disponivel, rotulo, docId = null }) {
   const [abrindo, setAbrindo] = useState(false);
   const [erro, setErro] = useState("");
   const cls = "inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition-colors";
@@ -23,7 +23,7 @@ function Documento({ empreendimentoId, tipo, disponivel, rotulo }) {
     const janela = window.open("", "_blank");
     setAbrindo(true);
     try {
-      const url = await urlDoDocumento(empreendimentoId, tipo);
+      const url = docId ? await urlDoDocumentoPorId(empreendimentoId, docId) : await urlDoDocumento(empreendimentoId, tipo);
       if (janela) {
         janela.opener = null;
         janela.location.href = url;
@@ -46,6 +46,38 @@ function Documento({ empreendimentoId, tipo, disponivel, rotulo }) {
       {erro && <p role="alert" className="mt-1 text-[11px] text-danger">{erro}</p>}
     </div>
   );
+}
+
+function DocumentosCorretor({ empreendimentoId, temBook, temTabela }) {
+  const [documentos, setDocumentos] = useState(null);
+  const [erro, setErro] = useState('');
+  useEffect(() => {
+    let ativo = true;
+    setDocumentos(null);
+    setErro('');
+    listarDocumentosComerciais(empreendimentoId)
+      .then(lista => { if (ativo) setDocumentos(lista); })
+      .catch(e => { if (ativo) setErro(e.message); });
+    return () => { ativo = false; };
+  }, [empreendimentoId]);
+
+  if (erro) {
+    // Compatibilidade com a API ainda não atualizada: links legados continuam funcionando.
+    return <div className="flex flex-col gap-2 sm:flex-row">
+      <Documento empreendimentoId={empreendimentoId} tipo="book" disponivel={temBook} rotulo="Book" />
+      <Documento empreendimentoId={empreendimentoId} tipo="tabela" disponivel={temTabela} rotulo="Tabela" />
+    </div>;
+  }
+  if (!documentos) return <p className="text-xs text-ink-3">Carregando documentos comerciais...</p>;
+  if (!documentos.length) return <p className="text-xs text-ink-3">Ainda não há documentos comerciais disponíveis.</p>;
+  return <div className="flex flex-wrap gap-2">
+    {documentos.map((doc, indice) => (
+      <div key={doc.id ?? `legado-${doc.tipo}-${indice}`} className="min-w-[190px] flex-1">
+        <Documento empreendimentoId={empreendimentoId} tipo={doc.tipo} docId={doc.id}
+          disponivel rotulo={doc.fase ? `${doc.tipo === 'book' ? 'Book' : 'Tabela'} — ${doc.fase}` : doc.tipo === 'book' ? 'Abrir book' : 'Abrir tabela'} />
+      </div>
+    ))}
+  </div>;
 }
 
 function Fotos({ imagens, titulo }) {
@@ -94,6 +126,7 @@ function Detalhe({ resumo, onClose }) {
 
         <div className="flex flex-wrap items-center gap-2">
           <Selo tom={TOM_STATUS[emp.status] ?? "neutro"}>{STATUS[emp.status]?.label ?? emp.status}</Selo>
+          {!emp.publicado && <Selo tom="neutro">Rascunho</Selo>}
           {!emp.disponivel && <Selo tom="perigo">Indisponível</Selo>}
           {emp.construtora?.nome && <span className="text-[13px] text-ink-2">{emp.construtora.nome}</span>}
         </div>
@@ -112,10 +145,7 @@ function Detalhe({ resumo, onClose }) {
         {emp.descricao && <p className="text-sm leading-relaxed text-ink-2">{emp.descricao}</p>}
         {emp.lazer?.length > 0 && <div className="flex flex-wrap gap-2">{emp.lazer.map((l) => <span key={l} className="rounded-full border border-line px-3 py-1 text-[12px] text-ink-2">{l}</span>)}</div>}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Documento empreendimentoId={emp.id} tipo="book" disponivel={emp.tem_book} rotulo="Abrir book" />
-          <Documento empreendimentoId={emp.id} tipo="tabela" disponivel={emp.tem_tabela} rotulo="Abrir tabela de preços" />
-        </div>
+        <DocumentosCorretor empreendimentoId={emp.id} temBook={emp.tem_book} temTabela={emp.tem_tabela} />
 
         {temMapa && (
           <div className="space-y-3">
@@ -144,6 +174,7 @@ function Cartao({ e, indice, onAbrir }) {
           {e.capa_url ? <img src={e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-10" /></div>}
           <div className="absolute left-3 top-3 flex gap-1.5">
             <Selo tom={TOM_STATUS[e.status] ?? "neutro"}>{STATUS[e.status]?.label ?? e.status}</Selo>
+            {!e.publicado && <Selo tom="neutro">Rascunho</Selo>}
             {!e.disponivel && <Selo tom="perigo">Indisponível</Selo>}
           </div>
         </div>
@@ -175,7 +206,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
   useEffect(() => {
     let ativo = true;
     listarEmpreendimentos()
-      .then((l) => ativo && setLista(l.filter((e) => e.publicado)))
+      .then((l) => ativo && setLista(l))
       .catch((e) => ativo && setErro(e.message))
       .finally(() => ativo && setCarregando(false));
     return () => {
@@ -226,7 +257,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       {carregando ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">{[0, 1, 2].map((i) => <div key={i} className="h-72 animate-pulse rounded-2xl bg-card" />)}</div>
       ) : visiveis.length === 0 ? (
-        <Vazio>{lista.length === 0 ? "Nenhum empreendimento publicado ainda." : "Nenhum empreendimento com esses filtros."}</Vazio>
+        <Vazio>{lista.length === 0 ? "Nenhum empreendimento disponível para esta conta." : "Nenhum empreendimento com esses filtros."}</Vazio>
       ) : books ? (
         <ul className="divide-y divide-line-soft rounded-2xl border border-line bg-card px-4">
           {visiveis.map((e) => (
@@ -235,7 +266,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
                 <p className="truncate font-medium">{e.nome}</p>
                 <p className="truncate text-[13px] text-ink-3">{e.bairro} · {e.cidade}/{e.uf}</p>
               </div>
-              <div className="flex gap-2 sm:w-96"><Documento empreendimentoId={e.id} tipo="book" disponivel={e.tem_book} rotulo="Book" /><Documento empreendimentoId={e.id} tipo="tabela" disponivel={e.tem_tabela} rotulo="Tabela" /></div>
+              <div className="min-w-0 flex-1 sm:max-w-[500px]"><DocumentosCorretor empreendimentoId={e.id} temBook={e.tem_book} temTabela={e.tem_tabela} /></div>
             </li>
           ))}
         </ul>
