@@ -48,6 +48,8 @@ export async function getDashboardData(filtros = {}) {
     })),
     bookings: d.agendamentos.porDia.map(({ dia, total }) => ({ date: dia, value: total })),
     bookingsTotal: d.agendamentos.total,
+    leadsTotal: d.leads.total,
+    leadsConversionRate: d.leads.conversao.taxa,
     rating: {
       average: d.avaliacoes.media,
       total: d.avaliacoes.total,
