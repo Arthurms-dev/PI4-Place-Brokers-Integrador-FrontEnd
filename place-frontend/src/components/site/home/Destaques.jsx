@@ -15,8 +15,8 @@ export default function Destaques({ itens, onFalar }) {
     <section aria-labelledby="titulo-destaques" className="mx-auto max-w-7xl px-4 pt-14 sm:px-6">
       <Reveal className="mb-5 flex items-end justify-between gap-4">
         <div>
-          <p className="pb-site-eyebrow">Seleção em destaque</p><h2 id="titulo-destaques" className="text-2xl font-semibold sm:text-3xl">Lançamentos em alta</h2>
-          <p className="mt-1 text-[14px] text-ink-2">Os mais procurados do momento.</p>
+          <p className="pb-site-eyebrow">Seleção em destaque</p><h2 id="titulo-destaques" className="text-2xl font-semibold sm:text-3xl">Empreendimentos em destaque</h2>
+          <p className="mt-1 text-[14px] text-ink-2">Uma seleção de empreendimentos para conhecer.</p>
         </div>
         <div className="hidden gap-2 sm:flex">
           {[-1, 1].map((d) => (

@@ -1,48 +1,79 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import SiteLayout from "@/components/site/SiteLayout";
 import HomePage from "@/pages/HomePage";
-import SobrePage from "@/pages/SobrePage";
-import ContatoPage from "@/pages/ContatoPage";
-import NotFoundPage from "@/pages/NotFoundPage";
-import AcessoNegadoPage from "@/pages/AcessoNegadoPage";
-import PerfilPage from "@/pages/PerfilPage";
-import AreaLayout from "@/pages/AreaLayout";
+
+
+
+
+
+
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
-import VendasPage from "@/pages/VendasPage";
-import ComingSoonPage from "@/pages/admin/ComingSoonPage";
 
-import AdminLayout from "@/pages/admin/AdminLayout";
-import PainelAdmPage from "@/pages/admin/PainelAdmPage";
-import DashboardPage from "@/pages/admin/DashboardPage";
-import LeadsPage from "@/pages/admin/LeadsPage";
-import AgendamentosPage from "@/pages/admin/AgendamentosPage";
-import EmpreendimentosPage from "@/pages/admin/EmpreendimentosPage";
-import ClientesPage from "@/pages/admin/ClientesPage";
-import RelatoriosPage from "@/pages/admin/RelatoriosPage";
-import EquipePage from "@/pages/admin/EquipePage";
 
-import CorretorHomePage from "@/pages/corretor/CorretorHomePage";
-import CatalogoPage from "@/pages/corretor/CatalogoPage";
-import MapaGeralPage from "@/pages/corretor/MapaGeralPage";
-import MeusLeadsPage from "@/pages/corretor/MeusLeadsPage";
-import AgendaPage from "@/pages/corretor/AgendaPage";
 
-import GerenteInicioPage from "@/pages/gerente/GerenteInicioPage";
-import MinhaEquipePage from "@/pages/gerente/MinhaEquipePage";
-import GerenteLeadsPage from "@/pages/gerente/GerenteLeadsPage";
-import GerenteAgendaPage from "@/pages/gerente/GerenteAgendaPage";
 
-import ViabilizadorInicioPage from "@/pages/viabilizador/ViabilizadorInicioPage";
-import MeusProdutosPage from "@/pages/viabilizador/MeusProdutosPage";
-import ViabilizadorBooksPage from "@/pages/viabilizador/ViabilizadorBooksPage";
-import OportunidadesPage from "@/pages/viabilizador/OportunidadesPage";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* PLACE BROKERS: ROUTE CODE SPLIT */
+const SobrePage = lazy(() => import("@/pages/SobrePage"));
+const ContatoPage = lazy(() => import("@/pages/ContatoPage"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+const AcessoNegadoPage = lazy(() => import("@/pages/AcessoNegadoPage"));
+const PerfilPage = lazy(() => import("@/pages/PerfilPage"));
+const AreaLayout = lazy(() => import("@/pages/AreaLayout"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
+const VendasPage = lazy(() => import("@/pages/VendasPage"));
+const ComingSoonPage = lazy(() => import("@/pages/admin/ComingSoonPage"));
+const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
+const PainelAdmPage = lazy(() => import("@/pages/admin/PainelAdmPage"));
+const DashboardPage = lazy(() => import("@/pages/admin/DashboardPage"));
+const LeadsPage = lazy(() => import("@/pages/admin/LeadsPage"));
+const AgendamentosPage = lazy(() => import("@/pages/admin/AgendamentosPage"));
+const EmpreendimentosPage = lazy(() => import("@/pages/admin/EmpreendimentosPage"));
+const ClientesPage = lazy(() => import("@/pages/admin/ClientesPage"));
+const RelatoriosPage = lazy(() => import("@/pages/admin/RelatoriosPage"));
+const EquipePage = lazy(() => import("@/pages/admin/EquipePage"));
+const CorretorHomePage = lazy(() => import("@/pages/corretor/CorretorHomePage"));
+const CatalogoPage = lazy(() => import("@/pages/corretor/CatalogoPage"));
+const MapaGeralPage = lazy(() => import("@/pages/corretor/MapaGeralPage"));
+const MeusLeadsPage = lazy(() => import("@/pages/corretor/MeusLeadsPage"));
+const AgendaPage = lazy(() => import("@/pages/corretor/AgendaPage"));
+const GerenteInicioPage = lazy(() => import("@/pages/gerente/GerenteInicioPage"));
+const MinhaEquipePage = lazy(() => import("@/pages/gerente/MinhaEquipePage"));
+const GerenteLeadsPage = lazy(() => import("@/pages/gerente/GerenteLeadsPage"));
+const GerenteAgendaPage = lazy(() => import("@/pages/gerente/GerenteAgendaPage"));
+const ViabilizadorInicioPage = lazy(() => import("@/pages/viabilizador/ViabilizadorInicioPage"));
+const MeusProdutosPage = lazy(() => import("@/pages/viabilizador/MeusProdutosPage"));
+const ViabilizadorBooksPage = lazy(() => import("@/pages/viabilizador/ViabilizadorBooksPage"));
+const OportunidadesPage = lazy(() => import("@/pages/viabilizador/OportunidadesPage"));
 
 export default function App() {
   return (
-    <Routes>
+    <Suspense fallback={<div role="status" className="grid min-h-[50vh] place-items-center bg-page px-6 text-sm text-ink-2">Carregando página…</div>}>
+      <Routes>
       <Route element={<SiteLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/imoveis/:id" element={<HomePage />} />
@@ -110,6 +141,7 @@ export default function App() {
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }

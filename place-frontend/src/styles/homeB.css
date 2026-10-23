@@ -1,0 +1,43 @@
+/* Place Brokers — Home B: topo premium e descoberta clara.
+   Escopo restrito à home; painéis, login e outras páginas permanecem intactos. */
+.pb-home-clara {
+  --color-page: #f7f9fc;
+  --color-side: #eef2f7;
+  --color-card: #ffffff;
+  --color-card-2: #eef2f7;
+  --color-line: #dce4ee;
+  --color-line-soft: #e5ebf3;
+  --color-ink: #0b1f3a;
+  --color-ink-2: #475b76;
+  --color-ink-3: #6b7d97;
+  --color-gold: #996827;
+  --color-gold-2: #be8b43;
+  background-color: #f7f9fc;
+  color: #0b1f3a;
+  padding-bottom: 1px;
+}
+.pb-home-clara .pb-trust-strip {
+  background: #fff;
+  border-color: #e3e9f1;
+}
+.pb-home-clara .pb-site-eyebrow { color: #986827; }
+.pb-home-clara .pb-property-card,
+.pb-home-clara .pb-home-imovel {
+  background: #fff;
+  border-color: #e1e7f0;
+  box-shadow: 0 8px 24px -14px rgba(9, 30, 62, 0.18);
+}
+.pb-home-clara #cidades button .relative,
+.pb-home-clara #cidades button p,
+.pb-home-clara #cidades button span { color: #fff; }
+.pb-home-clara section[aria-labelledby="titulo-destaques"] .bg-linear-to-t p.text-ink-2 { color: #f1f5f9; }
+.pb-home-clara section[aria-labelledby="titulo-destaques"] .bg-linear-to-t p.text-gold { color: #f0bd74; }
+.pb-home-clara .pb-property-card .bg-page\/80 { background-color: rgba(8, 21, 43, 0.82); color: #f3c47a; }
+.pb-home-clara section[aria-label="Fale com um especialista"] .rounded-3xl {
+  border-color: #dfcaab;
+  background: linear-gradient(135deg, #fff8ee, #fff 55%, #edf3fa);
+}
+@media (max-width: 639px) {
+  .pb-home-hero h1 { text-wrap: balance; }
+  .pb-home-hero .pb-home-search { margin-top: 2rem; }
+}

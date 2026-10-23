@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import "@/styles/placeIdentityV2.css";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { ROLE_HOME } from "@/lib/areas";

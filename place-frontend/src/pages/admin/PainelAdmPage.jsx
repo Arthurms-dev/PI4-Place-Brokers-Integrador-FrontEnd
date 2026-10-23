@@ -17,7 +17,7 @@ export default function PainelAdmPage (){
     const { pendencias, atualizacoes } = criarFeedsDoCatalogo(catalogo);
 
     return (
-        <>
+        <div className="pb-painel-animado flex flex-col gap-6">
         <div>
             <p className="pb-eyebrow">Painel administrativo</p>
             <h1 className="text-[22px] font-medium tracking-tight sm:text-[26px]">Olá, {user.name.split(" ")[0]}</h1>
@@ -33,6 +33,6 @@ export default function PainelAdmPage (){
                 <FeedCard title="Pendências dos Imóveis" description="Itens faltantes em empreendimentos publicados" icon="activity" feed={pendencias} emptyLabel="Nenhuma pendência identificada nos imóveis publicados." />
                 <FeedCard title="Cadastros Atualizados" description="Últimas alterações cadastrais; não é histórico de auditoria" icon="refresh" feed={atualizacoes} emptyLabel="Nenhum cadastro atualizado encontrado." />
             </section>
-        </>
+        </div>
     );
 }

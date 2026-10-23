@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { NumeroAnimado } from "./NumeroAnimado";
 import { Card } from "@/components/ui/Card";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -48,7 +49,7 @@ export function ResumoOperacional() {
             <Link key={item.id} to={item.link} className="block min-w-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               <Card className="h-full min-w-0 transition-colors hover:border-gold">
                 <p className="text-[12px] text-ink-2">{item.titulo}</p>
-                <p className="mt-2 break-words text-[clamp(1.4rem,2vw,1.85rem)] font-bold tracking-tight tabular-nums text-ink">{item.valor}</p>
+                <p className="mt-2 break-words text-[clamp(1.4rem,2vw,1.85rem)] font-bold tracking-tight tabular-nums text-ink"><NumeroAnimado texto={item.valor} /></p>
                 <p className="mt-3 text-[11px] text-gold">Ver detalhes →</p>
               </Card>
             </Link>

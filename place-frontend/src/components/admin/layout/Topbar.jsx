@@ -105,9 +105,12 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
                 >
                   <Icon name="user" className="size-4" /> Ver perfil
                 </Link>
-                <Link to="/" onClick={() => setPerfilAberto(false)}
-                  className="flex items-center gap-2.5 border-t border-line-soft px-4 py-3 text-[13px] text-ink hover:bg-white/5">
-                  <Icon name="home" className="size-4" /> Ver site
+                <Link
+                  to="/"
+                  onClick={() => setPerfilAberto(false)}
+                  className="flex items-center gap-2.5 border-t border-line-soft px-4 py-3 text-[13px] text-ink hover:bg-white/5 md:hidden"
+                >
+                  <Icon name="home" className="size-4" />Ver site
                 </Link>
                 <button
                   type="button"

@@ -4,7 +4,8 @@ import { buscarEmpreendimentoPorId, formatarFaixa } from "@/services/empreendime
 import { registrarEvento } from "@/services/eventos";
 import { BotaoFavorito } from "./favoritos";
 import FormularioContato from "./FormularioContato";
-import GaleriaMobile from "./GaleriaMobile";
+import GaleriaImovelPremium from "./GaleriaImovelPremium";
+import { prepararImagensPublicas } from "@/lib/imagensPublicas";
 import { useContato } from "./ContatoProvider";
 import { Etiquetas } from "./home/pecas";
 
@@ -36,16 +37,12 @@ export default function EmpreendimentoModal({ item, onClose }) {
     };
   }, [item]);
 
-  const imagens = useMemo(() => {
-    const extras = [...(det?.imagens ?? [])]
-      .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
-      .map((foto) => ({ src: foto.url, alt: foto.alt || `${item.title} — imagem do empreendimento` }));
-    const iniciais = [item.image, ...(item.galeria ?? [])]
-      .filter(Boolean)
-      .map((src) => ({ src, alt: `${item.title} — imagem do empreendimento` }));
-    return [...iniciais, ...extras].filter((foto, i, lista) =>
-      foto.src && lista.findIndex((outro) => outro.src === foto.src) === i);
-  }, [item, det]);
+  const imagens = useMemo(() => prepararImagensPublicas({
+    capa: item.image,
+    galeria: item.galeria,
+    imagens: det?.imagens,
+    titulo: item.title,
+  }), [item, det]);
 
   const lat = det?.latitude ?? item.lat;
   const lng = det?.longitude ?? item.lng;
@@ -54,6 +51,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
   const vagas = det ? formatarFaixa(det.vagas_min, det.vagas_max, "vaga", "vagas") : item.vagasTexto;
   const dados = [
     ["Quartos", item.quartosTexto],
+    ["Suítes", item.suitesTexto],
+    ["Tipo", item.tipoTexto],
     ["Garagem", vagas],
     ["Metragem", item.area],
     ["Valores", item.preco],
@@ -73,7 +72,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
         <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-24 sm:pb-6">
           <div className="grid min-w-0 grid-cols-1 gap-6 sm:p-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="space-y-6">
-              <GaleriaMobile imagens={imagens} titulo={item.title} />
+              <GaleriaImovelPremium imagens={imagens} titulo={item.title} />
 
               <div className="space-y-6 px-4 sm:px-0">
                 <div className="space-y-3">
@@ -96,6 +95,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
                     ))}
                   </dl>
                 )}
+                <p className="px-4 text-xs leading-relaxed text-ink-3 sm:px-0">As informações descrevem o empreendimento; tipologia, condições e disponibilidade variam conforme a unidade. Confirme com um especialista.</p>
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
                 {lazer?.length > 0 && (

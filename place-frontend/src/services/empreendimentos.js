@@ -20,8 +20,11 @@ function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function listarEmpreendimentos() {
-  const response = await fetch(`${BASE_URL}/empreendimentos`, { headers: authHeaders() });
+export async function listarEmpreendimentos({ publico = false } = {}) {
+  // O catálogo público precisa apenas dos imóveis publicados.
+  // Sem token, a API pula a validação do usuário e não libera rascunhos.
+  // Os painéis continuam chamando a função sem opções e mantendo a autenticação.
+  const response = await fetch(`${BASE_URL}/empreendimentos`, { headers: publico ? {} : authHeaders() });
   if (!response.ok) throw new Error("Não foi possível carregar os empreendimentos.");
   return response.json();
 }

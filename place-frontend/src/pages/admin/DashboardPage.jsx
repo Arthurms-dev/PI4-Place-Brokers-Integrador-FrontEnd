@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
+import "@/styles/placeDashboardMotion.css";
 import { Delta } from "@/components/ui/Delta";
 import { Icon } from "@/components/ui/Icon";
 import { KpiCards } from "@/components/admin/dashboard/KpiCards";
@@ -100,7 +101,7 @@ export default function DashboardPage() {
   const maxViews = Math.max(...(dados?.topProperties ?? []).map((t) => t.views), 1);
 
   return (
-    <div className="space-y-5">
+    <div className="pb-dashboard-motion space-y-5">
       <div className="pb-page-header animate-fade-up flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="pb-eyebrow">Visão executiva</p>

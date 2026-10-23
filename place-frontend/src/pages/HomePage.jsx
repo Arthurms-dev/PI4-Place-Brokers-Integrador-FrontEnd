@@ -8,20 +8,24 @@ import Cidades from "@/components/site/home/Cidades";
 import ComoFunciona from "@/components/site/home/ComoFunciona";
 import Destaques from "@/components/site/home/Destaques";
 import FaixaCTA from "@/components/site/home/FaixaCTA";
-import Hero from "@/components/site/home/Hero";
-import ListaEmpreendimentos from "@/components/site/home/ListaEmpreendimentos";
+import HeroB from "@/components/site/home/HeroB";
+import ListaEmpreendimentosB from "@/components/site/home/ListaEmpreendimentosB";
+import ExplorarB from "@/components/site/home/ExplorarB";
+import "@/styles/homeB.css";
+import "@/styles/placeIdentityV2.css";
+import "@/styles/placeHomeC.css";
 import { useEmpreendimentosPublicos } from "@/data/empreendimentosPublicos";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { registrarEvento } from "@/services/eventos";
 
 const norm = (s = "") => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const irPara = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-const VAZIO = { texto: "", tag: "", quartos: "" };
+const VAZIO = { texto: "", tag: "", quartos: "", precoAte: "" };
 
 const CONFIANCA = [
   ["messageCircle", "Especialistas em lançamentos", "Atendimento do primeiro contato às chaves"],
   ["building", "Condições de lançamento", "Valores e tabelas sempre atualizados"],
-  ["book", "Book e tabela na hora", "Receba tudo assim que falar com a gente"],
+  ["book", "Detalhes com um especialista", "Conheça plantas e condições com acompanhamento profissional"],
 ];
 
 export default function HomePage() {
@@ -70,7 +74,8 @@ export default function HomePage() {
       (p) =>
         (!q || norm(`${p.title} ${p.cidade} ${p.bairro} ${p.city}`).includes(q)) &&
         (!filtros.tag || p.tag === filtros.tag) &&
-        (!filtros.quartos || (p.quartosMax ?? 0) >= Number(filtros.quartos)),
+        (!filtros.quartos || (p.quartosMax ?? 0) >= Number(filtros.quartos)) &&
+        (!filtros.precoAte || (p.precoMin != null && p.precoMin <= Number(filtros.precoAte))),
     );
   }, [itens, filtros]);
 
@@ -78,6 +83,7 @@ export default function HomePage() {
     filtros.texto && ["texto", `“${filtros.texto}”`],
     filtros.tag && ["tag", filtros.tag],
     filtros.quartos && ["quartos", `${filtros.quartos}+ quartos`],
+    filtros.precoAte && ["precoAte", `Até ${Number(filtros.precoAte).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`],
   ].filter(Boolean);
   const filtrando = chips.length > 0;
 
@@ -85,7 +91,9 @@ export default function HomePage() {
     <main>
       {erro && <p role="alert" className="mx-auto max-w-7xl px-4 py-3 text-sm text-red-300 sm:px-6">{erro} Verifique o back-end e tente recarregar a página.</p>}
       {origem === 'mock' && <p role="status" className="bg-amber-100 px-4 py-2 text-center text-sm font-semibold text-amber-950">Modo demonstração: imóveis fictícios.</p>}
-      <Hero itens={[...itens].sort((a, b) => Number(b.destaque) - Number(a.destaque))} filtros={filtros} onFiltros={setFiltros} tags={tags} sugestoes={sugestoes} cidades={cidades} onBuscar={buscar} />
+      <HeroB itens={[...itens].sort((a, b) => Number(b.destaque) - Number(a.destaque))} filtros={filtros} onFiltros={setFiltros} tags={tags} sugestoes={sugestoes} cidades={cidades} onBuscar={buscar} />
+
+      <div className="pb-home-clara">
 
       <section aria-label="Por que a Place Brokers" className="pb-trust-strip border-y border-line-soft bg-side/60">
         <ul className="mx-auto grid max-w-7xl gap-px px-4 sm:grid-cols-3 sm:px-6">
@@ -103,11 +111,13 @@ export default function HomePage() {
         </ul>
       </section>
 
-      {!filtrando && <Destaques itens={itens} onFalar={(p) => falar(p, "destaques da home")} />}
+      <ExplorarB itens={itens} onEscolher={(novos) => buscar({ ...VAZIO, ...novos })} />
+
+      <ListaEmpreendimentosB itens={filtrados} carregando={carregando} chips={chips} onRemoverChip={(campo) => setFiltros((f) => ({ ...f, [campo]: "" }))} onLimpar={() => setFiltros(VAZIO)} onFalar={(p) => falar(p, "lista da home")} />
       <Cidades itens={itens} ativa={filtros.texto} onEscolher={(c) => buscar({ ...filtros, texto: c })} />
-      <ListaEmpreendimentos itens={filtrados} carregando={carregando} chips={chips} onRemoverChip={(campo) => setFiltros((f) => ({ ...f, [campo]: "" }))} onLimpar={() => setFiltros(VAZIO)} onFalar={(p) => falar(p, "lista da home")} />
       <ComoFunciona />
       <FaixaCTA onFalar={(p) => falar(p, "chamada final da home")} />
+      </div>
 
       {aberto && <EmpreendimentoModal key={aberto.id} item={aberto} onClose={fechar} />}
     </main>

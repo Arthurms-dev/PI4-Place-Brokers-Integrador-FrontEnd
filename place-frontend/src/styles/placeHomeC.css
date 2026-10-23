@@ -1,0 +1,45 @@
+/* Place Brokers: Home C — composição editorial/fotográfica.
+   Esta folha é importada depois de homeB.css e placeIdentityV2.css. */
+.pb-site .pb-c-hero {
+  color: #0b203b;
+  background: radial-gradient(ellipse at 82% 3%, #e1eaf0 0%, transparent 50%), linear-gradient(180deg, #f3f5f6, #edf3f8);
+}
+.pb-site .pb-c-hero::after {display:none}
+.pb-c-overline { display:flex; align-items:center; gap:.7rem; color:#aa772f; font-size:10px; font-weight:800; letter-spacing:.14em; }
+.pb-c-hero .pb-c-photo img { animation: pb-c-photo-in .65s ease both; }
+@keyframes pb-c-photo-in { from { opacity:.35; transform:scale(1.04); } to { opacity:1; transform:scale(1); } }
+.pb-site .pb-c-hero form select,.pb-site .pb-c-hero form input { color-scheme:light; }
+.pb-site .pb-home-clara {
+  --color-page:#eef3f8;
+  --color-card:#fff;
+  --color-side:#f2f5f9;
+  --color-card-2:#fff;
+  --color-ink:#0b203b;
+  --color-ink-2:#516783;
+  --color-ink-3:#71859c;
+  --color-line:#dce5ee;
+  --color-line-soft:#e3eaf1;
+  background: linear-gradient(180deg,#edf3f8 0,#f5f7fa 550px,#f7f9fb 80%,#edf3f8 100%);
+  color:#0b203b;
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel,.pb-property-card) {
+  background:#ffffff !important; background-image:none !important;
+  color:#0b203b !important; border-color:#dbe3ed !important;
+  box-shadow:0 14px 42px -30px rgba(8,21,43,.36),0 3px 13px -11px rgba(8,21,43,.19);
+}
+.pb-site .pb-home-clara .pb-home-imovel > div:last-child { background:#fff !important; color:#0b203b; }
+.pb-site .pb-home-clara .pb-home-imovel :is(.text-ink,.text-ink-2,.text-ink-3) { color:#0b203b; }
+.pb-site .pb-home-clara .pb-home-imovel p.text-ink-2 { color:#516783; }
+.pb-site .pb-home-clara .pb-home-imovel p.text-ink-3 { color:#6d8199; }
+.pb-site .pb-home-clara .pb-home-imovel :is(img) {filter:none;}
+.pb-site .pb-home-clara .pb-c-filter { background:#fff !important; background-image:none !important; }
+.pb-site .pb-home-clara .pb-c-catalog { padding-bottom:1rem; }
+.pb-site .pb-home-clara :is(#titulo-lista,#titulo-cidades) {color:#0b203b}
+.pb-site .pb-home-clara #cidades {padding-top:3.5rem}
+.pb-site .pb-home-clara #como-funciona {padding-top:4.5rem}
+.pb-site .pb-home-clara .pb-trust-strip { background:#eff4f8; }
+.pb-site .pb-home-clara section[aria-label="Fale com um especialista"] { padding-bottom:3rem; }
+.pb-site .pb-home-clara .pb-property-card .text-gold {color:#b88036}
+@media(min-width:1024px) { .pb-site .pb-c-hero-copy { padding-bottom:5.5rem; } }
+@media(max-width:639px) { .pb-site .pb-c-hero .pb-c-photo {height:325px;} .pb-site .pb-c-hero .pb-c-search {transform:none;margin-top:1.25rem;} }
+@media(prefers-reduced-motion:reduce){ .pb-site .pb-c-hero .pb-c-photo img {animation:none!important;} }

@@ -1,0 +1,100 @@
+/* Place Brokers — Identidade 2.0 / etapa 1.
+   Home: continuidade de superficies. ADM: movimento funcional.
+   Escopo deliberadamente limitado para nao afetar a autenticacao e os demais paineis.
+*/
+:root {
+  --pb-brand-navy: #08152b;
+  --pb-brand-midnight: #102843;
+  --pb-brand-gold: #e9ad5a;
+  --pb-brand-surface: #eef3f8;
+  --pb-brand-ink: #0b203b;
+  --pb-motion-fast: 180ms;
+  --pb-motion-medium: 360ms;
+}
+
+/* Uma mesma atmosfera cromatica entre a primeira tela e a descoberta. */
+.pb-site .pb-home-hero {
+  background: radial-gradient(circle at 78% 12%, rgba(38, 76, 111, .32), transparent 44%),
+              linear-gradient(145deg, #08152b 0%, #112b48 68%, #152e4b 100%);
+}
+.pb-site .pb-home-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 92px;
+  background: linear-gradient(180deg, transparent, rgba(11, 31, 53, .20));
+  pointer-events: none;
+}
+.pb-site .pb-home-clara {
+  --color-page: #eef3f8;
+  --color-side: #e9f0f7;
+  --color-card: #ffffff;
+  --color-card-2: #f3f6fa;
+  --color-line: #dae4ef;
+  --color-line-soft: #e5ecf3;
+  --color-ink: #0b203b;
+  --color-ink-2: #465c74;
+  --color-ink-3: #657a91;
+  background: linear-gradient(180deg, #dce8f2 0, #eaf1f7 140px, #f5f8fb 530px, #eef3f8 100%);
+  color: var(--color-ink);
+}
+.pb-site .pb-home-clara .pb-trust-strip {
+  background: linear-gradient(90deg, rgba(225, 236, 247, .96), rgba(250, 252, 254, .96));
+  border-color: rgba(143, 167, 191, .27);
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card) {
+  border-color: rgba(157, 176, 195, .38);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 14px 32px -25px rgba(9, 30, 55, .34), 0 3px 10px -7px rgba(9, 30, 55, .12);
+  transition: transform var(--pb-motion-medium) ease, box-shadow var(--pb-motion-medium) ease, border-color var(--pb-motion-fast) ease;
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card):hover {
+  border-color: rgba(189, 139, 76, .56);
+  box-shadow: 0 24px 48px -28px rgba(9, 30, 55, .40), 0 10px 24px -20px rgba(9, 30, 55, .22);
+}
+.pb-site .pb-home-clara .pb-home-imovel a:focus-visible,
+.pb-site .pb-home-clara .pb-home-imovel button:focus-visible {
+  outline: 2px solid #ad7832;
+  outline-offset: 3px;
+}
+.pb-site .pb-home-clara :is(h2, h3) { letter-spacing: -.035em; }
+.pb-site .pb-home-clara #lista,
+.pb-site .pb-home-clara #cidades { scroll-margin-top: 105px; }
+
+/* Painel ADM — movimento curto, util e sem mudar as metricas. */
+@keyframes pb-panel-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pb-value-glow {
+  from { opacity: .7; }
+  to { opacity: 1; }
+}
+.pb-workspace .pb-painel-animado > * {
+  animation: pb-panel-enter 540ms cubic-bezier(.2,.7,.2,1) both;
+}
+.pb-workspace .pb-painel-animado > :nth-child(2) { animation-delay: 80ms; }
+.pb-workspace .pb-painel-animado > :nth-child(3) { animation-delay: 150ms; }
+.pb-workspace .pb-painel-animado > :nth-child(4) { animation-delay: 220ms; }
+.pb-workspace .pb-painel-animado a > .rounded-2xl,
+.pb-workspace .pb-painel-animado .rounded-xl.border {
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+.pb-workspace .pb-painel-animado a:hover > .rounded-2xl,
+.pb-workspace .pb-painel-animado a:hover.rounded-xl.border {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -24px rgba(0,0,0,.65);
+}
+.pb-workspace .pb-kpi-number { display: inline-block; animation: pb-value-glow 550ms ease-out both; }
+.pb-workspace .pb-painel-animado :is(button,a):active { transition-duration: 90ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-workspace .pb-painel-animado > *,
+  .pb-workspace .pb-kpi-number { animation: none !important; }
+  .pb-workspace .pb-painel-animado a:hover > .rounded-2xl,
+  .pb-workspace .pb-painel-animado a:hover.rounded-xl.border { transform: none; }
+  .pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card) { transition-duration: 0.01ms !important; }
+}
