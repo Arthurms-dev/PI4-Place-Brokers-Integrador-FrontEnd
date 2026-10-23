@@ -21,7 +21,7 @@ export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidad
   const [atual, setAtual] = useState(0);
 
   useEffect(() => {
-    if (fotos.length < 2) return undefined;
+    if (fotos.length < 2 || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return undefined;
     const id = setInterval(() => setAtual(a => (a + 1) % fotos.length), 9000);
     return () => clearInterval(id);
   }, [fotos.length]);
@@ -84,7 +84,7 @@ export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidad
 
       <div className="pb-hero-inner relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:pt-28">
         <p className="animate-fade-up text-[11px] font-bold uppercase tracking-[0.24em] text-gold">Lançamentos em Pernambuco</p>
-        <h1 className="pb-hero-title animate-fade-up mt-5 max-w-4xl text-[clamp(2.8rem,6.1vw,5.6rem)] font-semibold leading-[1.04] tracking-tight" style={{ animationDelay: "80ms" }}>
+        <h1 className="pb-hero-title animate-fade-up mt-5 max-w-4xl text-[clamp(2.2rem,8vw,5.6rem)] font-semibold leading-[1.04] tracking-tight" style={{ animationDelay: "80ms" }}>
           O lugar certo para <span className="text-gold-gradient">começar a sua história</span>
         </h1>
         <p className="animate-fade-up mt-6 max-w-[35rem] text-[15px] leading-[1.8] text-ink-2 sm:text-[17px]" style={{ animationDelay: "160ms" }}>

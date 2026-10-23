@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { LeadAtividadesToggle } from "@/components/leads/LeadAtividades";
 import { atualizarStatusLead, criarCliente, listarClientes, listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
 
@@ -250,6 +251,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                   </div>
                   <p className="text-[13px] text-ink-2">{l.telefone} · {l.email}</p>
                   {l.mensagem && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{l.mensagem}</p>}
+                  <LeadAtividadesToggle leadId={l.id} />
                   <div className="flex flex-wrap gap-2">
                     <BotaoZap telefone={l.telefone} nome={l.nome} />
                     {l.status === "convertido" ? (

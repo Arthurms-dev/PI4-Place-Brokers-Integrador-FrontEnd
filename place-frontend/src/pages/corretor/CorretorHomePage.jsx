@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { MapTiles } from "@/components/map/MapTiles";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -190,7 +191,7 @@ export default function CorretorHomePage() {
 
             <div className="relative h-105 overflow-hidden rounded-lg border border-line">
               <MapContainer center={[-8.05, -34.9]} zoom={11} scrollWheelZoom className="h-full w-full bg-card-2">
-                <TileLayer attribution="&copy; OpenStreetMap &copy; CARTO" url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                <MapTiles />
                 <FitBounds pontos={filtrados} />
                 {filtrados.map((e) => (
                   <Marker key={e.id} position={[e.latitude, e.longitude]} icon={PIN_ICONS[e.status]}>

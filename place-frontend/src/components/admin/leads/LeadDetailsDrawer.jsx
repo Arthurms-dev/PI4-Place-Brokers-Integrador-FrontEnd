@@ -7,6 +7,7 @@ import { formatPhone, whatsappUrl } from "@/lib/contact";
 import { formatDateTime } from "@/lib/format";
 import { LEAD_STATUSES, formatLocation } from "@/lib/leads";
 import { LeadStatusBadge } from "./LeadStatusBadge";
+import { LeadAtividades } from "@/components/leads/LeadAtividades";
 
 const selectClass =
   "h-9 w-full rounded-lg border border-line bg-card-2 px-3 text-xs text-ink outline-none scheme-dark focus:border-gold";
@@ -122,6 +123,10 @@ export function LeadDetailsDrawer({ lead, corretores, onClose, onStatusChange, o
           <p className="whitespace-pre-wrap text-xs leading-relaxed text-ink-2">
             {lead.mensagem || "O cliente não deixou mensagem."}
           </p>
+        </Section>
+
+        <Section title="Histórico e próximo contato">
+          <LeadAtividades leadId={lead.id} />
         </Section>
 
         <Section title="Gerenciar">

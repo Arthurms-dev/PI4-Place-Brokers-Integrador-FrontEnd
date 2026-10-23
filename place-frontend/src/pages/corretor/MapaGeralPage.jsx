@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { MapTiles } from "@/components/map/MapTiles";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -126,7 +127,7 @@ export default function MapaGeralPage() {
           ) : (
             <div className="h-105 overflow-hidden rounded-lg border border-line">
               <MapContainer center={[-8.05, -34.9]} zoom={11} scrollWheelZoom className="h-full w-full bg-card-2">
-                <TileLayer attribution="&copy; OpenStreetMap &copy; CARTO" url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                <MapTiles />
                 <FitBounds pontos={filtrados} />
                 {filtrados.map((e) => (
                   <Marker key={e.id} position={[e.latitude, e.longitude]} icon={ICONES[e.status]}>

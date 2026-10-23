@@ -1,48 +1,15 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { buscarEmpreendimentoPorId, formatarFaixa } from "@/services/empreendimentos";
 import { registrarEvento } from "@/services/eventos";
 import { BotaoFavorito } from "./favoritos";
 import FormularioContato from "./FormularioContato";
+import GaleriaMobile from "./GaleriaMobile";
 import { useContato } from "./ContatoProvider";
 import { Etiquetas } from "./home/pecas";
 
 const MiniMapa = lazy(() => import("./MiniMapa"));
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function Galeria({ imagens, titulo }) {
-  const trilho = useRef(null);
-  const [atual, setAtual] = useState(0);
-  const ir = (i) => trilho.current?.scrollTo({ left: i * trilho.current.clientWidth, behavior: "smooth" });
-  if (imagens.length === 0) return <div className="grid aspect-16/10 place-items-center rounded-2xl bg-card-2 text-gold/50"><Icon name="building" className="size-14" /></div>;
-
-  return (
-    <div className="space-y-2">
-      <div className="relative overflow-hidden bg-card-2 sm:rounded-2xl">
-        <div ref={trilho} onScroll={(e) => setAtual(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
-          className="flex aspect-4/3 snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] sm:aspect-16/10 [&::-webkit-scrollbar]:hidden">
-          {imagens.map((src, i) => <img key={src + i} src={src} alt={`${titulo} — foto ${i + 1}`} loading={i ? "lazy" : "eager"} decoding="async" className="size-full shrink-0 snap-center object-cover" />)}
-        </div>
-        {imagens.length > 1 && (
-          <>
-            <span className="absolute bottom-3 right-3 rounded-full bg-page/80 px-3 py-1 text-xs backdrop-blur">{atual + 1} / {imagens.length}</span>
-            {atual > 0 && <button type="button" aria-label="Foto anterior" onClick={() => ir(atual - 1)} className="absolute left-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur transition hover:bg-page sm:grid"><Icon name="chevronLeft" className="size-5" /></button>}
-            {atual < imagens.length - 1 && <button type="button" aria-label="Próxima foto" onClick={() => ir(atual + 1)} className="absolute right-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur transition hover:bg-page sm:grid"><Icon name="chevronRight" className="size-5" /></button>}
-          </>
-        )}
-      </div>
-      {imagens.length > 1 && (
-        <div className="hidden gap-2 overflow-x-auto sm:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {imagens.map((src, i) => (
-            <button key={src + i} type="button" onClick={() => ir(i)} aria-label={`Ver foto ${i + 1}`} className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${i === atual ? "border-gold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-              <img src={src} alt="" loading="lazy" className="size-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function EmpreendimentoModal({ item, onClose }) {
   const { abrirContato } = useContato();
@@ -70,8 +37,14 @@ export default function EmpreendimentoModal({ item, onClose }) {
   }, [item]);
 
   const imagens = useMemo(() => {
-    const extras = [...(det?.imagens ?? [])].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)).map((i) => i.url);
-    return [item.image, ...item.galeria, ...extras].filter(Boolean).filter((u, i, l) => l.indexOf(u) === i);
+    const extras = [...(det?.imagens ?? [])]
+      .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
+      .map((foto) => ({ src: foto.url, alt: foto.alt || `${item.title} — imagem do empreendimento` }));
+    const iniciais = [item.image, ...(item.galeria ?? [])]
+      .filter(Boolean)
+      .map((src) => ({ src, alt: `${item.title} — imagem do empreendimento` }));
+    return [...iniciais, ...extras].filter((foto, i, lista) =>
+      foto.src && lista.findIndex((outro) => outro.src === foto.src) === i);
   }, [item, det]);
 
   const lat = det?.latitude ?? item.lat;
@@ -88,8 +61,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
   const sobre = { id: item.id, title: item.title };
 
   return (
-    <div className="animate-fade-in fixed inset-0 z-[55] bg-black/75 sm:flex sm:items-center sm:justify-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={item.title} className="animate-slide-up sm:animate-fade-up flex h-full w-full flex-col bg-page sm:h-auto sm:max-h-[94dvh] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-line">
+    <div className="animate-fade-in fixed inset-0 z-[55] overflow-x-hidden bg-black/75 sm:flex sm:items-center sm:justify-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div role="dialog" aria-modal="true" aria-label={item.title} className="animate-slide-up sm:animate-fade-up flex h-full min-w-0 w-full max-w-full flex-col overflow-x-hidden bg-page sm:h-auto sm:max-h-[94dvh] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-line">
         <div className="flex items-center justify-between gap-3 border-b border-line-soft px-4 py-3">
           <button type="button" onClick={onClose} className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-gold">
             <Icon name="chevronLeft" className="size-5" /> Voltar
@@ -97,10 +70,10 @@ export default function EmpreendimentoModal({ item, onClose }) {
           <BotaoFavorito id={item.id} titulo={item.title} className="border border-line" />
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-24 sm:pb-6">
-          <div className="grid gap-6 sm:p-6 lg:grid-cols-[1.5fr_1fr]">
+        <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-24 sm:pb-6">
+          <div className="grid min-w-0 grid-cols-1 gap-6 sm:p-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="space-y-6">
-              <Galeria imagens={imagens} titulo={item.title} />
+              <GaleriaMobile imagens={imagens} titulo={item.title} />
 
               <div className="space-y-6 px-4 sm:px-0">
                 <div className="space-y-3">
@@ -167,7 +140,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
             <p className="text-[11px] uppercase tracking-wide text-ink-3">{item.preco.startsWith("A partir") ? "A partir de" : "Valores"}</p>
             <p className="truncate text-lg font-semibold text-gold">{item.preco.replace("A partir de ", "")}</p>
           </div>
-          <button type="button" onClick={() => abrirContato(sobre, "detalhe do empreendimento")} className="h-12 shrink-0 rounded-xl bg-gold-gradient px-6 text-sm font-semibold text-[#1a1408]">Falar com especialista</button>
+          <button type="button" onClick={() => abrirContato(sobre, "detalhe do empreendimento")} className="min-h-12 min-w-0 shrink-0 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] sm:px-6"><span className="sm:hidden">Falar agora</span><span className="hidden sm:inline">Falar com especialista</span></button>
         </div>
       </div>
     </div>
