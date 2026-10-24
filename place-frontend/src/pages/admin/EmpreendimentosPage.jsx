@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import EmpreendimentoForm from "@/components/admin/empreendimentos/EmpreendimentoForm";
+import PendenciasDrivePanel from "@/components/admin/empreendimentos/PendenciasDrivePanel";
 import { listarDocumentosAdmin } from "@/services/documentosComerciaisAdmin";
 import { CAMPO, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -310,6 +311,13 @@ export default function EmpreendimentosPage() {
           {erro}
         </p>
       )}
+
+      <PendenciasDrivePanel
+        onAbrirEmpreendimento={(id) => {
+          const empreendimento = lista.find((item) => String(item.id) === String(id));
+          if (empreendimento) setForm({ emp: empreendimento });
+        }}
+      />
 
       <div className="grid gap-2 sm:grid-cols-[1fr_11rem_11rem]">
         <input
