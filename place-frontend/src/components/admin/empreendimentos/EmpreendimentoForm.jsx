@@ -4,6 +4,7 @@ import { CAMPO, Campo, Folha } from "@/components/admin/equipe/ui";
 import { criarConstrutora } from "@/services/construtoras";
 import { atualizarEmpreendimento, criarEmpreendimento } from "@/services/empreendimentos";
 import TipologiasForm from "./TipologiasForm";
+import { auditarTipologias } from "@/lib/auditoriaTipologias";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const MAX_ARQUIVO = 15 * 1024 * 1024;
@@ -99,6 +100,13 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     publicado: emp?.publicado ?? false,
     disponivel: emp?.disponivel ?? true,
   }));
+  const [tipologias, setTipologias] = useState(() =>
+    Array.isArray(emp?.tipologias) ? emp.tipologias : []
+  );
+  const avisosTipologias = useMemo(
+    () => auditarTipologias(f, tipologias),
+    [f, tipologias]
+  );
   const [arquivos, setArquivos] = useState({ capa: null, galeria: [], book: null, tabela: null });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
@@ -272,12 +280,32 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
           </div>
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
         </Secao>
+        {emp && avisosTipologias.length > 0 && (
+          <div
+            role="status"
+            aria-label="Divergências entre características e plantas"
+            className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4"
+          >
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              Atenção: confira os dados gerais e as plantas cadastradas
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5 text-ink-2">
+              {avisosTipologias.map((aviso) => (
+                <li key={aviso.chave}>{aviso.mensagem}</li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-ink-3">
+              Os avisos não bloqueiam o salvamento nem alteram dados automaticamente.
+            </p>
+          </div>
+        )}
         {emp && (
           <TipologiasForm
             empreendimentoId={emp.id}
-            onAtualizadas={(tipologias) =>
-              onTipologiasAtualizadas?.(emp.id, tipologias)
-            }
+            onAtualizadas={(novasTipologias) => {
+              setTipologias(novasTipologias);
+              onTipologiasAtualizadas?.(emp.id, novasTipologias);
+            }}
           />
         )}
         <Secao titulo="Arquivos">

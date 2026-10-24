@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Campo, CAMPO } from "@/components/admin/equipe/ui";
 import {
   buscarEmpreendimentoPorId,
@@ -51,6 +51,11 @@ function detalhes(tipologia) {
 }
 
 export default function TipologiasForm({ empreendimentoId, onAtualizadas }) {
+  const aoAtualizarRef = useRef(onAtualizadas);
+  useEffect(() => {
+    aoAtualizarRef.current = onAtualizadas;
+  }, [onAtualizadas]);
+
   const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState(null);
@@ -67,7 +72,10 @@ export default function TipologiasForm({ empreendimentoId, onAtualizadas }) {
     buscarEmpreendimentoPorId(empreendimentoId)
       .then((empreendimento) => {
         if (ativo) {
-          setLista(ordenar(empreendimento.tipologias ?? []));
+          const atuais = ordenar(empreendimento.tipologias ?? []);
+          setLista(atuais);
+          // Sincroniza o formulário e os cards após a leitura inicial da API.
+          aoAtualizarRef.current?.(atuais);
         }
       })
       .catch((erro) => {
