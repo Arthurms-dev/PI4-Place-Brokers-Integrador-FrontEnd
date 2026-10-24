@@ -12,7 +12,7 @@ import { Etiquetas } from "./home/pecas";
 import TipologiasPublicas from "./TipologiasPublicas";
 
 const MiniMapa = lazy(() => import("./MiniMapa"));
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function EmpreendimentoModal({ item, onClose }) {
   const { abrirContato } = useContato();
@@ -99,7 +99,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
                 <p className="px-4 text-xs leading-relaxed text-ink-3 sm:px-0">As informações descrevem o empreendimento; tipologia, condições e disponibilidade variam conforme a unidade. Confirme com um especialista.</p>
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
-                <TipologiasPublicas tipologias={det?.tipologias ?? []} />
+                <TipologiasPublicas tipologias={det?.tipologias ?? item.tipologias ?? []} />
                 {lazer?.length > 0 && (
                   <div>
                     <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gold">Lazer e diferenciais</h2>

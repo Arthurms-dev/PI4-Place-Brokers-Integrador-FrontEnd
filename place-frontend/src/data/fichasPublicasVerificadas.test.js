@@ -98,4 +98,49 @@ describe("fichas auditadas do catálogo público", () => {
     expect(formatarFaixa(3, 2, "quarto", "quartos")).toBe("");
     expect(formatarFaixa(2, 2, "quarto", "quartos")).toBe("2 quartos");
   });
+
+  it("usa quartos das plantas quando a faixa geral não foi cadastrada", () => {
+    const item = normalizarApi({
+      id: 13,
+      nome: "Empreendimento de teste",
+      cidade: "Recife",
+      uf: "PE",
+      quartos_min: null,
+      quartos_max: null,
+      area_min: null,
+      area_max: null,
+      tipologias: [
+        {
+          id: "planta-1",
+          nome: "Planta 2Q/1S",
+          quartos: 2,
+          suites: 1,
+          vagas: 1,
+          area_m2: 49,
+          ordem: 0,
+        },
+      ],
+    });
+
+    expect(item.quartosMax).toBe(2);
+    expect(item.quartosTexto).toBe("Plantas cadastradas: 2 quartos");
+    expect(item.tipologias).toHaveLength(1);
+    expect(item.area).toBeNull();
+  });
+
+  it("mantém a faixa geral quando já foi informada no cadastro", () => {
+    const item = normalizarApi({
+      id: 14,
+      nome: "Empreendimento de teste",
+      cidade: "Recife",
+      uf: "PE",
+      quartos_min: 2,
+      quartos_max: 3,
+      tipologias: [{ id: "planta-2", nome: "Planta", quartos: 2 }],
+    });
+
+    expect(item.quartosMax).toBe(3);
+    expect(item.quartosTexto).toBe("2 e 3 quartos");
+    expect(item.tipologias).toHaveLength(1);
+  });
 });

@@ -42,6 +42,39 @@ export function normalizarApi(empreendimento) {
   const precoMin = preco != null && preco > 0 ? preco : null;
   const ficha = obterFichaPublicaVerificada(empreendimento.nome);
 
+  // A API pode retornar plantas mesmo quando a faixa geral de quartos está vazia.
+  // Não assumimos que uma planta representa todas as unidades do empreendimento.
+  const tipologias = Array.isArray(empreendimento.tipologias)
+    ? empreendimento.tipologias
+    : [];
+
+  const quartosDasPlantas = tipologias
+    .map((planta) => numero(planta?.quartos))
+    .filter((valor) => valor != null && Number.isInteger(valor) && valor >= 0);
+
+  const quartosMaxGeral = numero(empreendimento.quartos_max ?? empreendimento.quartos_min);
+  const quartosMax = quartosMaxGeral ?? (
+    quartosDasPlantas.length > 0 ? Math.max(...quartosDasPlantas) : null
+  );
+
+  const quartosTextoGeral = formatarFaixa(
+    empreendimento.quartos_min,
+    empreendimento.quartos_max,
+    "quarto",
+    "quartos"
+  );
+
+  const quartosTexto = quartosTextoGeral || (
+    quartosDasPlantas.length > 0
+      ? `Plantas cadastradas: ${formatarFaixa(
+          Math.min(...quartosDasPlantas),
+          Math.max(...quartosDasPlantas),
+          "quarto",
+          "quartos"
+        )}`
+      : ""
+  );
+
   const suitesTexto = formatarFaixa(
     empreendimento.suites_min,
     empreendimento.suites_max,
@@ -67,13 +100,9 @@ export function normalizarApi(empreendimento) {
     city: `${empreendimento.cidade}, ${empreendimento.uf}`,
     image: empreendimento.capa_url ?? null,
     galeria,
-    quartosMax: numero(empreendimento.quartos_max ?? empreendimento.quartos_min),
-    quartosTexto: formatarFaixa(
-      empreendimento.quartos_min,
-      empreendimento.quartos_max,
-      "quarto",
-      "quartos"
-    ),
+    quartosMax,
+    quartosTexto,
+    tipologias,
     suitesTexto: suitesTexto || ficha?.suitesTexto || "",
     tipoTexto: ficha?.tipoTexto ?? "",
     vagasTexto: formatarFaixa(
@@ -118,6 +147,7 @@ export function normalizarMock(imovel) {
     galeria: imovel.galeria ?? [],
     quartosMax: quartos,
     quartosTexto: formatarFaixa(quartos, quartos, "quarto", "quartos"),
+    tipologias: [],
     suitesTexto: "",
     tipoTexto: "",
     vagasTexto: formatarFaixa(imovel.vagas, imovel.vagas, "vaga", "vagas"),
