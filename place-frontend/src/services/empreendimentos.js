@@ -9,10 +9,25 @@ export const STATUS = {
   outros: { label: "Outros", color: "var(--color-ink-3)" },
 };
 
+function limite(valor) {
+  if (valor == null || valor === "") return null;
+  const numero = Number(valor);
+  return Number.isFinite(numero) && numero >= 0 ? numero : null;
+}
+
 export function formatarFaixa(min, max, singular, plural) {
-  if (min == null && max == null) return "";
-  if (max == null || min === max) return `${min} ${min === 1 ? singular : plural}`;
-  return `${min} e ${max} ${plural}`;
+  const minimo = limite(min);
+  const maximo = limite(max);
+
+  if (minimo == null && maximo == null) return "";
+  if (minimo != null && maximo != null && minimo > maximo) return "";
+  if (minimo == null) {
+    return `Até ${maximo} ${maximo === 1 ? singular : plural}`;
+  }
+  if (maximo == null || minimo === maximo) {
+    return `${minimo} ${minimo === 1 ? singular : plural}`;
+  }
+  return `${minimo} e ${maximo} ${plural}`;
 }
 
 function authHeaders() {
@@ -21,36 +36,34 @@ function authHeaders() {
 }
 
 export async function listarEmpreendimentos({ publico = false } = {}) {
-  // O catálogo público precisa apenas dos imóveis publicados.
-  // Sem token, a API pula a validação do usuário e não libera rascunhos.
-  // Os painéis continuam chamando a função sem opções e mantendo a autenticação.
-  const response = await fetch(`${BASE_URL}/empreendimentos`, { headers: publico ? {} : authHeaders() });
-  if (!response.ok) throw new Error("Não foi possível carregar os empreendimentos.");
+  const response = await fetch(`${BASE_URL}/empreendimentos`, {
+    headers: publico ? {} : authHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Não foi possível carregar os empreendimentos.");
+  }
   return response.json();
 }
 
 export async function buscarEmpreendimentoPorId(id) {
-  const response = await fetch(`${BASE_URL}/empreendimentos/${id}`, { headers: authHeaders() });
-  if (!response.ok) throw new Error("Empreendimento não encontrado.");
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}`, {
+    headers: authHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Empreendimento não encontrado.");
+  }
   return response.json();
 }
 
-/**
- * @param {{
- *   nome, construtoraId?, status, descricao?, uf, cidade, bairro, endereco?,
- *   latitude?, longitude?, quartosMin?, quartosMax?, vagasMin?, vagasMax?,
- *   precoMin?, precoMax?, lazer?: string[], publicado?: boolean,
- *   capa?: File, galeria?: File[], book?: File, tabela?: File,
- * }} dados
- */
 export async function criarEmpreendimento(dados) {
   const form = new FormData();
-  const ARQUIVOS = ["capa", "galeria", "book", "tabela"];
+  const arquivos = ["capa", "galeria", "book", "tabela"];
 
   for (const [chave, valor] of Object.entries(dados)) {
-    if (ARQUIVOS.includes(chave) || valor == null) continue;
+    if (arquivos.includes(chave) || valor == null) continue;
     form.append(chave, chave === "lazer" ? JSON.stringify(valor) : String(valor));
   }
+
   if (dados.capa) form.append("capa", dados.capa);
   if (dados.book) form.append("book", dados.book);
   if (dados.tabela) form.append("tabela", dados.tabela);
@@ -62,11 +75,14 @@ export async function criarEmpreendimento(dados) {
     body: form,
   });
 
-  const data = await response.json().catch(() => ({}));
+  const resultado = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw Object.assign(new Error(data.message ?? "Não foi possível salvar."), { fieldErrors: data.fieldErrors ?? {} });
+    throw Object.assign(
+      new Error(resultado.message ?? "Não foi possível salvar."),
+      { fieldErrors: resultado.fieldErrors ?? {} }
+    );
   }
-  return data;
+  return resultado;
 }
 
 export async function atualizarEmpreendimento(id, mudancas) {
@@ -75,30 +91,84 @@ export async function atualizarEmpreendimento(id, mudancas) {
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(mudancas),
   });
-  const data = await response.json().catch(() => ({}));
+
+  const resultado = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw Object.assign(new Error(data.message ?? "Não foi possível salvar."), { fieldErrors: data.fieldErrors ?? {} });
+    throw Object.assign(
+      new Error(resultado.message ?? "Não foi possível salvar."),
+      { fieldErrors: resultado.fieldErrors ?? {} }
+    );
   }
-  return data;
+  return resultado;
 }
 
 export async function listarDocumentosComerciais(id) {
-  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos`, { headers: authHeaders() });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message ?? 'Não foi possível consultar os documentos.');
-  return data;
+  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos`, {
+    headers: authHeaders(),
+  });
+  const resultado = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(resultado.message ?? "Não foi possível consultar os documentos.");
+  }
+  return resultado;
 }
 
 export async function urlDoDocumentoPorId(id, docId) {
-  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos/arquivo/${docId}`, { headers: authHeaders() });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message ?? 'Não foi possível abrir o documento.');
-  return data.url;
+  const response = await fetch(
+    `${BASE_URL}/empreendimentos/${id}/documentos/arquivo/${docId}`,
+    { headers: authHeaders() }
+  );
+  const resultado = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(resultado.message ?? "Não foi possível abrir o documento.");
+  }
+  return resultado.url;
 }
 
 export async function urlDoDocumento(id, tipo) {
-  const response = await fetch(`${BASE_URL}/empreendimentos/${id}/documentos/${tipo}`, { headers: authHeaders() });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message ?? "Não foi possível abrir o documento.");
-  return data.url;
+  const response = await fetch(
+    `${BASE_URL}/empreendimentos/${id}/documentos/${tipo}`,
+    { headers: authHeaders() }
+  );
+  const resultado = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(resultado.message ?? "Não foi possível abrir o documento.");
+  }
+  return resultado.url;
+}
+
+async function salvarTipologia(url, metodo, dados) {
+  const response = await fetch(url, {
+    method: metodo,
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(),
+    },
+    body: JSON.stringify(dados),
+  });
+
+  const resultado = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw Object.assign(
+      new Error(resultado.message ?? "Não foi possível salvar a planta."),
+      { fieldErrors: resultado.fieldErrors ?? {} }
+    );
+  }
+  return resultado;
+}
+
+export function criarTipologia(empreendimentoId, dados) {
+  return salvarTipologia(
+    `${BASE_URL}/empreendimentos/${empreendimentoId}/tipologias`,
+    "POST",
+    dados
+  );
+}
+
+export function atualizarTipologia(empreendimentoId, tipologiaId, dados) {
+  return salvarTipologia(
+    `${BASE_URL}/empreendimentos/${empreendimentoId}/tipologias/${tipologiaId}`,
+    "PATCH",
+    dados
+  );
 }

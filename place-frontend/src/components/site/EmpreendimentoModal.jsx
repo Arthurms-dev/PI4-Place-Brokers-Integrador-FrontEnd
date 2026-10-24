@@ -1,3 +1,4 @@
+import "@/styles/empreendimentoDetalhe.css";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { buscarEmpreendimentoPorId, formatarFaixa } from "@/services/empreendimentos";
@@ -8,6 +9,7 @@ import GaleriaImovelPremium from "./GaleriaImovelPremium";
 import { prepararImagensPublicas } from "@/lib/imagensPublicas";
 import { useContato } from "./ContatoProvider";
 import { Etiquetas } from "./home/pecas";
+import TipologiasPublicas from "./TipologiasPublicas";
 
 const MiniMapa = lazy(() => import("./MiniMapa"));
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -55,13 +57,12 @@ export default function EmpreendimentoModal({ item, onClose }) {
     ["Tipo", item.tipoTexto],
     ["Garagem", vagas],
     ["Metragem", item.area],
-    ["Valores", item.preco],
-  ].filter(([, v]) => v);
+  ].filter(([, valor]) => valor);
   const sobre = { id: item.id, title: item.title };
 
   return (
     <div className="animate-fade-in fixed inset-0 z-[55] overflow-x-hidden bg-black/75 sm:flex sm:items-center sm:justify-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={item.title} className="animate-slide-up sm:animate-fade-up flex h-full min-w-0 w-full max-w-full flex-col overflow-x-hidden bg-page sm:h-auto sm:max-h-[94dvh] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-line">
+      <div role="dialog" aria-modal="true" aria-label={item.title} className="pb-detalhe animate-slide-up sm:animate-fade-up flex h-full min-w-0 w-full max-w-full flex-col overflow-x-hidden bg-page sm:h-auto sm:max-h-[94dvh] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-line">
         <div className="flex items-center justify-between gap-3 border-b border-line-soft px-4 py-3">
           <button type="button" onClick={onClose} className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium transition-colors hover:border-gold">
             <Icon name="chevronLeft" className="size-5" /> Voltar
@@ -98,6 +99,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
                 <p className="px-4 text-xs leading-relaxed text-ink-3 sm:px-0">As informações descrevem o empreendimento; tipologia, condições e disponibilidade variam conforme a unidade. Confirme com um especialista.</p>
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
+                <TipologiasPublicas tipologias={det?.tipologias ?? []} />
                 {lazer?.length > 0 && (
                   <div>
                     <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gold">Lazer e diferenciais</h2>
@@ -121,7 +123,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
               </div>
             </div>
 
-            <aside className="hidden lg:block">
+            <aside className="pb-detalhe-lateral hidden lg:block">
               <div className="sticky top-0 space-y-4 rounded-2xl border border-gold/40 bg-card p-6 shadow-xl shadow-black/30">
                 <div>
                   <p className="text-[12px] uppercase tracking-wide text-ink-3">{item.preco.startsWith("A partir") ? "A partir de" : "Valores"}</p>

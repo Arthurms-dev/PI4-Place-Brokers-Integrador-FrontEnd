@@ -1,9 +1,3 @@
-/**
- * Complementos editoriais temporários de tipologias, verificados em books.
- * NÃO representam estoque ou disponibilidade de unidades.
- * Não armazene aqui tabelas comerciais, plantas, preços ou URLs privadas.
- * Migrar futuramente para tipologias estruturadas no back-end.
- */
 const FICHAS = Object.freeze({
   'candeias life club': {
     suitesTexto: '1 suíte nas tipologias do projeto',

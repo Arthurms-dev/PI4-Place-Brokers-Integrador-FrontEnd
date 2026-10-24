@@ -1,131 +1,221 @@
 import { useEffect, useState } from "react";
 import { MOCK_PROPERTIES } from "./imoveis";
 import { obterFichaPublicaVerificada } from "./fichasPublicasVerificadas";
-import { STATUS, formatarFaixa, listarEmpreendimentos } from "@/services/empreendimentos";
+import {
+  STATUS,
+  formatarFaixa,
+  listarEmpreendimentos,
+} from "@/services/empreendimentos";
 
-const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+const formatoPreco = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  maximumFractionDigits: 0,
+});
 
-export function normalizarApi(r) {
-  const preco = r.preco_min != null ? Number(r.preco_min) : null;
-  const fichaAuditada = obterFichaPublicaVerificada(r.nome);
+function numero(valor) {
+  if (valor == null || valor === "") return null;
+  const resultado = Number(valor);
+  return Number.isFinite(resultado) ? resultado : null;
+}
+
+function formatarArea(min, max) {
+  const valorMinimo = numero(min);
+  const valorMaximo = numero(max);
+  const minimo = valorMinimo != null && valorMinimo > 0 ? valorMinimo : null;
+  const maximo = valorMaximo != null && valorMaximo > 0 ? valorMaximo : null;
+
+  if (minimo == null && maximo == null) return null;
+  if (minimo != null && maximo != null && minimo > maximo) return null;
+
+  const formatar = (valor) =>
+    valor.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+
+  if (minimo == null) return `Até ${formatar(maximo)} m²`;
+  if (maximo == null) return `A partir de ${formatar(minimo)} m²`;
+  if (minimo === maximo) return `${formatar(minimo)} m²`;
+  return `${formatar(minimo)} a ${formatar(maximo)} m²`;
+}
+
+export function normalizarApi(empreendimento) {
+  const preco = numero(empreendimento.preco_min);
+  const precoMin = preco != null && preco > 0 ? preco : null;
+  const ficha = obterFichaPublicaVerificada(empreendimento.nome);
+
+  const suitesTexto = formatarFaixa(
+    empreendimento.suites_min,
+    empreendimento.suites_max,
+    "suíte",
+    "suítes"
+  );
+
+  const galeria = Array.isArray(empreendimento.imagens)
+    ? [...empreendimento.imagens]
+        .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
+        .filter((imagem) => typeof imagem.url === "string" && imagem.url.trim())
+        .map((imagem) => imagem.url)
+    : [];
+
   return {
-    id: String(r.id),
+    id: String(empreendimento.id),
     origem: "api",
-    title: r.nome,
-    tag: STATUS[r.status]?.label ?? "Lançamento",
-    cidade: r.cidade,
-    uf: r.uf,
-    bairro: r.bairro ?? "",
-    city: `${r.cidade}, ${r.uf}`,
-    image: r.capa_url ?? null,
-    galeria: Array.isArray(r.imagens) ? [...r.imagens].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)).filter((i) => typeof i.url === "string").map((i) => i.url) : [],
-    quartosMax: r.quartos_max ?? r.quartos_min ?? null,
-    quartosTexto: formatarFaixa(r.quartos_min, r.quartos_max, "quarto", "quartos"),
-    suitesTexto: fichaAuditada?.suitesTexto ?? "",
-    tipoTexto: fichaAuditada?.tipoTexto ?? "",
-    vagasTexto: formatarFaixa(r.vagas_min, r.vagas_max, "vaga", "vagas"),
-    area: null,
-    precoMin: preco,
-    preco: preco != null ? `A partir de ${brl(preco)}` : "Sob consulta",
-    disponivel: r.disponivel !== false,
-    destaque: Boolean(r.destaque),
-    lazer: r.lazer ?? [],
-    description: r.descricao ?? "",
-    lat: r.latitude ?? null,
-    lng: r.longitude ?? null,
-    construtora: r.construtora?.nome ?? null,
+    title: empreendimento.nome,
+    tag: STATUS[empreendimento.status]?.label ?? "Lançamento",
+    cidade: empreendimento.cidade,
+    uf: empreendimento.uf,
+    bairro: empreendimento.bairro ?? "",
+    city: `${empreendimento.cidade}, ${empreendimento.uf}`,
+    image: empreendimento.capa_url ?? null,
+    galeria,
+    quartosMax: numero(empreendimento.quartos_max ?? empreendimento.quartos_min),
+    quartosTexto: formatarFaixa(
+      empreendimento.quartos_min,
+      empreendimento.quartos_max,
+      "quarto",
+      "quartos"
+    ),
+    suitesTexto: suitesTexto || ficha?.suitesTexto || "",
+    tipoTexto: ficha?.tipoTexto ?? "",
+    vagasTexto: formatarFaixa(
+      empreendimento.vagas_min,
+      empreendimento.vagas_max,
+      "vaga",
+      "vagas"
+    ),
+    area: formatarArea(empreendimento.area_min, empreendimento.area_max),
+    precoMin,
+    preco:
+      precoMin != null
+        ? `A partir de ${formatoPreco.format(precoMin)}`
+        : "Sob consulta",
+    disponivel: empreendimento.disponivel !== false,
+    destaque: Boolean(empreendimento.destaque),
+    lazer: empreendimento.lazer ?? [],
+    description: empreendimento.descricao ?? "",
+    lat: empreendimento.latitude ?? null,
+    lng: empreendimento.longitude ?? null,
+    construtora: empreendimento.construtora?.nome ?? null,
   };
 }
 
-export function normalizarMock(m) {
-  const cidade = String(m.city ?? "").split(",")[0].trim();
-  const quartos = Number(m.bedrooms) || null;
+export function normalizarMock(imovel) {
+  const [cidade = "", uf = "PE"] = String(imovel.city ?? "")
+    .split(",")
+    .map((parte) => parte.trim());
+
+  const quartos = numero(imovel.bedrooms);
+
   return {
-    id: String(m.id),
+    id: String(imovel.id),
     origem: "mock",
-    title: m.title,
-    tag: m.type ?? "Lançamento",
+    title: imovel.title,
+    tag: imovel.type ?? "Lançamento",
     cidade,
-    uf: String(m.city ?? "").split(",")[1]?.trim() ?? "PE",
+    uf,
     bairro: "",
-    city: m.city,
-    image: m.image ?? null,
-    galeria: m.galeria ?? [],
+    city: imovel.city,
+    image: imovel.image ?? null,
+    galeria: imovel.galeria ?? [],
     quartosMax: quartos,
-    quartosTexto: quartos ? plural(quartos, "quarto", "quartos") : "",
-    vagasTexto: m.vagas != null ? plural(m.vagas, "vaga", "vagas") : "",
-    area: m.area ?? null,
+    quartosTexto: formatarFaixa(quartos, quartos, "quarto", "quartos"),
+    suitesTexto: "",
+    tipoTexto: "",
+    vagasTexto: formatarFaixa(imovel.vagas, imovel.vagas, "vaga", "vagas"),
+    area: imovel.area ?? null,
     precoMin: null,
-    preco: m.price ?? "Sob consulta",
+    preco: imovel.price ?? "Sob consulta",
     disponivel: true,
-    destaque: ["Destaque", "Lançamento"].includes(m.type),
-    lazer: m.lazer ?? [],
-    description: m.description ?? "",
-    lat: m.lat ?? null,
-    lng: m.lng ?? null,
+    destaque: ["Destaque", "Lançamento"].includes(imovel.type),
+    lazer: imovel.lazer ?? [],
+    description: imovel.description ?? "",
+    lat: imovel.lat ?? null,
+    lng: imovel.lng ?? null,
     construtora: null,
   };
 }
 
-// Demo só é ativada explicitamente no .env do front (VITE_DEMO_MODE=true).
-const DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
-/* PB_CATALOGO_OTIMIZADO_1 */
-// Cache somente em memória (45 segundos): evita repetir a mesma consulta em
-// componentes e navegações próximas; não substitui os dados oficiais da API.
-const ESTADO_INICIAL = { itens: [], carregando: true, origem: null, erro: null };
-const VALIDADE_MS = 45_000;
+const MODO_DEMO = import.meta.env.VITE_DEMO_MODE === "true";
+const TEMPO_CACHE = 45_000;
+
+const ESTADO_INICIAL = {
+  itens: [],
+  carregando: true,
+  origem: null,
+  erro: null,
+};
+
 let cache = null;
-let emAndamento = null;
+let carregamento = null;
 
 function cacheRecente() {
-  return cache && Date.now() - cache.quando < VALIDADE_MS ? cache.estado : null;
+  return cache && Date.now() - cache.quando < TEMPO_CACHE
+    ? cache.estado
+    : null;
 }
 
 function carregarCatalogoPublico() {
   const recente = cacheRecente();
+
   if (recente) return Promise.resolve(recente);
-  // Uma única consulta é compartilhada por todos os componentes que montarem
-  // enquanto a primeira requisição ainda estiver aguardando resposta.
-  if (emAndamento) return emAndamento;
-  const inicio = performance.now();
-  const tarefa = listarEmpreendimentos({ publico: true })
+  if (carregamento) return carregamento;
+
+  carregamento = listarEmpreendimentos({ publico: true })
     .then((lista) => {
-      const publicados = lista.filter((e) => e.publicado === true);
-      if (import.meta.env.DEV) {
-        console.info(
-          '[Place] Catálogo: resposta da API e normalização em',
-          Math.round(performance.now() - inicio), 'ms; publicados:', publicados.length,
-        );
+      const publicados = lista.filter((item) => item.publicado === true);
+
+      if (publicados.length) {
+        return {
+          itens: publicados.map(normalizarApi),
+          carregando: false,
+          origem: "api",
+          erro: null,
+        };
       }
-      if (publicados.length) return { itens: publicados.map(normalizarApi), carregando: false, origem: 'api', erro: null };
-      return DEMO
-        ? { itens: MOCK_PROPERTIES.map(normalizarMock), carregando: false, origem: 'mock', erro: null }
-        : { itens: [], carregando: false, origem: 'api', erro: null };
+
+      return {
+        itens: MODO_DEMO ? MOCK_PROPERTIES.map(normalizarMock) : [],
+        carregando: false,
+        origem: MODO_DEMO ? "mock" : "api",
+        erro: null,
+      };
     })
-    .catch((e) => {
-      if (import.meta.env.DEV) console.warn('[Place] Falha ao carregar o catálogo público:', e?.message);
-      return DEMO
-        ? { itens: MOCK_PROPERTIES.map(normalizarMock), carregando: false, origem: 'mock', erro: null }
-        : { itens: [], carregando: false, origem: null, erro: 'Não foi possível consultar os empreendimentos na API.' };
-    })
+    .catch(() => ({
+      itens: MODO_DEMO ? MOCK_PROPERTIES.map(normalizarMock) : [],
+      carregando: false,
+      origem: MODO_DEMO ? "mock" : null,
+      erro: MODO_DEMO
+        ? null
+        : "Não foi possível consultar os empreendimentos na API.",
+    }))
     .then((estado) => {
-      // Erros não são guardados para permitir nova tentativa em outra navegação.
-      if (!estado.erro) cache = { estado, quando: Date.now() };
+      if (!estado.erro) {
+        cache = { estado, quando: Date.now() };
+      }
       return estado;
+    })
+    .finally(() => {
+      carregamento = null;
     });
-  emAndamento = tarefa.finally(() => { emAndamento = null; });
-  return emAndamento;
+
+  return carregamento;
 }
 
 export function useEmpreendimentosPublicos() {
-  const [estado, setEstado] = useState(() => cacheRecente() ?? ESTADO_INICIAL);
+  const [estado, setEstado] = useState(
+    () => cacheRecente() ?? ESTADO_INICIAL
+  );
+
   useEffect(() => {
     let ativo = true;
+
     carregarCatalogoPublico().then((resultado) => {
       if (ativo) setEstado(resultado);
     });
-    return () => { ativo = false; };
+
+    return () => {
+      ativo = false;
+    };
   }, []);
+
   return estado;
 }

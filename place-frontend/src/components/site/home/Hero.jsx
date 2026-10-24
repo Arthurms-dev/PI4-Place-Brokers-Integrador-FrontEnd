@@ -2,149 +2,249 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 
-function Campo({ rotulo, icone, className = "", children }) {
-  return (
-    <label className={`flex min-w-0 items-center gap-3 rounded-xl px-4 py-2.5 transition-colors hover:bg-white/5 focus-within:bg-white/5 md:rounded-full md:px-5 ${className}`}>
-      {icone && <Icon name={icone} className="size-5 shrink-0 text-gold" />}
-      <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-medium uppercase tracking-wide text-ink-3">{rotulo}</span>
-        {children}
-      </span>
-    </label>
-  );
-}
+const campo = "h-12 w-full min-w-0 rounded-xl border border-[#d5dce6] bg-[#fff] px-3.5 text-[13px] text-[#102843] shadow-sm outline-none transition-[border-color,box-shadow] focus:border-[#c99041] focus:shadow-[0_0_0_3px_rgba(233,173,90,.15)]";
 
-const ENTRADA = "w-full min-w-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-3 scheme-dark";
+export default function Hero({
+  itens,
+  filtros,
+  onFiltros,
+  tags,
+  sugestoes,
+  cidades,
+  onBuscar,
+}) {
+  const [comErro, setComErro] = useState([]);
+  const [indice, setIndice] = useState(0);
 
-export default function Hero({ itens, filtros, onFiltros, tags, sugestoes, cidades, onBuscar }) {
-  const fotos = itens.filter((i) => i.image).slice(0, 4);
-  const [atual, setAtual] = useState(0);
+  const fotos = itens
+    .filter((item) => item.image && !comErro.includes(item.id))
+    .slice(0, 5);
+
+  const indiceAtual = indice % Math.max(fotos.length, 1);
+  const destaque = fotos[indiceAtual];
+  const atualizar = (chave) => (evento) =>
+    onFiltros({ ...filtros, [chave]: evento.target.value });
 
   useEffect(() => {
-    if (fotos.length < 2 || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return undefined;
-    const id = setInterval(() => setAtual(a => (a + 1) % fotos.length), 9000);
-    return () => clearInterval(id);
+    if (
+      fotos.length < 2 ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+    ) {
+      return undefined;
+    }
+
+    const intervalo = window.setInterval(() => {
+      setIndice((atual) => (atual + 1) % fotos.length);
+    }, 8500);
+
+    return () => window.clearInterval(intervalo);
   }, [fotos.length]);
 
-  const foco = fotos[atual];
-  const set = (campo) => (e) => onFiltros({ ...filtros, [campo]: e.target.value });
-
   return (
-    <section className="pb-hero relative isolate overflow-hidden">
-      <style>{`
-        @keyframes heroDrift {
-          0%   { transform: translate(0, 0) scale(1); }
-          50%  { transform: translate(3%, -4%) scale(1.08); }
-          100% { transform: translate(0, 0) scale(1); }
-        }
-        .hero-drift { animation: heroDrift 22s ease-in-out infinite; }
-        .hero-drift-slow { animation: heroDrift 30s ease-in-out infinite reverse; }
-        @media (prefers-reduced-motion: reduce) {
-          .hero-drift, .hero-drift-slow { animation: none; }
-        }
-      `}</style>
+    <section
+      className="pb-c-hero relative isolate overflow-hidden"
+      aria-labelledby="pb-home-hero-title"
+    >
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 lg:pb-16 lg:pt-12">
+        <div className="grid items-center gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-12">
+          <div className="pb-c-hero-copy relative z-10 py-4 lg:py-12">
+            <p className="pb-c-overline">
+              <span className="inline-block h-[2px] w-6 bg-[#bf8c47]" />
+              IMÓVEIS QUE FAZEM SENTIDO PARA VOCÊ
+            </p>
 
-      <div className="absolute inset-0 -z-20 bg-card-2">
-        {fotos.length > 0 ? (
-          fotos.map((f, i) => (
-            <img
-              key={f.id}
-              src={f.image}
-              alt=""
-              fetchPriority={i === 0 ? "high" : "auto"}
-              loading={i === 0 ? "eager" : "lazy"}
-              className={`absolute inset-0 size-full object-cover transition-opacity duration-[1800ms] ease-in-out ${
-                i === atual ? "animate-kenburns opacity-100 z-10" : "opacity-0 z-0"
-              }`}
-              style={{ willChange: "opacity, transform" }}
-            />
-          ))
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(1100px 560px at 85% -10%, rgb(233 173 90 / 0.16), transparent 60%), radial-gradient(900px 520px at 0% 110%, rgb(77 163 255 / 0.08), transparent 55%)",
-            }}
-          />
-        )}
-      </div>
-      <div className="pb-hero-overlay absolute inset-0 -z-10 bg-linear-to-b from-page/80 via-page/45 to-page" />
+            <h1
+              id="pb-home-hero-title"
+              className="mt-6 max-w-[570px] font-sans text-[clamp(2.65rem,4.35vw,4.25rem)] font-extrabold leading-[1.065] tracking-[-.055em] text-[#0b203b]"
+            >
+              Encontre seu <span className="text-[#bd8741]">próximo lugar.</span>
+            </h1>
 
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div
-          className="hero-drift absolute -top-24 -right-24 size-[36rem] rounded-full blur-3xl opacity-20"
-          style={{ background: "radial-gradient(circle, rgb(233 173 90 / 0.55), transparent 70%)" }}
-        />
-        <div
-          className="hero-drift-slow absolute -bottom-32 -left-20 size-[30rem] rounded-full blur-3xl opacity-15"
-          style={{ background: "radial-gradient(circle, rgb(77 163 255 / 0.5), transparent 70%)" }}
-        />
-      </div>
+            <p className="mt-5 max-w-[470px] text-[15px] leading-7 text-[#526780] sm:text-[17px]">
+              Descubra empreendimentos, explore regiões e escolha com o apoio de quem conhece cada detalhe.
+            </p>
 
-      <div className="pb-hero-inner relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:pt-28">
-        <p className="animate-fade-up text-[11px] font-bold uppercase tracking-[0.24em] text-gold">Lançamentos em Pernambuco</p>
-        <h1 className="pb-hero-title animate-fade-up mt-5 max-w-4xl text-[clamp(2.2rem,8vw,5.6rem)] font-semibold leading-[1.04] tracking-tight" style={{ animationDelay: "80ms" }}>
-          O lugar certo para <span className="text-gold-gradient">começar a sua história</span>
-        </h1>
-        <p className="animate-fade-up mt-6 max-w-[35rem] text-[15px] leading-[1.8] text-ink-2 sm:text-[17px]" style={{ animationDelay: "160ms" }}>
-          Escolha o lançamento e fale com um especialista para conhecer valores, plantas e condições exclusivas.
-        </p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => onBuscar()}
+                type="button"
+                className="pb-c-primary inline-flex min-h-12 items-center gap-2 rounded-full bg-[#0c2846] px-6 text-[13px] font-bold text-white shadow-lg transition-colors hover:bg-[#163c61]"
+              >
+                Explorar imóveis <Icon name="arrowRight" className="size-4" />
+              </button>
+              <p className="text-[12px] font-medium text-[#708399]">
+                Imagens do catálogo Place Brokers
+              </p>
+            </div>
+          </div>
+
+          <div className="pb-c-hero-visual relative min-w-0">
+            <div className="pb-c-photo relative h-[370px] overflow-hidden rounded-[26px] bg-[#1a334f] shadow-[0_25px_65px_-30px_rgba(8,21,43,.46)] sm:h-[450px] lg:h-[510px]">
+              {destaque ? (
+                <img
+                  key={destaque.id}
+                  src={destaque.image}
+                  alt={`Imagem do empreendimento ${destaque.title}`}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  onError={() =>
+                    setComErro((atual) =>
+                      atual.includes(destaque.id) ? atual : [...atual, destaque.id]
+                    )
+                  }
+                  className="pb-c-photo-image absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <div className="grid h-full place-items-center">
+                  <Icon name="building" className="size-20 text-[#e9ad5a]/70" />
+                </div>
+              )}
+
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#06162a]/85 via-[#06162a]/10 to-transparent" />
+
+              {destaque && (
+                <div className="absolute bottom-5 left-5 right-5 flex flex-wrap items-end justify-between gap-3 text-white sm:bottom-7 sm:left-7 sm:right-7">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[.19em] text-[#eec37e]">
+                      EM DESTAQUE
+                    </p>
+                    <h2 className="mt-1 text-lg font-extrabold sm:text-xl">
+                      {destaque.title}
+                    </h2>
+                    <p className="mt-1 text-xs text-white/80">{destaque.city}</p>
+                  </div>
+
+                  <Link
+                    to={`/imoveis/${destaque.id}`}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/45 bg-white/20 px-5 text-xs font-bold text-white backdrop-blur-md hover:bg-white/30"
+                  >
+                    Conhecer <Icon name="arrowRight" className="size-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {fotos.length > 1 && (
+              <div className="absolute right-5 top-5 flex gap-1.5 rounded-full bg-[#08152b]/70 p-2 backdrop-blur">
+                {fotos.map((foto, posicao) => (
+                  <button
+                    key={foto.id}
+                    type="button"
+                    aria-label={`Mostrar ${foto.title}`}
+                    aria-current={posicao === indiceAtual ? "true" : undefined}
+                    onClick={() => setIndice(posicao)}
+                    className={`h-1.5 rounded-full transition-[width,background] duration-300 ${
+                      posicao === indiceAtual
+                        ? "w-6 bg-[#e9ad5a]"
+                        : "w-1.5 bg-white/55 hover:bg-white"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
+          onSubmit={(evento) => {
+            evento.preventDefault();
             onBuscar();
           }}
-          className="pb-hero-search animate-fade-up mt-10 rounded-2xl border border-line bg-page/95 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl md:flex md:items-stretch"
-          style={{ animationDelay: "240ms" }}
+          aria-label="Encontrar empreendimentos"
+          className="pb-c-search mt-7 rounded-[22px] border border-[#d8e1e9] bg-white p-4 shadow-[0_15px_55px_-30px_rgba(13,37,62,.28)] sm:p-5 lg:mt-0 lg:-translate-y-5"
         >
-          <Campo rotulo="Onde" icone="mapPin" className="md:flex-[1.5]">
-            <input list="sugestoes-busca" value={filtros.texto} onChange={set("texto")} placeholder="Cidade, bairro ou nome" className={ENTRADA} autoComplete="off" />
-            <datalist id="sugestoes-busca">{sugestoes.map((s) => <option key={s} value={s} />)}</datalist>
-          </Campo>
-          <span className="mx-3 block h-px bg-line md:my-3 md:h-auto md:w-px" aria-hidden="true" />
-          <Campo rotulo="Fase" icone="building" className="md:flex-1">
-            <select value={filtros.tag} onChange={set("tag")} className={ENTRADA}>
-              <option value="">Todas</option>
-              {tags.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </Campo>
-          <span className="mx-3 block h-px bg-line md:my-3 md:h-auto md:w-px" aria-hidden="true" />
-          <Campo rotulo="Quartos" icone="bedDouble" className="md:flex-1">
-            <select value={filtros.quartos} onChange={set("quartos")} className={ENTRADA}>
-              <option value="">Qualquer</option>
-              <option value="1">1 ou mais</option>
-              <option value="2">2 ou mais</option>
-              <option value="3">3 ou mais</option>
-            </select>
-          </Campo>
-          <button type="submit" className="pb-primary-button mt-1.5 h-14 w-full rounded-xl bg-gold-gradient px-9 text-[15px] font-bold text-[#1a1408] transition hover:brightness-110 md:mt-0 md:w-auto">
-            Buscar
-          </button>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-[15px] font-bold text-[#102843]">
+              Encontre o imóvel certo
+            </h2>
+            <p className="text-xs text-[#6c8096]">Você pode combinar os filtros</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.55fr_1fr_.85fr_1fr_auto] lg:items-end">
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-semibold text-[#51657d]">
+                Cidade, bairro ou imóvel
+              </span>
+              <input
+                list="pb-c-sugestoes"
+                type="search"
+                autoComplete="off"
+                value={filtros.texto}
+                onChange={atualizar("texto")}
+                placeholder="Onde você quer morar?"
+                className={campo}
+              />
+              <datalist id="pb-c-sugestoes">
+                {sugestoes.map((sugestao) => (
+                  <option key={sugestao} value={sugestao} />
+                ))}
+              </datalist>
+            </label>
+
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-semibold text-[#51657d]">
+                Etapa
+              </span>
+              <select value={filtros.tag} onChange={atualizar("tag")} className={campo}>
+                <option value="">Todas</option>
+                {tags.map((tag) => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-semibold text-[#51657d]">
+                Quartos
+              </span>
+              <select value={filtros.quartos} onChange={atualizar("quartos")} className={campo}>
+                <option value="">Qualquer</option>
+                <option value="1">1 ou mais</option>
+                <option value="2">2 ou mais</option>
+                <option value="3">3 ou mais</option>
+              </select>
+            </label>
+
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-semibold text-[#51657d]">
+                Até
+              </span>
+              <select
+                value={filtros.precoAte ?? ""}
+                onChange={atualizar("precoAte")}
+                className={campo}
+              >
+                <option value="">Sem limite</option>
+                <option value="350000">R$ 350 mil</option>
+                <option value="500000">R$ 500 mil</option>
+                <option value="750000">R$ 750 mil</option>
+                <option value="1000000">R$ 1 milhão</option>
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              className="pb-c-primary inline-flex h-12 min-w-28 items-center justify-center gap-2 rounded-xl bg-[#e9ad5a] px-5 text-sm font-bold text-[#08152b] transition-colors hover:bg-[#f3c47a]"
+            >
+              <Icon name="search" className="size-4" /> Buscar
+            </button>
+          </div>
         </form>
 
         {cidades.length > 0 && (
-          <div className="animate-fade-up mt-5 flex flex-wrap items-center gap-2" style={{ animationDelay: "320ms" }}>
-            <span className="text-[13px] text-ink-3">Em alta:</span>
-            {cidades.slice(0, 5).map((c) => (
-              <button key={c} type="button" onClick={() => onBuscar({ ...filtros, texto: c })} className="h-9 rounded-full border border-line bg-page/50 px-4 text-[13px] text-ink-2 backdrop-blur transition-colors hover:border-gold hover:text-ink">
-                {c}
+          <div className="pb-c-cities mt-1 flex flex-wrap items-center gap-2 text-[#536881]">
+            <span className="text-xs">Populares:</span>
+            {cidades.slice(0, 4).map((cidade) => (
+              <button
+                key={cidade}
+                type="button"
+                onClick={() => onBuscar({ ...filtros, texto: cidade })}
+                className="rounded-full border border-[#cdd8e3] bg-white/80 px-3 py-1.5 text-[12px] hover:border-[#be8b43] hover:text-[#986827]"
+              >
+                {cidade}
               </button>
             ))}
-          </div>
-        )}
-
-        {foco && (
-          <div className="mt-8 flex items-center justify-between gap-4 text-[13px] text-ink-2">
-            <Link to={`/imoveis/${foco.id}`} className="group inline-flex min-w-0 items-center gap-2 transition-colors hover:text-ink">
-              <Icon name="mapPin" className="size-4 shrink-0 text-gold" />
-              <span className="truncate">Na foto: <strong className="font-medium text-ink">{foco.title}</strong> · {foco.city}</span>
-              <span className="shrink-0 text-gold transition-transform group-hover:translate-x-0.5">Ver →</span>
-            </Link>
-            <div className="flex shrink-0 gap-1.5" aria-hidden="true">
-              {fotos.map((f, i) => <span key={f.id} className={`h-1.5 rounded-full transition-all duration-500 ${i === atual ? "w-6 bg-gold" : "w-1.5 bg-white/30"}`} />)}
-            </div>
           </div>
         )}
       </div>

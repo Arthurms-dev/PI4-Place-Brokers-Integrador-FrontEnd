@@ -3,20 +3,19 @@ import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Campo, Folha } from "@/components/admin/equipe/ui";
 import { criarConstrutora } from "@/services/construtoras";
 import { atualizarEmpreendimento, criarEmpreendimento } from "@/services/empreendimentos";
+import TipologiasForm from "./TipologiasForm";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const MAX_ARQUIVO = 15 * 1024 * 1024;
-
 const borda = (erros, c) => (erros[c] ? "border-danger" : "border-line focus:border-gold");
 const num = (v) => (v === "" || v == null ? null : Number(v));
-
 export function lerCoords(texto = "") {
   const t = texto.trim();
   if (!t) return { vazio: true };
-  const m = t.match(/^(-?\d{1,3}(?:\.\d+)?)\s*[,;]?\s+(-?\d{1,3}(?:\.\d+)?)$|^(-?\d{1,3}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  const m = t.match(/^(-?\d{1,3}(?:\.\d+)?)\s*(?:[,;]\s*|\s+)(-?\d{1,3}(?:\.\d+)?)$/);
   if (!m) return { erro: "Use o formato -8.0476, -34.8770 (copie do Google Maps)." };
-  const lat = Number(m[1] ?? m[3]);
-  const lng = Number(m[2] ?? m[4]);
+  const lat = Number(m[1]);
+  const lng = Number(m[2]);
   if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return { erro: "Coordenadas fora do intervalo válido." };
   return { lat, lng };
 }
@@ -65,6 +64,22 @@ function Interruptor({ ativo, onChange, rotulo, ajuda }) {
   );
 }
 
+function CampoNumero({ campo, rotulo, valor, onChange, erro, ...resto }) {
+  return (
+    <Campo rotulo={rotulo} erro={erro}>
+      <input
+        type="number"
+        min="0"
+        inputMode="numeric"
+        value={valor}
+        onChange={onChange}
+        className={`${CAMPO} ${erro ? "border-danger" : "border-line focus:border-gold"}`}
+        {...resto}
+      />
+    </Campo>
+  );
+}
+
 export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo }) {
   const [f, setF] = useState(() => ({
     nome: emp?.nome ?? "",
@@ -77,6 +92,7 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     coords: emp?.latitude != null && emp?.longitude != null ? `${emp.latitude}, ${emp.longitude}` : "",
     quartosMin: emp?.quartos_min ?? "", quartosMax: emp?.quartos_max ?? "",
     vagasMin: emp?.vagas_min ?? "", vagasMax: emp?.vagas_max ?? "",
+    areaMin: emp?.area_min ?? "", areaMax: emp?.area_max ?? "",
     precoMin: emp?.preco_min ?? "", precoMax: emp?.preco_max ?? "",
     lazer: (emp?.lazer ?? []).join(", "),
     descricao: emp?.descricao ?? "",
@@ -88,19 +104,17 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [novaConstrutora, setNovaConstrutora] = useState(null);
-
   const set = (c) => (e) => setF((s) => ({ ...s, [c]: e.target.value }));
   const coords = useMemo(() => lerCoords(f.coords), [f.coords]);
-
   const galeriaUrls = useMemo(() => arquivos.galeria.map((a) => URL.createObjectURL(a)), [arquivos.galeria]);
   useEffect(() => () => galeriaUrls.forEach((u) => URL.revokeObjectURL(u)), [galeriaUrls]);
-
   function aceitarArquivo(chave, arquivo, { multiplo = false } = {}) {
     if (!arquivo) return setArquivos((s) => ({ ...s, [chave]: multiplo ? [] : null }));
     if (arquivo.size > MAX_ARQUIVO) return setErros((e) => ({ ...e, [chave]: `${arquivo.name} passa de 15 MB.` }));
     setErros((e) => ({ ...e, [chave]: undefined }));
     setArquivos((s) => ({ ...s, [chave]: arquivo }));
   }
+
   function addGaleria(lista) {
     const validos = [...lista].filter((a) => a.size <= MAX_ARQUIVO);
     const grandes = lista.length - validos.length;
@@ -128,8 +142,26 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     if (!f.bairro.trim()) e.bairro = "Informe o bairro.";
     if (f.uf.trim().length !== 2) e.uf = "Use a sigla (ex.: PE).";
     if (coords.erro) e.coords = coords.erro;
-    if (num(f.quartosMin) != null && num(f.quartosMax) != null && num(f.quartosMin) > num(f.quartosMax)) e.quartosMax = "Máximo menor que o mínimo.";
-    if (num(f.precoMin) != null && num(f.precoMax) != null && num(f.precoMin) > num(f.precoMax)) e.precoMax = "Máximo menor que o mínimo.";
+    for (const campo of ["quartosMin", "quartosMax", "vagasMin", "vagasMax"]) {
+      if (f[campo] !== "" && (!Number.isInteger(num(f[campo])) || num(f[campo]) < 0)) {
+        e[campo] = "Informe um número inteiro válido.";
+      }
+    }
+    for (const campo of ["areaMin", "areaMax", "precoMin", "precoMax"]) {
+      if (f[campo] !== "" && (!Number.isFinite(num(f[campo])) || num(f[campo]) < 0)) {
+        e[campo] = "Informe um valor válido.";
+      }
+    }
+    for (const [minimo, maximo] of [
+      ["quartosMin", "quartosMax"],
+      ["vagasMin", "vagasMax"],
+      ["areaMin", "areaMax"],
+      ["precoMin", "precoMax"],
+    ]) {
+      if (num(f[minimo]) != null && num(f[maximo]) != null && num(f[minimo]) > num(f[maximo])) {
+        e[maximo] = "Máximo menor que o mínimo.";
+      }
+    }
     return e;
   }
 
@@ -139,7 +171,6 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     setErros(e);
     setErroGeral("");
     if (Object.keys(e).length) return;
-
     setEnviando(true);
     try {
       const base = {
@@ -155,6 +186,7 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         longitude: coords.lng ?? null,
         quartosMin: num(f.quartosMin), quartosMax: num(f.quartosMax),
         vagasMin: num(f.vagasMin), vagasMax: num(f.vagasMax),
+        areaMin: num(f.areaMin), areaMax: num(f.areaMax),
         precoMin: num(f.precoMin), precoMax: num(f.precoMax),
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
@@ -170,17 +202,10 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     }
   }
 
-  const Num = ({ campo, rotulo, ...resto }) => (
-    <Campo rotulo={rotulo} erro={erros[campo]}>
-      <input type="number" min="0" inputMode="numeric" value={f[campo]} onChange={set(campo)} className={`${CAMPO} ${borda(erros, campo)}`} {...resto} />
-    </Campo>
-  );
-
   return (
     <Folha titulo={emp ? "Editar empreendimento" : "Novo empreendimento"} onClose={onClose} largo>
       <form onSubmit={enviar} noValidate className="space-y-6 pt-3">
         {erroGeral && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erroGeral}</p>}
-
         <Secao titulo="Informações">
           <Campo rotulo="Nome do empreendimento" erro={erros.nome}><input value={f.nome} onChange={set("nome")} className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
           <div className="grid gap-3.5 sm:grid-cols-2">
@@ -212,7 +237,6 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
           </div>
           <Campo rotulo="Descrição (opcional)"><textarea value={f.descricao} onChange={set("descricao")} rows={3} className="w-full rounded-xl border border-line bg-card-2 px-3.5 py-3 text-sm outline-none focus:border-gold scheme-dark" /></Campo>
         </Secao>
-
         <Secao titulo="Localização">
           <div className="grid grid-cols-[5rem_1fr] gap-3.5 sm:grid-cols-[5rem_1fr_1fr]">
             <Campo rotulo="UF" erro={erros.uf}><input value={f.uf} maxLength={2} onChange={set("uf")} className={`${CAMPO} uppercase ${borda(erros, "uf")}`} /></Campo>
@@ -231,21 +255,24 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             </div>
           )}
         </Secao>
-
         <Secao titulo="Características">
           <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-            <Num campo="quartosMin" rotulo="Quartos (mín.)" />
-            <Num campo="quartosMax" rotulo="Quartos (máx.)" />
-            <Num campo="vagasMin" rotulo="Vagas (mín.)" />
-            <Num campo="vagasMax" rotulo="Vagas (máx.)" />
+            <CampoNumero campo="quartosMin" rotulo="Quartos (mín.)" valor={f.quartosMin} onChange={set("quartosMin")} erro={erros.quartosMin} step="1" />
+            <CampoNumero campo="quartosMax" rotulo="Quartos (máx.)" valor={f.quartosMax} onChange={set("quartosMax")} erro={erros.quartosMax} step="1" />
+            <CampoNumero campo="vagasMin" rotulo="Vagas (mín.)" valor={f.vagasMin} onChange={set("vagasMin")} erro={erros.vagasMin} step="1" />
+            <CampoNumero campo="vagasMax" rotulo="Vagas (máx.)" valor={f.vagasMax} onChange={set("vagasMax")} erro={erros.vagasMax} step="1" />
           </div>
           <div className="grid grid-cols-2 gap-3.5">
-            <Num campo="precoMin" rotulo="Preço a partir de (R$)" />
-            <Num campo="precoMax" rotulo="Preço até (R$)" />
+            <CampoNumero campo="areaMin" rotulo="Área mínima (m²)" valor={f.areaMin} onChange={set("areaMin")} erro={erros.areaMin} step="0.01" inputMode="decimal" />
+            <CampoNumero campo="areaMax" rotulo="Área máxima (m²)" valor={f.areaMax} onChange={set("areaMax")} erro={erros.areaMax} step="0.01" inputMode="decimal" />
+          </div>
+          <div className="grid grid-cols-2 gap-3.5">
+            <CampoNumero campo="precoMin" rotulo="Preço a partir de (R$)" valor={f.precoMin} onChange={set("precoMin")} erro={erros.precoMin} step="0.01" inputMode="decimal" />
+            <CampoNumero campo="precoMax" rotulo="Preço até (R$)" valor={f.precoMax} onChange={set("precoMax")} erro={erros.precoMax} step="0.01" inputMode="decimal" />
           </div>
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
         </Secao>
-
+        {emp && <TipologiasForm empreendimentoId={emp.id} />}
         <Secao titulo="Arquivos">
           {emp ? (
             <p className="rounded-xl bg-card-2 px-3.5 py-3 text-[13px] text-ink-2">
@@ -283,12 +310,10 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             </>
           )}
         </Secao>
-
         <Secao titulo="Publicação">
           <Interruptor ativo={f.publicado} onChange={(v) => setF((s) => ({ ...s, publicado: v }))} rotulo="Publicado" ajuda="Visível para quem não está logado" />
           <Interruptor ativo={f.disponivel} onChange={(v) => setF((s) => ({ ...s, disponivel: v }))} rotulo="Disponível para venda" ajuda="Desmarque quando as unidades acabarem" />
         </Secao>
-
         <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">
           {enviando ? (emp ? "Salvando..." : "Enviando arquivos...") : emp ? "Salvar alterações" : "Cadastrar empreendimento"}
         </button>

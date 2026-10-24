@@ -1,0 +1,86 @@
+.pb-site .pb-detalhe {
+  --color-page: #f7f9fc;
+  --color-card: #ffffff;
+  --color-card-2: #f0f4f8;
+  --color-line: #d5dfeb;
+  --color-line-soft: #e6ecf3;
+  --color-ink: #102843;
+  --color-ink-2: #526781;
+  --color-ink-3: #71849b;
+  --color-gold: #b47d38;
+  color: #102843;
+  color-scheme: light;
+  box-shadow: 0 30px 100px rgba(5, 18, 37, 0.3);
+}
+
+.pb-detalhe > div:first-child {
+  background: #ffffff;
+}
+
+.pb-detalhe h1 {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+.pb-detalhe dl > div {
+  background: #ffffff;
+  border: 1px solid #e0e7ef;
+  border-radius: 14px;
+}
+
+.pb-detalhe .pb-detalhe-lateral > div {
+  background: #ffffff;
+  border: 1px solid #e0e7ef;
+  box-shadow: 0 12px 40px rgba(13, 35, 60, 0.08);
+}
+
+.pb-detalhe input,
+.pb-detalhe select,
+.pb-detalhe textarea {
+  color-scheme: light;
+  background-color: #f7f9fc;
+  color: #102843;
+}
+
+.pb-detalhe input:focus,
+.pb-detalhe select:focus,
+.pb-detalhe textarea:focus {
+  border-color: #c28d47;
+  box-shadow: 0 0 0 3px rgba(194, 141, 71, 0.12);
+}
+
+.pb-detalhe .hairline-gold {
+  opacity: 0.65;
+}
+
+.pb-detalhe a,
+.pb-detalhe button {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (max-width: 639px) {
+  .pb-detalhe h1 {
+    font-size: 1.75rem;
+  }
+
+  .pb-detalhe dl {
+    gap: 0.625rem;
+  }
+
+  .pb-detalhe dl > div {
+    padding: 0.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-detalhe a,
+  .pb-detalhe button {
+    transition: none;
+  }
+}

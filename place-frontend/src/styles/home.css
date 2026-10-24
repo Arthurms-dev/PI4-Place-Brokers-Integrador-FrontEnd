@@ -1,0 +1,183 @@
+/* Place Brokers — Home B: topo premium e descoberta clara.
+   Escopo restrito à home; painéis, login e outras páginas permanecem intactos. */
+.pb-home-clara {
+  --color-page: #f7f9fc;
+  --color-side: #eef2f7;
+  --color-card: #ffffff;
+  --color-card-2: #eef2f7;
+  --color-line: #dce4ee;
+  --color-line-soft: #e5ebf3;
+  --color-ink: #0b1f3a;
+  --color-ink-2: #475b76;
+  --color-ink-3: #6b7d97;
+  --color-gold: #996827;
+  --color-gold-2: #be8b43;
+  background-color: #f7f9fc;
+  color: #0b1f3a;
+  padding-bottom: 1px;
+}
+.pb-home-clara .pb-trust-strip {
+  background: #fff;
+  border-color: #e3e9f1;
+}
+.pb-home-clara .pb-site-eyebrow { color: #986827; }
+.pb-home-clara .pb-property-card,
+.pb-home-clara .pb-home-imovel {
+  background: #fff;
+  border-color: #e1e7f0;
+  box-shadow: 0 8px 24px -14px rgba(9, 30, 62, 0.18);
+}
+.pb-home-clara #cidades button .relative,
+.pb-home-clara #cidades button p,
+.pb-home-clara #cidades button span { color: #fff; }
+.pb-home-clara .pb-property-card .bg-page\/80 { background-color: rgba(8, 21, 43, 0.82); color: #f3c47a; }
+.pb-home-clara section[aria-label="Fale com um especialista"] .rounded-3xl {
+  border-color: #dfcaab;
+  background: linear-gradient(135deg, #fff8ee, #fff 55%, #edf3fa);
+}
+
+/* Place Brokers — Identidade 2.0 / etapa 1.
+   Home: continuidade de superficies. ADM: movimento funcional.
+   Escopo deliberadamente limitado para nao afetar a autenticacao e os demais paineis.
+*/
+:root {
+  --pb-brand-navy: #08152b;
+  --pb-brand-midnight: #102843;
+  --pb-brand-gold: #e9ad5a;
+  --pb-brand-surface: #eef3f8;
+  --pb-brand-ink: #0b203b;
+  --pb-motion-fast: 180ms;
+  --pb-motion-medium: 360ms;
+}
+
+/* Uma mesma atmosfera cromatica entre a primeira tela e a descoberta. */
+.pb-site .pb-home-clara {
+  --color-page: #eef3f8;
+  --color-side: #e9f0f7;
+  --color-card: #ffffff;
+  --color-card-2: #f3f6fa;
+  --color-line: #dae4ef;
+  --color-line-soft: #e5ecf3;
+  --color-ink: #0b203b;
+  --color-ink-2: #465c74;
+  --color-ink-3: #657a91;
+  background: linear-gradient(180deg, #dce8f2 0, #eaf1f7 140px, #f5f8fb 530px, #eef3f8 100%);
+  color: var(--color-ink);
+}
+.pb-site .pb-home-clara .pb-trust-strip {
+  background: linear-gradient(90deg, rgba(225, 236, 247, .96), rgba(250, 252, 254, .96));
+  border-color: rgba(143, 167, 191, .27);
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card) {
+  border-color: rgba(157, 176, 195, .38);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 14px 32px -25px rgba(9, 30, 55, .34), 0 3px 10px -7px rgba(9, 30, 55, .12);
+  transition: transform var(--pb-motion-medium) ease, box-shadow var(--pb-motion-medium) ease, border-color var(--pb-motion-fast) ease;
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card):hover {
+  border-color: rgba(189, 139, 76, .56);
+  box-shadow: 0 24px 48px -28px rgba(9, 30, 55, .40), 0 10px 24px -20px rgba(9, 30, 55, .22);
+}
+.pb-site .pb-home-clara .pb-home-imovel a:focus-visible,
+.pb-site .pb-home-clara .pb-home-imovel button:focus-visible {
+  outline: 2px solid #ad7832;
+  outline-offset: 3px;
+}
+.pb-site .pb-home-clara :is(h2, h3) { letter-spacing: -.035em; }
+.pb-site .pb-home-clara #lista,
+.pb-site .pb-home-clara #cidades { scroll-margin-top: 105px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-site .pb-home-clara :is(.pb-home-imovel, .pb-property-card) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Place Brokers: Home C — composição editorial/fotográfica.
+   Esta folha é importada depois de homeB.css e placeIdentityV2.css. */
+.pb-site .pb-c-hero {
+  color: #0b203b;
+  background: radial-gradient(ellipse at 82% 3%, #e1eaf0 0%, transparent 50%), linear-gradient(180deg, #f3f5f6, #edf3f8);
+}
+.pb-site .pb-c-hero::after {display:none}
+.pb-c-overline { display:flex; align-items:center; gap:.7rem; color:#aa772f; font-size:10px; font-weight:800; letter-spacing:.14em; }
+.pb-c-hero .pb-c-photo img { animation: pb-c-photo-in .65s ease both; }
+@keyframes pb-c-photo-in { from { opacity:.35; transform:scale(1.04); } to { opacity:1; transform:scale(1); } }
+.pb-site .pb-c-hero form select,.pb-site .pb-c-hero form input { color-scheme:light; }
+.pb-site .pb-home-clara {
+  --color-page:#eef3f8;
+  --color-card:#fff;
+  --color-side:#f2f5f9;
+  --color-card-2:#fff;
+  --color-ink:#0b203b;
+  --color-ink-2:#516783;
+  --color-ink-3:#71859c;
+  --color-line:#dce5ee;
+  --color-line-soft:#e3eaf1;
+  background: linear-gradient(180deg,#edf3f8 0,#f5f7fa 550px,#f7f9fb 80%,#edf3f8 100%);
+  color:#0b203b;
+}
+.pb-site .pb-home-clara :is(.pb-home-imovel,.pb-property-card) {
+  background:#ffffff !important; background-image:none !important;
+  color:#0b203b !important; border-color:#dbe3ed !important;
+  box-shadow:0 14px 42px -30px rgba(8,21,43,.36),0 3px 13px -11px rgba(8,21,43,.19);
+}
+.pb-site .pb-home-clara .pb-home-imovel > div:last-child { background:#fff !important; color:#0b203b; }
+.pb-site .pb-home-clara .pb-home-imovel :is(.text-ink,.text-ink-2,.text-ink-3) { color:#0b203b; }
+.pb-site .pb-home-clara .pb-home-imovel p.text-ink-2 { color:#516783; }
+.pb-site .pb-home-clara .pb-home-imovel p.text-ink-3 { color:#6d8199; }
+.pb-site .pb-home-clara .pb-home-imovel :is(img) {filter:none;}
+.pb-site .pb-home-clara .pb-c-filter { background:#fff !important; background-image:none !important; }
+.pb-site .pb-home-clara .pb-c-catalog { padding-bottom:1rem; }
+.pb-site .pb-home-clara :is(#titulo-lista,#titulo-cidades) {color:#0b203b}
+.pb-site .pb-home-clara #cidades {padding-top:3.5rem}
+.pb-site .pb-home-clara #como-funciona {padding-top:4.5rem}
+.pb-site .pb-home-clara .pb-trust-strip { background:#eff4f8; }
+.pb-site .pb-home-clara section[aria-label="Fale com um especialista"] { padding-bottom:3rem; }
+.pb-site .pb-home-clara .pb-property-card .text-gold {color:#b88036}
+@media(min-width:1024px) { .pb-site .pb-c-hero-copy { padding-bottom:5.5rem; } }
+@media (max-width: 639px) {
+  .pb-site .pb-c-hero > .mx-auto {
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .pb-site .pb-c-hero > .mx-auto > .grid {
+    gap: 1.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy h1 {
+    margin-top: 1.25rem;
+    font-size: clamp(2.3rem, 10vw, 2.65rem);
+    line-height: 1.08;
+  }
+
+  .pb-site .pb-c-hero-copy > p:not(.pb-c-overline) {
+    margin-top: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .pb-site .pb-c-hero-copy > div {
+    margin-top: 1.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy > div > p {
+    display: none;
+  }
+
+  .pb-site .pb-c-hero .pb-c-photo {
+    height: 280px;
+  }
+
+  .pb-site .pb-c-hero .pb-c-search {
+    transform: none;
+    margin-top: 1rem;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){ .pb-site .pb-c-hero .pb-c-photo img {animation:none!important;} }
