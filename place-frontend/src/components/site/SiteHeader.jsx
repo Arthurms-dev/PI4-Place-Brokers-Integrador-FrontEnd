@@ -46,7 +46,7 @@ export default function SiteHeader() {
   return (
     <header className={`sticky top-0 z-40 border-b transition-all duration-500 ${ rolou || menu ? "border-line-soft bg-page/90 backdrop-blur shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]" : "border-transparent bg-transparent backdrop-blur-0" }`}>
       <div className="mx-auto flex h-[76px] max-w-7xl items-center gap-2 px-4 sm:px-6">
-        <Link to="/" aria-label="Place Brokers - início" className="mr-4 shrink-0"><Logo className="h-10" /></Link>
+        <Link to="/" aria-label="Place Brokers - início" className="mr-4 shrink-0"><Logo className="h-11" /></Link>
 
         <nav aria-label="Principal" className="hidden items-center md:flex">
           {SECOES.map(([rotulo, id]) => <button key={id} type="button" onClick={() => irPara(id)} className={link}>{rotulo}</button>)}

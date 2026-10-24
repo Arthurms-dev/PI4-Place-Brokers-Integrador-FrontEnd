@@ -41,5 +41,48 @@
 .pb-site .pb-home-clara section[aria-label="Fale com um especialista"] { padding-bottom:3rem; }
 .pb-site .pb-home-clara .pb-property-card .text-gold {color:#b88036}
 @media(min-width:1024px) { .pb-site .pb-c-hero-copy { padding-bottom:5.5rem; } }
-@media(max-width:639px) { .pb-site .pb-c-hero .pb-c-photo {height:325px;} .pb-site .pb-c-hero .pb-c-search {transform:none;margin-top:1.25rem;} }
+@media (max-width: 639px) {
+  .pb-site .pb-c-hero > .mx-auto {
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .pb-site .pb-c-hero > .mx-auto > .grid {
+    gap: 1.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy h1 {
+    margin-top: 1.25rem;
+    font-size: clamp(2.3rem, 10vw, 2.65rem);
+    line-height: 1.08;
+  }
+
+  .pb-site .pb-c-hero-copy > p:not(.pb-c-overline) {
+    margin-top: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .pb-site .pb-c-hero-copy > div {
+    margin-top: 1.25rem;
+  }
+
+  .pb-site .pb-c-hero-copy > div > p {
+    display: none;
+  }
+
+  .pb-site .pb-c-hero .pb-c-photo {
+    height: 280px;
+  }
+
+  .pb-site .pb-c-hero .pb-c-search {
+    transform: none;
+    margin-top: 1rem;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){ .pb-site .pb-c-hero .pb-c-photo img {animation:none!important;} }

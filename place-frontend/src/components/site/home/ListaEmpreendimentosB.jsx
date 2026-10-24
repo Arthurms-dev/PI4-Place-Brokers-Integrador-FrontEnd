@@ -7,32 +7,100 @@ import { Etiquetas, Foto } from "./pecas";
 
 const POR_PAGINA = 6;
 
+
 function Card({ p, i, onFalar }) {
   const para = `/imoveis/${p.id}`;
   const temPreco = p.precoMin != null;
-  const detalhes = [p.quartosTexto, p.suitesTexto, p.tipoTexto, p.vagasTexto, p.area].filter(Boolean);
+
+  const detalhes = [
+    p.quartosTexto,
+    p.suitesTexto,
+    p.tipoTexto,
+    p.vagasTexto,
+    p.area,
+  ].filter(Boolean);
+
+  const preco = temPreco
+    ? p.preco.replace("A partir de ", "")
+    : "Sob consulta";
 
   return (
     <Reveal atraso={(i % 3) * 60}>
-      <article className="pb-home-imovel group flex h-full flex-col overflow-hidden rounded-[22px] border border-[#dfe6ed] bg-white transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[#c99e64] hover:shadow-xl">
-        <div className="relative">
-          <Link to={para} aria-label={`Ver detalhes de ${p.title}`} className="block aspect-[1.47] overflow-hidden">
-            <Foto p={p} className="size-full object-cover transition-transform duration-500 group-hover:scale-105" />
+      <article className="pb-home-imovel group flex h-full min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#dce4ed] bg-white shadow-[0_12px_32px_-22px_rgba(8,21,43,.35)] transition-all duration-300 hover:-translate-y-1 hover:border-[#c99e64] hover:shadow-xl">
+        <div className="relative overflow-hidden">
+          <Link
+            to={para}
+            aria-label={`Ver detalhes de ${p.title}`}
+            className="block aspect-[16/10] overflow-hidden sm:aspect-[1.47]"
+          >
+            <Foto
+              p={p}
+              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
           </Link>
-          <div className="absolute left-3 top-3"><Etiquetas p={p} /></div>
-          <BotaoFavorito id={p.id} titulo={p.title} className="absolute right-3 top-3" />
+
+          <div className="absolute left-3 top-3">
+            <Etiquetas p={p} />
+          </div>
+
+          <BotaoFavorito
+            id={p.id}
+            titulo={p.title}
+            className="absolute right-3 top-3"
+          />
         </div>
-        <div className="flex flex-1 flex-col bg-white p-5 sm:p-6">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">{p.tag}</p>
-          <Link to={para} className="line-clamp-2 text-[17px] font-bold leading-snug text-ink transition-colors hover:text-[#986827]">{p.title}</Link>
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-ink-2"><Icon name="mapPin" className="size-3.5" /> {p.bairro ? `${p.bairro} · ` : ""}{p.city}</p>
-          {detalhes.length > 0 && <p className="mt-4 rounded-lg bg-[#eff3f7] px-3 py-2 text-[12px] font-medium text-[#42536a]">{detalhes.join(" · ")}</p>}
-          <div className="mt-auto pt-5">
-            <p className="text-[11px] text-ink-3">{temPreco ? "A partir de" : "Valor"}</p>
-            <p className="mt-0.5 text-xl font-extrabold tracking-tight text-[#0a2140]">{temPreco ? p.preco.replace("A partir de ", "") : "Sob consulta"}</p>
+
+        <div className="flex flex-1 flex-col p-4 sm:p-5">
+
+          <Link
+            to={para}
+            className="line-clamp-2 text-[19px] font-bold leading-snug text-[#102843] transition-colors hover:text-[#a27032]"
+          >
+            {p.title}
+          </Link>
+
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#61748b]">
+            <Icon name="mapPin" className="size-3.5 shrink-0" />
+            <span className="truncate">
+              {p.bairro ? `${p.bairro} · ` : ""}
+              {p.city}
+            </span>
+          </p>
+
+          {detalhes.length > 0 && (
+            <div className="mt-4 rounded-xl bg-[#f1f5f9] px-3 py-2.5">
+              <p className="text-[12px] font-medium leading-5 text-[#43566c]">
+                {detalhes.join(" · ")}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-auto pt-4">
+            <div className="border-t border-[#e6ebf1] pt-4">
+              <p className="text-[11px] text-[#71839a]">
+                {temPreco ? "A partir de" : "Valor"}
+              </p>
+
+              <p className="mt-1 text-[23px] font-extrabold tracking-tight text-[#102843]">
+                {preco}
+              </p>
+            </div>
+
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link to={para} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#cbd5e1] px-2 text-center text-[12px] font-semibold text-[#122744] transition-colors hover:border-[#bd8b4c]">Ver detalhes</Link>
-              <button type="button" onClick={() => onFalar(p)} className="min-h-11 rounded-xl bg-[#e9ad5a] px-2 text-[12px] font-bold text-[#08152b] transition-colors hover:bg-[#f0c182]">Quero saber mais</button>
+              <Link
+                to={para}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#cbd5e1] px-3 text-center text-[12px] font-bold text-[#102843] transition-colors hover:border-[#bd8b4c]"
+              >
+                Ver detalhes
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => onFalar(p)}
+                className="min-h-11 rounded-xl bg-[#e9ad5a] px-3 text-[12px] font-bold text-[#08152b] transition-colors hover:bg-[#f0c182]"
+              >
+                Quero saber mais
+              </button>
             </div>
           </div>
         </div>

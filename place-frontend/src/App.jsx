@@ -103,8 +103,11 @@ export default function App() {
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
 
+
       <Route path="/gerente" element={<AreaLayout cargo="gerente" />}>
         <Route index element={<GerenteInicioPage />} />
+        <Route path="empreendimentos" element={<CatalogoPage />} />
+        <Route path="books" element={<CatalogoPage modo="books" />} />
         <Route path="equipe" element={<MinhaEquipePage />} />
         <Route path="leads" element={<GerenteLeadsPage />} />
         <Route path="agendamentos" element={<GerenteAgendaPage />} />

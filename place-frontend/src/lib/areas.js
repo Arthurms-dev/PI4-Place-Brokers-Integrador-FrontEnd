@@ -20,10 +20,13 @@ export const AREAS = {
       { label: "Configurações", href: "/corretor/configuracoes", icon: "settings" },
     ],
   },
+
   gerente: {
     home: "/gerente",
     items: [
       { label: "Início", href: "/gerente", icon: "home", end: true },
+      { label: "Empreendimentos", href: "/gerente/empreendimentos", icon: "building" },
+      { label: "Books e Tabelas", href: "/gerente/books", icon: "book" },
       { label: "Minha equipe", href: "/gerente/equipe", icon: "team" },
       { label: "Leads", href: "/gerente/leads", icon: "users" },
       { label: "Agendamentos", href: "/gerente/agendamentos", icon: "calendar" },
@@ -31,6 +34,7 @@ export const AREAS = {
       { label: "Configurações", href: "/gerente/configuracoes", icon: "settings" },
     ],
   },
+
   viabilizador: {
     home: "/viabilizador",
     items: [

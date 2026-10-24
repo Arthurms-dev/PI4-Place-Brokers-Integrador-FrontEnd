@@ -64,7 +64,7 @@ export function ContatoProvider({ children }) {
       {children}
 
       {mostrarBotao && (
-        <button type="button" onClick={() => abrirContato(null, "botão flutuante")} aria-label="Fale com um especialista" className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 flex items-center gap-3 sm:right-6">
+        <button type="button" onClick={() => abrirContato(null, "botão flutuante")} aria-label="Fale com um especialista" className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 hidden items-center gap-3 sm:right-6 sm:flex">
           <span className="animate-fade-in hidden rounded-full border border-line bg-card/95 px-4 py-2 text-[13px] font-medium text-ink shadow-lg backdrop-blur sm:block">Fale com especialista</span>
           <span className="relative grid size-14 place-items-center rounded-full bg-[#25D366] text-[#06210f] shadow-xl shadow-black/40 transition-transform hover:scale-105 active:scale-95">
             <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-[#25D366]/40" />
