@@ -402,6 +402,10 @@ export default function EmpreendimentosPage() {
           onDocumentosAtualizados={(empreendimentoId, documentos) => {
             setDocsPorEmp((atual) => ({ ...atual, [String(empreendimentoId)]: documentos }));
           }}
+          onCapaAtualizada={(empreendimentoId, capaUrl) => {
+            setLista((atual) => atual.map((item) => String(item.id) === String(empreendimentoId)
+              ? { ...item, capa_url: capaUrl } : item));
+          }}
           onTipologiasAtualizadas={(empreendimentoId, tipologias) => {
             setLista((atual) =>
               atual.map((item) =>

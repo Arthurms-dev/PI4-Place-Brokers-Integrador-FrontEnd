@@ -5,6 +5,7 @@ import { criarConstrutora } from "@/services/construtoras";
 import { atualizarEmpreendimento, criarEmpreendimento } from "@/services/empreendimentos";
 import TipologiasForm from "./TipologiasForm";
 import DocumentosComerciaisForm from "./DocumentosComerciaisForm";
+import ImagensEmpreendimentoForm from "./ImagensEmpreendimentoForm";
 import { auditarTipologias } from "@/lib/auditoriaTipologias";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
@@ -82,7 +83,7 @@ function CampoNumero({ campo, rotulo, valor, onChange, erro, ...resto }) {
   );
 }
 
-export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo, onTipologiasAtualizadas, onDocumentosAtualizados }) {
+export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo, onTipologiasAtualizadas, onDocumentosAtualizados, onCapaAtualizada }) {
   const [f, setF] = useState(() => ({
     nome: emp?.nome ?? "",
     construtoraId: emp?.construtora_id ?? "",
@@ -317,12 +318,13 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             onAtualizados={(documentos) => onDocumentosAtualizados?.(emp.id, documentos)}
           />
         )}
+        {emp && <ImagensEmpreendimentoForm
+          empreendimentoId={emp.id}
+          capaInicial={emp.capa_url}
+          onCapaAtualizada={(url) => onCapaAtualizada?.(emp.id, url)}
+        />}
         <Secao titulo="Arquivos">
-          {emp ? (
-            <p className="rounded-xl bg-card-2 px-3.5 py-3 text-[13px] text-ink-2">
-              Capa e galeria permanecem inalteradas nesta edição. Para books e tabelas, use a seção de documentos comerciais acima.
-            </p>
-          ) : (
+          {!emp && (
             <>
               <Arquivo rotulo="Foto de capa" accept="image/*" arquivo={arquivos.capa} onChange={(a) => aceitarArquivo("capa", a)} dica="JPG, PNG ou WebP (até 15 MB; é reduzida automaticamente)" erro={erros.capa} />
               <div className={`rounded-xl border border-dashed p-3 ${erros.galeria ? "border-danger" : "border-line"}`}>
