@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Campo, CAMPO } from "@/components/admin/equipe/ui";
 import {
@@ -51,7 +50,7 @@ function detalhes(tipologia) {
     .join(" · ");
 }
 
-export default function TipologiasForm({ empreendimentoId }) {
+export default function TipologiasForm({ empreendimentoId, onAtualizadas }) {
   const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState(null);
@@ -124,6 +123,8 @@ export default function TipologiasForm({ empreendimentoId }) {
   }
 
   async function salvar() {
+    if (salvando) return;
+
     const dados = {
       nome: campos.nome.trim(),
       quartos: campos.quartos === "" ? null : Number(campos.quartos),
@@ -162,16 +163,17 @@ export default function TipologiasForm({ empreendimentoId }) {
           ? await criarTipologia(empreendimentoId, dados)
           : await atualizarTipologia(empreendimentoId, editando, dados);
 
-      setLista((atual) =>
-        ordenar(
-          editando === "novo"
-            ? [...atual, resultado]
-            : atual.map((item) =>
-                item.id === resultado.id ? resultado : item
-              )
-        )
+      // Notifica o painel somente após a API confirmar o salvamento.
+      const novasTipologias = ordenar(
+        editando === "novo"
+          ? [...lista, resultado]
+          : lista.map((item) =>
+              item.id === resultado.id ? resultado : item
+            )
       );
 
+      setLista(novasTipologias);
+      onAtualizadas?.(novasTipologias);
       setEditando(null);
       setCampos({ ...CAMPOS_INICIAIS });
     } catch (erro) {

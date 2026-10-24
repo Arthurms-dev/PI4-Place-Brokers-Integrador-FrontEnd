@@ -369,6 +369,15 @@ export default function EmpreendimentosPage() {
             )
           }
           onClose={() => setForm(null)}
+          onTipologiasAtualizadas={(empreendimentoId, tipologias) => {
+            setLista((atual) =>
+              atual.map((item) =>
+                String(item.id) === String(empreendimentoId)
+                  ? { ...item, tipologias }
+                  : item
+              )
+            );
+          }}
           onSalvo={(salvo, novo) => {
             setLista((atual) =>
               novo

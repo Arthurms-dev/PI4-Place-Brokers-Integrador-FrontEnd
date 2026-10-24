@@ -80,7 +80,7 @@ function CampoNumero({ campo, rotulo, valor, onChange, erro, ...resto }) {
   );
 }
 
-export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo }) {
+export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo, onTipologiasAtualizadas }) {
   const [f, setF] = useState(() => ({
     nome: emp?.nome ?? "",
     construtoraId: emp?.construtora_id ?? "",
@@ -272,7 +272,14 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
           </div>
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
         </Secao>
-        {emp && <TipologiasForm empreendimentoId={emp.id} />}
+        {emp && (
+          <TipologiasForm
+            empreendimentoId={emp.id}
+            onAtualizadas={(tipologias) =>
+              onTipologiasAtualizadas?.(emp.id, tipologias)
+            }
+          />
+        )}
         <Secao titulo="Arquivos">
           {emp ? (
             <p className="rounded-xl bg-card-2 px-3.5 py-3 text-[13px] text-ink-2">
