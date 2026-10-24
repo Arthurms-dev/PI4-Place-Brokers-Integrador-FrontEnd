@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import EmpreendimentoForm from "@/components/admin/empreendimentos/EmpreendimentoForm";
+import { listarDocumentosAdmin } from "@/services/documentosComerciaisAdmin";
 import { CAMPO, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { listarConstrutoras } from "@/services/construtoras";
@@ -75,7 +76,13 @@ function Chave({ ativo, rotulo, onClick, ocupado }) {
   );
 }
 
-function Cartao({ e, indice, onEditar, onMudar }) {
+function documentoVigente(doc, tipo) {
+  const hoje = new Date().toISOString().slice(0, 10);
+  return doc.tipo === tipo && doc.status === "aprovado" &&
+    (!doc.validade_ate || doc.validade_ate >= hoje) && !!doc.driveUrl;
+}
+
+function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
   const [ocupado, setOcupado] = useState(false);
 
   async function alternar(campo) {
@@ -89,6 +96,8 @@ function Cartao({ e, indice, onEditar, onMudar }) {
   }
 
   const plantas = Array.isArray(e.tipologias) ? e.tipologias : [];
+  const book = e.tem_book || (Array.isArray(docsComerciais) && docsComerciais.some((doc) => documentoVigente(doc, "book")));
+  const tabela = e.tem_tabela || (Array.isArray(docsComerciais) && docsComerciais.some((doc) => documentoVigente(doc, "tabela")));
   const quartos = quartosParaExibicao(e);
   const vagas = formatarFaixa(e.vagas_min, e.vagas_max, "vaga", "vagas");
   const caracteristicas = [
@@ -156,11 +165,11 @@ function Cartao({ e, indice, onEditar, onMudar }) {
               {plantas.length === 1 ? "planta cadastrada" : "plantas cadastradas"}
             </Selo>
           )}
-          <Selo tom={e.tem_book ? "ok" : "neutro"}>
-            {e.tem_book ? "Book ✓" : "Sem book"}
+          <Selo tom={book ? "ok" : "neutro"}>
+            {book ? "Book ✓" : docsComerciais === undefined || docsComerciais === null ? "Book: verificar" : "Sem book"}
           </Selo>
-          <Selo tom={e.tem_tabela ? "ok" : "neutro"}>
-            {e.tem_tabela ? "Tabela ✓" : "Sem tabela"}
+          <Selo tom={tabela ? "ok" : "neutro"}>
+            {tabela ? "Tabela ✓" : docsComerciais === undefined || docsComerciais === null ? "Tabela: verificar" : "Sem tabela"}
           </Selo>
           <Selo tom={e.latitude != null ? "ok" : "alerta"}>
             {e.latitude != null ? "No mapa" : "Sem coordenadas"}
@@ -196,6 +205,7 @@ function Cartao({ e, indice, onEditar, onMudar }) {
 export default function EmpreendimentosPage() {
   usePageTitle("Empreendimentos");
   const [lista, setLista] = useState([]);
+  const [docsPorEmp, setDocsPorEmp] = useState({});
   const [construtoras, setConstrutoras] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -227,6 +237,17 @@ export default function EmpreendimentosPage() {
       ativo = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (lista.length === 0) return;
+    let ativo = true;
+    // Consulta separada, pois os indicadores antigos só cobrem book_url/tabela_url.
+    Promise.all(lista.map(async (emp) => {
+      try { return [String(emp.id), await listarDocumentosAdmin(emp.id)]; }
+      catch { return [String(emp.id), null]; }
+    })).then((pares) => { if (ativo) setDocsPorEmp((atual) => ({ ...atual, ...Object.fromEntries(pares) })); });
+    return () => { ativo = false; };
+  }, [lista.length]);
 
   const mudar = useCallback(async (id, mudancas) => {
     setErro("");
@@ -353,6 +374,7 @@ export default function EmpreendimentosPage() {
               indice={indice}
               onEditar={(empreendimento) => setForm({ emp: empreendimento })}
               onMudar={mudar}
+              docsComerciais={docsPorEmp[String(item.id)]}
             />
           ))}
         </ul>
@@ -369,6 +391,9 @@ export default function EmpreendimentosPage() {
             )
           }
           onClose={() => setForm(null)}
+          onDocumentosAtualizados={(empreendimentoId, documentos) => {
+            setDocsPorEmp((atual) => ({ ...atual, [String(empreendimentoId)]: documentos }));
+          }}
           onTipologiasAtualizadas={(empreendimentoId, tipologias) => {
             setLista((atual) =>
               atual.map((item) =>
@@ -379,6 +404,7 @@ export default function EmpreendimentosPage() {
             );
           }}
           onSalvo={(salvo, novo) => {
+            if (novo) setDocsPorEmp((atual) => ({ ...atual, [String(salvo.id)]: [] }));
             setLista((atual) =>
               novo
                 ? [salvo, ...atual]

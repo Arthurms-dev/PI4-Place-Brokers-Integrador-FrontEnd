@@ -4,6 +4,7 @@ import { CAMPO, Campo, Folha } from "@/components/admin/equipe/ui";
 import { criarConstrutora } from "@/services/construtoras";
 import { atualizarEmpreendimento, criarEmpreendimento } from "@/services/empreendimentos";
 import TipologiasForm from "./TipologiasForm";
+import DocumentosComerciaisForm from "./DocumentosComerciaisForm";
 import { auditarTipologias } from "@/lib/auditoriaTipologias";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
@@ -81,7 +82,7 @@ function CampoNumero({ campo, rotulo, valor, onChange, erro, ...resto }) {
   );
 }
 
-export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo, onTipologiasAtualizadas }) {
+export default function EmpreendimentoForm({ empreendimento: emp, construtoras, onConstrutoraCriada, onClose, onSalvo, onTipologiasAtualizadas, onDocumentosAtualizados }) {
   const [f, setF] = useState(() => ({
     nome: emp?.nome ?? "",
     construtoraId: emp?.construtora_id ?? "",
@@ -308,10 +309,18 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             }}
           />
         )}
+        {emp && (
+          <DocumentosComerciaisForm
+            empreendimentoId={emp.id}
+            temBookLegado={emp.tem_book}
+            temTabelaLegada={emp.tem_tabela}
+            onAtualizados={(documentos) => onDocumentosAtualizados?.(emp.id, documentos)}
+          />
+        )}
         <Secao titulo="Arquivos">
           {emp ? (
             <p className="rounded-xl bg-card-2 px-3.5 py-3 text-[13px] text-ink-2">
-              A troca de capa, galeria, book e tabela pela edição ainda não está disponível. Os atuais continuam como estão.
+              Capa e galeria permanecem inalteradas nesta edição. Para books e tabelas, use a seção de documentos comerciais acima.
             </p>
           ) : (
             <>
