@@ -91,7 +91,7 @@ export function ModalGerente({ onClose, onSalvo }) {
         <p className="text-[13px] text-ink-2">O gerente já entra aprovado e só faz login. Combine a senha temporária com ele por fora.</p>
         <Campo rotulo="Nome" erro={erros.nome}><input value={f.nome} onChange={set("nome")} autoComplete="off" className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
         <Campo rotulo="E-mail" erro={erros.email}><input type="email" value={f.email} onChange={set("email")} autoComplete="off" className={`${CAMPO} ${borda(erros, "email")}`} /></Campo>
-        <Campo rotulo="Senha temporária" erro={erros.password}><input type="text" value={f.password} onChange={set("password")} autoComplete="new-password" className={`${CAMPO} ${borda(erros, "password")}`} /></Campo>
+        <Campo rotulo="Senha temporária" erro={erros.password}><input type="password" value={f.password} onChange={set("password")} autoComplete="new-password" className={`${CAMPO} ${borda(erros, "password")}`} /></Campo>
         <Erro texto={erroGeral && !Object.keys(erros).length ? erroGeral : ""} />
         <Botao enviando={enviando}>Criar gerente</Botao>
       </form>

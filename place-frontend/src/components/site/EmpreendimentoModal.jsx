@@ -17,6 +17,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export default function EmpreendimentoModal({ item, onClose }) {
   const { abrirContato } = useContato();
   const [det, setDet] = useState(null);
+  const [erroDetalhes, setErroDetalhes] = useState("");
 
   useEffect(() => {
     const aoTeclar = (e) => e.key === "Escape" && onClose();
@@ -32,7 +33,12 @@ export default function EmpreendimentoModal({ item, onClose }) {
   useEffect(() => {
     if (item.origem !== "api") return undefined;
     let ativo = true;
-    buscarEmpreendimentoPorId(item.id).then((d) => ativo && setDet(d)).catch(() => {});
+    setErroDetalhes("");
+    buscarEmpreendimentoPorId(item.id)
+      .then((dados) => { if (ativo) setDet(dados); })
+      .catch(() => {
+        if (ativo) setErroDetalhes("Não foi possível consultar os detalhes atualizados. Exibindo as informações do catálogo.");
+      });
     if (UUID.test(item.id)) registrarEvento({ tipo: "visualizacao_empreendimento", empreendimentoId: item.id });
     return () => {
       ativo = false;
@@ -73,6 +79,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
         <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-24 sm:pb-6">
           <div className="grid min-w-0 grid-cols-1 gap-6 sm:p-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="space-y-6">
+              {erroDetalhes && <p role="status" className="mx-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-ink-2 sm:mx-0">{erroDetalhes}</p>}
               <GaleriaImovelPremium imagens={imagens} titulo={item.title} />
 
               <div className="space-y-6 px-4 sm:px-0">

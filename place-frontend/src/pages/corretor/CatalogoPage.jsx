@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { rotaBaseCatalogo } from "@/lib/rotasCatalogo";
 import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -103,8 +104,16 @@ function Fotos({ imagens, titulo }) {
 
 function Detalhe({ resumo, onClose }) {
   const [emp, setEmp] = useState(resumo);
+  const [erroDetalhes, setErroDetalhes] = useState("");
   useEffect(() => {
-    buscarEmpreendimentoPorId(resumo.id).then((d) => setEmp((s) => ({ ...s, ...d }))).catch(() => {});
+    let ativo = true;
+    setErroDetalhes("");
+    buscarEmpreendimentoPorId(resumo.id)
+      .then((dados) => { if (ativo) setEmp((atual) => ({ ...atual, ...dados })); })
+      .catch(() => {
+        if (ativo) setErroDetalhes("Não foi possível atualizar os detalhes deste imóvel. Exibindo os dados do catálogo.");
+      });
+    return () => { ativo = false; };
   }, [resumo.id]);
 
   const imagens = useMemo(() => {
@@ -122,6 +131,7 @@ function Detalhe({ resumo, onClose }) {
   return (
     <Folha titulo={emp.nome} onClose={onClose} largo>
       <div className="space-y-5">
+        {erroDetalhes && <p role="status" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-ink-2">{erroDetalhes}</p>}
         {imagens.length > 0 && <Fotos imagens={imagens} titulo={emp.nome} />}
 
         <div className="flex flex-wrap items-center gap-2">
@@ -192,6 +202,8 @@ function Cartao({ e, indice, onAbrir }) {
 export default function CatalogoPage({ modo = "catalogo" }) {
   const { id: empreendimentoId } = useParams();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const caminhoCatalogo = rotaBaseCatalogo(pathname);
   const books = modo === "books";
   usePageTitle(books ? "Books e tabelas" : "Empreendimentos");
   const [lista, setLista] = useState([]);
@@ -218,8 +230,8 @@ export default function CatalogoPage({ modo = "catalogo" }) {
     if (!empreendimentoId || carregando) return;
     const escolhido = lista.find((e) => String(e.id) === empreendimentoId);
     if (escolhido) setAberto(escolhido);
-    else navigate('/corretor/empreendimentos', { replace: true });
-  }, [empreendimentoId, carregando, lista, navigate]);
+    else navigate(caminhoCatalogo, { replace: true });
+  }, [empreendimentoId, carregando, lista, navigate, caminhoCatalogo]);
 
   const cidades = useMemo(() => [...new Set(lista.map((e) => e.cidade))].sort((a, b) => a.localeCompare(b)), [lista]);
   const visiveis = useMemo(() => {
@@ -278,7 +290,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
 
       {aberto && <Detalhe key={aberto.id} resumo={aberto} onClose={() => {
         setAberto(null);
-        if (empreendimentoId) navigate('/corretor/empreendimentos');
+        if (empreendimentoId) navigate(caminhoCatalogo);
       }} />}
     </div>
   );
