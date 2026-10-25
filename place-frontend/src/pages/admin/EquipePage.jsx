@@ -5,7 +5,6 @@ import CorretoresTab from "@/components/admin/equipe/CorretoresTab";
 import EquipesTab from "@/components/admin/equipe/EquipesTab";
 import { ModalDiretoria, ModalEquipe, ModalGerente } from "@/components/admin/equipe/modais";
 import { ehAutonomo } from "@/components/admin/equipe/ui";
-import ViabilizadoresTab from "@/components/admin/equipe/ViabilizadoresTab";
 import * as api from "@/services/admin/equipe";
 import { listarConstrutoras } from "@/services/construtoras";
 
@@ -30,7 +29,7 @@ export default function EquipePage() {
       setConstrutoras(c);
       if (!abaDefinida.current) {
         abaDefinida.current = true;
-        if (m.some((x) => x.status === "pendente" && ["corretor", "viabilizador"].includes(x.cargo))) setAba("aprovacoes");
+        if (m.some((x) => x.status === "pendente" && x.cargo === "corretor")) setAba("aprovacoes");
       }
     } catch (e) {
       setErro(e.message ?? "Não foi possível carregar a equipe.");
@@ -66,19 +65,17 @@ export default function EquipePage() {
     }
   }, [recarregar]);
 
-  const pendentes = useMemo(() => membros.filter((m) => m.status === "pendente" && ["corretor", "viabilizador"].includes(m.cargo)), [membros]);
+  const pendentes = useMemo(() => membros.filter((m) => m.status === "pendente" && m.cargo === "corretor"), [membros]);
   const corretores = useMemo(() => membros.filter((m) => m.cargo === "corretor"), [membros]);
   const aprovadosPlace = useMemo(() => corretores.filter((m) => m.status === "aprovado" && m.ativo && !ehAutonomo(m)), [corretores]);
   const gerentes = useMemo(() => membros.filter((m) => m.cargo === "gerente"), [membros]);
   const autonomos = useMemo(() => corretores.filter(ehAutonomo), [corretores]);
-  const viabilizadores = useMemo(() => membros.filter((m) => m.cargo === "viabilizador" && m.status === "aprovado"), [membros]);
 
   const abas = [
     ["aprovacoes", "Aprovações", pendentes.length],
     ["equipes", "Equipes da Place", times.length],
     ["autonomos", "Autônomos", autonomos.length],
     ["todos", "Todos os corretores", corretores.length],
-    ["viabilizadores", "Viabilizadores", viabilizadores.length],
   ];
 
   if (carregando) {
@@ -122,7 +119,6 @@ export default function EquipePage() {
         )}
         {aba === "autonomos" && <CorretoresTab modo="autonomos" corretores={corretores} times={times} onMudar={mudar} />}
         {aba === "todos" && <CorretoresTab modo="todos" corretores={corretores} times={times} onMudar={mudar} />}
-        {aba === "viabilizadores" && <ViabilizadoresTab viabilizadores={viabilizadores} construtoras={construtoras} onMudar={mudar} />}
       </div>
 
       {modal?.tipo === "equipe" && (

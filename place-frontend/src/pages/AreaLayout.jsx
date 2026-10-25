@@ -1,11 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
-import { useAsyncData } from "@/hooks/useAsyncData";
+import { useUsuarioAtual } from "@/hooks/useUsuarioAtual";
 import { AREAS, ROLE_HOME } from "@/lib/areas";
-import { getCurrentUser } from "@/services/session";
 
 export default function AreaLayout({ cargo }) {
-  const { data: user, loading } = useAsyncData(getCurrentUser);
+  const { data: user, loading } = useUsuarioAtual();
   const area = AREAS[cargo];
 
   if (loading) {

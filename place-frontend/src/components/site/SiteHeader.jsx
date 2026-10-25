@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/services/session";
+import { useUsuarioAtual } from "@/hooks/useUsuarioAtual";
 import { ROLE_HOME } from "@/lib/areas";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ export default function SiteHeader() {
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
   const [rolou, setRolou] = useState(false);
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const { data: usuarioLogado } = useUsuarioAtual();
   const naHome = pathname === "/" || pathname.startsWith("/imoveis/");
 
   useEffect(() => {
@@ -25,13 +25,6 @@ export default function SiteHeader() {
   }, []);
   useEffect(() => setMenu(false), [pathname]);
 
-  useEffect(() => {
-    let ativo = true;
-    getCurrentUser()
-      .then((usuario) => { if (ativo) setUsuarioLogado(usuario); })
-      .catch(() => { if (ativo) setUsuarioLogado(null); });
-    return () => { ativo = false; };
-  }, []);
   const destinoAreaRestrita = usuarioLogado ? (ROLE_HOME[usuarioLogado.cargo] ?? "/login") : "/login";
 
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
+import PasswordField from "@/components/auth/PasswordField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ROLE_HOME } from "@/lib/areas";
 import { authService, AuthError } from "@/services/authService";
@@ -55,12 +56,11 @@ export default function LoginPage() {
         </FormField>
 
         <FormField label="Senha" error={fieldErrors.password}>
-          <input
-            type="password"
+          <PasswordField
             autoComplete="current-password"
             value={form.password}
             onChange={handleChange("password")}
-            className={fieldInputClass(fieldErrors.password)}
+            error={fieldErrors.password}
           />
         </FormField>
 

@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import "@/styles/adminEffects.css";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
-import { useAsyncData } from "@/hooks/useAsyncData";
+import { useUsuarioAtual } from "@/hooks/useUsuarioAtual";
 import { ROLE_HOME } from "@/lib/areas";
-import { getCurrentUser } from "@/services/session";
 
 const MENU = [
   { label: "Visão Geral", href: "/admin/painel", icon: "home" },
@@ -19,7 +18,7 @@ const MENU = [
 ];
 
 export default function AdminLayout() {
-  const { data: user, loading } = useAsyncData(getCurrentUser);
+  const { data: user, loading } = useUsuarioAtual();
 
   if (loading) {
     return <div className="grid min-h-screen place-items-center text-ink-2">Carregando…</div>;

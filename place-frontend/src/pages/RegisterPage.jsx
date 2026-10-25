@@ -1,16 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
-import { listarConstrutoras } from "@/services/construtoras";
-
-const ROLES = [
-  { value: "CORRETOR", label: "Corretor" },
-  { value: "VIABILIZADOR", label: "Viabilizador" },
-];
+import PasswordField from "@/components/auth/PasswordField";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -23,7 +18,7 @@ export default function RegisterPage() {
   usePageTitle("Criar conta");
 
   const [form, setForm] = useState({
-    name: "", email: "", role: "", vinculo: "", creci: "", uf: "", construtoraId: "", password: "", confirmPassword: "",
+    name: "", email: "", role: "CORRETOR", vinculo: "", creci: "", uf: "", construtoraId: "", password: "", confirmPassword: "",
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -31,11 +26,6 @@ export default function RegisterPage() {
   const [enviado, setEnviado] = useState(false);
 
   const ehCorretor = form.role === "CORRETOR";
-  const ehViabilizador = form.role === "VIABILIZADOR";
-  const [construtoras, setConstrutoras] = useState([]);
-  useEffect(() => {
-    if (ehViabilizador && construtoras.length === 0) listarConstrutoras().then(setConstrutoras).catch(() => {});
-  }, [ehViabilizador, construtoras.length]);
   const handleChange = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleSubmit(e) {
@@ -50,7 +40,7 @@ export default function RegisterPage() {
         payload.creci = undefined;
       }
       if (payload.vinculo !== "externo") payload.uf = undefined;
-      if (!ehViabilizador) payload.construtoraId = undefined;
+      payload.construtoraId = undefined;
       await authService.register(payload);
       setEnviado(true);
     } catch (err) {
@@ -86,7 +76,7 @@ export default function RegisterPage() {
   return (
     <Card>
       <h1 className="mb-1 text-xl font-medium">Criar conta</h1>
-      <p className="mb-6 text-sm text-ink-2">Cadastro para corretores e viabilizadores. A conta fica pendente até o administrador aprovar.</p>
+      <p className="mb-6 text-sm text-ink-2">Cadastro para corretores. A conta fica pendente até o administrador aprovar.</p>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="Nome completo" error={fieldErrors.name}>
@@ -101,19 +91,6 @@ export default function RegisterPage() {
             onChange={handleChange("email")}
             className={fieldInputClass(fieldErrors.email)}
           />
-        </FormField>
-
-        <FormField label="Perfil" error={fieldErrors.role}>
-          <select value={form.role} onChange={handleChange("role")} className={fieldInputClass(fieldErrors.role)}>
-            <option value="" disabled>
-              Selecione...
-            </option>
-            {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
         </FormField>
 
         {ehCorretor && (
@@ -154,41 +131,21 @@ export default function RegisterPage() {
           </>
         )}
 
-        {ehViabilizador && (
-          <FormField label="Construtora em que você trabalha" error={fieldErrors.construtoraId}>
-            <select value={form.construtoraId} onChange={handleChange("construtoraId")} className={fieldInputClass(fieldErrors.construtoraId)}>
-              <option value="" disabled>
-                {construtoras.length ? "Selecione..." : "Carregando construtoras..."}
-              </option>
-              {construtoras.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-            <span className="mt-1 block text-[11px] text-ink-3">
-              Não encontrou a sua construtora? Fale com a Place Brokers para cadastrá-la antes.
-            </span>
-          </FormField>
-        )}
-
         <FormField label="Senha" error={fieldErrors.password}>
-          <input
-            type="password"
+          <PasswordField
             autoComplete="new-password"
             value={form.password}
             onChange={handleChange("password")}
-            className={fieldInputClass(fieldErrors.password)}
+            error={fieldErrors.password}
           />
         </FormField>
 
         <FormField label="Confirmar senha" error={fieldErrors.confirmPassword}>
-          <input
-            type="password"
+          <PasswordField
             autoComplete="new-password"
             value={form.confirmPassword}
             onChange={handleChange("confirmPassword")}
-            className={fieldInputClass(fieldErrors.confirmPassword)}
+            error={fieldErrors.confirmPassword}
           />
         </FormField>
 
