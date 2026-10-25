@@ -19,6 +19,18 @@ function Linha({ m, times, onMudar, mostrarEquipe }) {
     }
   }
 
+  async function reabrirAnalise() {
+    setSalvando(true);
+    try {
+      // Mantém a mesma identidade no Supabase Auth e devolve o cadastro à fila.
+      await onMudar(m.id, { status: "pendente" });
+    } catch {
+      // O componente pai apresenta erros da API ao administrador.
+    } finally {
+      setSalvando(false);
+    }
+  }
+
   return (
     <li className="flex items-center gap-3 py-3">
       <Avatar nome={autonomo ? nomeReservado(m.nome) : m.nome} />
@@ -37,6 +49,12 @@ function Linha({ m, times, onMudar, mostrarEquipe }) {
         <button type="button" disabled={salvando} onClick={alternar} aria-pressed={m.ativo}
           className={`h-11 shrink-0 rounded-xl border px-4 text-[13px] transition-colors disabled:opacity-50 ${m.ativo ? "border-line text-ink-2 hover:border-danger/50 hover:text-danger" : "border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10"}`}>
           {m.ativo ? "Desativar" : "Reativar"}
+        </button>
+      )}
+      {m.status === "recusado" && (
+        <button type="button" disabled={salvando} onClick={reabrirAnalise}
+          className="h-11 shrink-0 rounded-xl border border-gold/50 px-3 text-[12px] font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-50">
+          {salvando ? "Reabrindo..." : "Reabrir análise"}
         </button>
       )}
     </li>

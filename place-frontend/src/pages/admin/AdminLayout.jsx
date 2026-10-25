@@ -7,7 +7,7 @@ import { ROLE_HOME } from "@/lib/areas";
 const MENU = [
   { label: "Visão Geral", href: "/admin/painel", icon: "home" },
   { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
-  { label: "Imóveis", href: "/admin/imoveis", icon: "building" },
+  { label: "Empreendimentos", href: "/admin/imoveis", icon: "building" },
   { label: "Leads", href: "/admin/leads", icon: "users" },
   { label: "Clientes", href: "/admin/clientes", icon: "user" },
   { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },

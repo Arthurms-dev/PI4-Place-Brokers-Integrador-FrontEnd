@@ -160,6 +160,11 @@ export default function RegisterPage() {
         </Button>
       </form>
 
+      <p className="mt-4 text-center text-xs text-ink-3">
+        Cadastro recusado? Solicite ao administrador a reabertura da análise.
+        Não é necessário criar outra conta.
+      </p>
+
       <p className="mt-6 text-center text-xs text-ink-2">
         Já tem conta?{" "}
         <Link to="/login" className="text-gold hover:underline">
