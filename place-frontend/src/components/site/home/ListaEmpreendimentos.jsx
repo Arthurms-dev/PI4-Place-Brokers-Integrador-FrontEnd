@@ -29,7 +29,7 @@ function Card({ p, i, onFalar }) {
           <Link
             to={destino}
             aria-label={`Ver detalhes de ${p.title}`}
-            className="block aspect-[16/10] overflow-hidden sm:aspect-[1.47]"
+            className="block aspect-[3/2] overflow-hidden"
           >
             <Foto
               p={p}
@@ -65,7 +65,7 @@ function Card({ p, i, onFalar }) {
           </p>
 
           {detalhes.length > 0 && (
-            <div className="mt-4 rounded-xl bg-[#f1f5f9] px-3 py-2.5">
+            <div className="mt-4 border-y border-[#e6ebf1] py-3">
               <p className="text-[12px] font-medium leading-5 text-[#43566c]">
                 {detalhes.join(" · ")}
               </p>
@@ -73,7 +73,7 @@ function Card({ p, i, onFalar }) {
           )}
 
           <div className="mt-auto pt-4">
-            <div className="border-t border-[#e6ebf1] pt-4">
+            <div className="pt-1">
               <p className="text-[11px] text-[#71839a]">
                 {temPreco ? "A partir de" : "Valor"}
               </p>
@@ -146,7 +146,7 @@ export default function ListaEmpreendimentos({
         <div>
           <p className="pb-site-eyebrow">Encontre seu lugar</p>
           <h2 id="titulo-lista" className="mt-1 text-2xl font-bold sm:text-3xl">
-            {chips.length ? "Resultados para você" : "Explore os empreendimentos"}
+            {chips.length ? "Resultados para você" : "Encontre o seu próximo lugar"}
           </h2>
           <p className="mt-1 text-sm text-ink-2">
             {carregando

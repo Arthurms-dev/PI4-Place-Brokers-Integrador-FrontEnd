@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 export function Foto({ p, className = "" }) {
-  return p.image ? (
-    <img src={p.image} alt={p.title} loading="lazy" decoding="async" className={className} />
+  const [falhou, setFalhou] = useState(false);
+  useEffect(() => setFalhou(false), [p.image]);
+  return p.image && !falhou ? (
+    <img src={p.image} alt={p.title} onError={() => setFalhou(true)} loading="lazy" decoding="async" className={className} />
   ) : (
     <div
       className={`relative grid place-items-center overflow-hidden bg-card-2 ${className}`}

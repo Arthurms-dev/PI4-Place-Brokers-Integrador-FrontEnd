@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { MOCK_PROPERTIES } from "./imoveis";
+import { obterMidiasPublicasVerificadas } from "./midiasPublicasVerificadas";
+import { prepararImagensPublicas } from "@/lib/imagensPublicas";
 import { obterFichaPublicaVerificada } from "./fichasPublicasVerificadas";
 import {
   STATUS,
@@ -82,12 +84,9 @@ export function normalizarApi(empreendimento) {
     "suítes"
   );
 
-  const galeria = Array.isArray(empreendimento.imagens)
-    ? [...empreendimento.imagens]
-        .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
-        .filter((imagem) => typeof imagem.url === "string" && imagem.url.trim())
-        .map((imagem) => imagem.url)
-    : [];
+  const midias = obterMidiasPublicasVerificadas(empreendimento.nome);
+  const imagensCadastradas = prepararImagensPublicas({ imagens: empreendimento.imagens, titulo: empreendimento.nome });
+  const galeria = imagensCadastradas.length ? imagensCadastradas : midias;
 
   return {
     id: String(empreendimento.id),
@@ -98,7 +97,7 @@ export function normalizarApi(empreendimento) {
     uf: empreendimento.uf,
     bairro: empreendimento.bairro ?? "",
     city: `${empreendimento.cidade}, ${empreendimento.uf}`,
-    image: empreendimento.capa_url ?? null,
+    image: empreendimento.capa_url || midias[0]?.src || null,
     galeria,
     quartosMax,
     quartosTexto,

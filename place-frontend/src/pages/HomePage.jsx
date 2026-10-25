@@ -132,8 +132,8 @@ export default function HomePage() {
   return (
     <main>
       {erro && (
-        <p role="alert" className="mx-auto max-w-7xl px-4 py-3 text-sm text-red-300 sm:px-6">
-          {erro} Verifique o back-end e tente recarregar a página.
+        <p role="alert" className="bg-red-50 px-4 py-3 text-center text-sm text-red-800 sm:px-6">
+          Não foi possível carregar o catálogo agora. Tente recarregar a página ou fale com um especialista.
         </p>
       )}
 
@@ -151,6 +151,8 @@ export default function HomePage() {
         sugestoes={sugestoes}
         cidades={cidades}
         onBuscar={buscar}
+        onFalar={falar}
+        carregando={carregando}
       />
 
       <div className="pb-home-clara">

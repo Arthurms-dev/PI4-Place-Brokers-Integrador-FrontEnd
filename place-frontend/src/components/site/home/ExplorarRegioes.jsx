@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { Foto } from "./pecas";
 
 const categorias = [
   {
@@ -38,6 +39,7 @@ export default function ExplorarRegioes({ itens, onEscolher }) {
       .map((categoria) => ({
         ...categoria,
         quantidade: itens.filter(categoria.incluir).length,
+        exemplo: itens.find((item) => categoria.incluir(item) && item.image),
       }))
       .filter((categoria) => categoria.quantidade > 0),
     [itens]
@@ -51,12 +53,12 @@ export default function ExplorarRegioes({ itens, onEscolher }) {
       aria-labelledby="pb-c-explore-title"
     >
       <div className="mb-5">
-        <p className="pb-site-eyebrow">DESCOBERTA SIMPLIFICADA</p>
+        <p className="pb-site-eyebrow">Seu jeito de escolher</p>
         <h2
           id="pb-c-explore-title"
           className="text-2xl font-extrabold tracking-tight text-[#0b203b] sm:text-[29px]"
         >
-          Comece pelo que importa para você
+          O que faz um lugar ser seu?
         </h2>
       </div>
 
@@ -66,12 +68,13 @@ export default function ExplorarRegioes({ itens, onEscolher }) {
             key={opcao.nome}
             type="button"
             onClick={() => onEscolher(opcao.filtro)}
-            className="pb-c-filter group flex min-h-24 items-center gap-3 rounded-2xl border border-[#dee6ef] bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#d6af78] hover:shadow-lg"
+            className="pb-home-collection group text-left"
           >
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#f5ecdf] text-[#9d6a2d]">
-              <Icon name={opcao.icone} className="size-5" />
+            <span className="pb-home-collection-photo">
+              <Foto p={opcao.exemplo ?? { title: opcao.nome }} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              {opcao.exemplo && <small>{opcao.exemplo.title}</small>}
             </span>
-
+            <span className="pb-home-collection-info">
             <span className="min-w-0 flex-1">
               <strong className="block text-[14px] text-[#102843]">
                 {opcao.nome}
@@ -85,6 +88,7 @@ export default function ExplorarRegioes({ itens, onEscolher }) {
               name="arrowRight"
               className="size-4 text-[#a77537] transition-transform group-hover:translate-x-1"
             />
+            </span>
           </button>
         ))}
       </div>

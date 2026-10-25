@@ -47,7 +47,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
   const imagens = useMemo(() => prepararImagensPublicas({
     capa: item.image,
-    galeria: item.galeria,
+    galeria: det?.imagens?.length ? [] : item.galeria,
     imagens: det?.imagens,
     titulo: item.title,
   }), [item, det]);
@@ -77,10 +77,12 @@ export default function EmpreendimentoModal({ item, onClose }) {
         </div>
 
         <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-24 sm:pb-6">
-          <div className="grid min-w-0 grid-cols-1 gap-6 sm:p-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <div className="p-4 sm:p-6">
+            <GaleriaImovelPremium imagens={imagens} titulo={item.title} />
+          </div>
+          <div className="grid min-w-0 grid-cols-1 gap-6 sm:px-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="space-y-6">
               {erroDetalhes && <p role="status" className="mx-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-ink-2 sm:mx-0">{erroDetalhes}</p>}
-              <GaleriaImovelPremium imagens={imagens} titulo={item.title} />
 
               <div className="space-y-6 px-4 sm:px-0">
                 <div className="space-y-3">

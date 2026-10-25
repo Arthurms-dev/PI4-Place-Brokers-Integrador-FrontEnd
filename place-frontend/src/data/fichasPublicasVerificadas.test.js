@@ -39,7 +39,7 @@ describe("fichas auditadas do catálogo público", () => {
       ],
     });
 
-    expect(item.galeria).toEqual([
+    expect(item.galeria.map((foto) => foto.src)).toEqual([
       "https://example.test/a.jpg",
       "https://example.test/b.jpg",
     ]);
