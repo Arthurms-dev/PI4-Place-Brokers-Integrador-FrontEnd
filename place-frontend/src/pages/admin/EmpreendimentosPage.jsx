@@ -313,6 +313,12 @@ export default function EmpreendimentosPage() {
       )}
 
       <PendenciasDrivePanel
+        empreendimentos={lista}
+        onRevisada={(id) => {
+          if (id) listarDocumentosAdmin(id)
+            .then((docs) => setDocsPorEmp((anteriores) => ({ ...anteriores, [id]: docs })))
+            .catch(() => setErro('A revisão foi salva, mas os indicadores não foram atualizados. Recarregue a página.'));
+        }}
         onAbrirEmpreendimento={(id) => {
           const empreendimento = lista.find((item) => String(item.id) === String(id));
           if (empreendimento) setForm({ emp: empreendimento });
