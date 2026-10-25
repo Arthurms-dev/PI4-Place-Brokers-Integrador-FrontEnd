@@ -319,7 +319,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
           />
         )}
         {emp && <ImagensEmpreendimentoForm
+          key={emp.id}
           empreendimentoId={emp.id}
+          nomeEmpreendimento={emp.nome}
           capaInicial={emp.capa_url}
           onCapaAtualizada={(url) => onCapaAtualizada?.(emp.id, url)}
         />}

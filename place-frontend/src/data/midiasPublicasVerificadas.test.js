@@ -29,4 +29,23 @@ describe("mídias públicas verificadas", () => {
       { src: "/nova-foto-2.jpg", alt: "Piscina atualizada" },
     ]);
   });
+
+  it.each([
+    ['Engenho Paulista', 6], ['Carneiros Park', 5], ['Porto Carolina', 6],
+  ])('preenche a galeria de %s com o acervo correspondente', (nome, quantidade) => {
+    const item = normalizarApi({ ...base, nome });
+    expect(item.galeria).toHaveLength(quantidade);
+    expect(item.galeria.every((foto) => foto.alt.startsWith(`${nome} — perspectiva ilustrada`))).toBe(true);
+    expect(item.galeria.every((foto) => foto.src.endsWith('.webp'))).toBe(true);
+    expect(item.galeria.some((foto) => /\b(?:plantas?|books?|tabelas?|evolução)\b/i.test(foto.alt))).toBe(false);
+    expect(item.precoMin).toBeNull();
+    expect(obterMidiasPublicasVerificadas(`${nome} II`)).toEqual([]);
+  });
+
+  it('não substitui imagens do ADM pelos novos acervos', () => {
+    const item = normalizarApi({ ...base, nome: 'Porto Carolina', capa_url: '/capa-adm.jpg',
+      imagens: [{ url: '/galeria-adm.jpg', alt: 'Foto conferida pelo ADM' }] });
+    expect(item.image).toBe('/capa-adm.jpg');
+    expect(item.galeria).toEqual([{ src: '/galeria-adm.jpg', alt: 'Foto conferida pelo ADM' }]);
+  });
 });
