@@ -56,9 +56,9 @@ function Card({ p, i, onFalar }) {
             {p.title}
           </Link>
 
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#61748b]">
-            <Icon name="mapPin" className="size-3.5 shrink-0" />
-            <span className="truncate">
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-5 text-[#61748b]">
+            <Icon name="mapPin" className="mt-0.5 size-3.5 shrink-0" />
+            <span>
               {p.bairro ? `${p.bairro} · ` : ""}
               {p.city}
             </span>

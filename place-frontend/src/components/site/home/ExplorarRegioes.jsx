@@ -33,17 +33,29 @@ const categorias = [
   },
 ];
 
+export function montarColecoes(itens) {
+  const idsUsados = new Set();
+  const fotosUsadas = new Set();
+
+  return categorias.flatMap((categoria) => {
+    const compativeis = itens.filter(categoria.incluir);
+    if (!compativeis.length) return [];
+    const comFoto = compativeis.filter((item) => item.image);
+    // Variar a apresentação sem usar a foto de um imóvel fora da categoria.
+    // Se só existir um exemplo, repetir é mais fiel que inventar uma associação.
+    const exemplo = comFoto.find((item) =>
+      !idsUsados.has(item.id) && !fotosUsadas.has(item.image)
+    ) ?? comFoto[0];
+    if (exemplo) {
+      idsUsados.add(exemplo.id);
+      fotosUsadas.add(exemplo.image);
+    }
+    return [{ ...categoria, quantidade: compativeis.length, exemplo }];
+  });
+}
+
 export default function ExplorarRegioes({ itens, onEscolher }) {
-  const opcoes = useMemo(
-    () => categorias
-      .map((categoria) => ({
-        ...categoria,
-        quantidade: itens.filter(categoria.incluir).length,
-        exemplo: itens.find((item) => categoria.incluir(item) && item.image),
-      }))
-      .filter((categoria) => categoria.quantidade > 0),
-    [itens]
-  );
+  const opcoes = useMemo(() => montarColecoes(itens), [itens]);
 
   if (!opcoes.length) return null;
 
