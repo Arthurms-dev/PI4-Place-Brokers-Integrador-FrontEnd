@@ -1,13 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapTiles } from "@/components/map/MapTiles";
+import { FitBounds } from "@/components/map/FitBounds";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listarEmpreendimentos, STATUS, formatarFaixa } from "@/services/empreendimentos";
+import { listarAgendamentos } from "@/services/agenda";
+import { compromissosDeHoje, localDoCompromisso } from "@/lib/agendaCalendario";
 
 const SHORTCUTS = [
   { icon: "book", title: "Ver Book e Tabelas", desc: "Acesse as tabelas atualizadas e materiais dos empreendimentos.", to: "/corretor/books" },
@@ -28,12 +31,44 @@ const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCa
 const uniq = (a) => [...new Set(a)].sort();
 const local = (e) => `${e.bairro} · ${e.cidade}/${e.uf}`;
 
-function FitBounds({ pontos }) {
-  const map = useMap();
-  useEffect(() => {
-    if (pontos.length) map.fitBounds(pontos.map((p) => [p.latitude, p.longitude]), { padding: [40, 40], maxZoom: 15 });
-  }, [pontos, map]);
-  return null;
+const hora = (iso) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+/** Aviso dentro do site quando o corretor entra no dia de uma visita/reunião. */
+function AvisoDoDia() {
+  const { data } = useAsyncData(listarAgendamentos);
+  const hoje = compromissosDeHoje(data);
+  if (hoje.length === 0) return null;
+
+  return (
+    <section role="status" className="rounded-xl border border-gold/40 bg-gold/10 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium">
+          <Icon name="bell" className="size-4.5 text-gold" />
+          {hoje.length === 1 ? "Você tem 1 compromisso hoje" : `Você tem ${hoje.length} compromissos hoje`}
+        </h2>
+        <Link to="/corretor/agenda" className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
+          Ver agenda <Icon name="arrowRight" className="size-3.5" />
+        </Link>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {hoje.slice(0, 3).map((a) => (
+          <li key={a.id}>
+            <Link to="/corretor/agenda" className="flex items-center gap-3 rounded-lg bg-card px-3 py-2.5 hover:bg-card-2">
+              <span className="w-12 shrink-0 text-[15px] font-semibold text-gold">{hora(a.dataHora)}</span>
+              <span className="min-w-0 flex-1">
+                <b className="block truncate text-[13px] font-medium">{a.cliente?.nome ?? "Cliente"}</b>
+                <small className="flex items-center gap-1 truncate text-[11px] text-ink-3">
+                  <Icon name={a.tipo === "visita_imovel" ? "mapPin" : "home"} className="size-3 shrink-0" />
+                  {localDoCompromisso(a)}
+                </small>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {hoje.length > 3 && <p className="mt-2 text-[12px] text-ink-2">e mais {hoje.length - 3} na agenda.</p>}
+    </section>
+  );
 }
 
 function Thumb({ e, tag, className }) {
@@ -111,6 +146,8 @@ export default function CorretorHomePage() {
           Encontre os empreendimentos certos para cada cliente, com tudo o que você precisa em um só lugar.
         </p>
       </header>
+
+      <AvisoDoDia />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {SHORTCUTS.map((s) => (

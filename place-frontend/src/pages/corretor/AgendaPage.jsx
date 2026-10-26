@@ -4,6 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { atualizarStatusAgendamento, criarAgendamento, listarAgendamentos, remarcarAgendamento } from "@/services/agenda";
 import { listarEmpreendimentos } from "@/services/empreendimentos";
 import { listarClientes } from "@/services/meusLeads";
+import { baixarIcs } from "@/lib/agendaCalendario";
 
 const STATUS = {
   agendado: { label: "Agendado", cls: "bg-white/10 text-ink-2" },
@@ -222,6 +223,9 @@ function Compromisso({ ag, aberto, onAbrir, onStatus, onRemarcar, ocupado }) {
             )}
             {!encerrado && (
               <>
+                <button type="button" onClick={() => baixarIcs(ag)} title="Baixa um arquivo .ics que abre no calendário do celular" className={`${botao} inline-flex items-center gap-2 border-gold/40 text-gold hover:bg-gold/10`}>
+                  <Icon name="calendar" className="size-4" /> Adicionar à agenda
+                </button>
                 {ag.status === "agendado" && (
                   <button type="button" disabled={ocupado} onClick={() => onStatus(ag.id, "confirmado")} className={`${botao} border-sky-400/40 text-sky-300 hover:bg-sky-500/10`}>Confirmar</button>
                 )}
