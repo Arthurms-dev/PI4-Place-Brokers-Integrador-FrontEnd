@@ -4,7 +4,7 @@ import Reveal from "../Reveal";
 const PASSOS = [
   { icone: "list", titulo: "Escolha o lançamento", texto: "Filtre por cidade, fase e quartos e veja fotos, localização e valores de cada empreendimento." },
   { icone: "messageCircle", titulo: "Fale com um especialista", texto: "Deixe seus dados e um corretor da Place Brokers entra em contato para tirar todas as dúvidas." },
-  { icone: "calendar", titulo: "Visite e feche com segurança", texto: "Agende a visita, receba book e tabela atualizados e acompanhe a negociação até a entrega." },
+  { icone: "calendar", titulo: "Conheça as condições e visite", texto: "Confira com seu corretor as plantas, a tabela vigente e a disponibilidade. Combine a visita e acompanhe os próximos passos da negociação." },
 ];
 
 export default function ComoFunciona() {

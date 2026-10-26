@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 const PILARES = [
   ["messageCircle", "Atendimento especializado", "Cada cliente fala com um corretor que conhece o lançamento a fundo."],
-  ["book", "Informação clara", "Book, tabela de preços e condições sempre atualizados, sem letra miúda."],
+  ["book", "Informação clara", "Converse com seu corretor sobre plantas, preços, disponibilidade e condições vigentes de cada empreendimento."],
   ["building", "Acompanhamento até as chaves", "Da primeira visita à entrega do imóvel, a gente continua por perto."],
 ];
 
@@ -18,7 +18,7 @@ export default function SobrePage() {
         <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-gold">Sobre nós</p>
         <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">Imóveis novos, com gente de verdade ao seu lado</h1>
         <p className="mt-5 text-[16px] leading-relaxed text-ink-2">
-          A Place Brokers é uma imobiliária focada em lançamentos em Pernambuco. Reunimos os melhores empreendimentos do litoral à Região Metropolitana e conectamos cada cliente a um especialista que ajuda a escolher com segurança.
+          A Place Brokers é uma imobiliária focada em lançamentos em Pernambuco. Reunimos empreendimentos do litoral à Região Metropolitana e conectamos cada cliente a um especialista para avaliar localização, características e condições de compra.
         </p>
       </Reveal>
 
