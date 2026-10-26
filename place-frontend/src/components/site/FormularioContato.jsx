@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
+import { liberarAcesso } from "@/lib/catalogoHome";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const digitos = (v = "") => v.replace(/\D/g, "").slice(0, 11);
@@ -30,7 +31,7 @@ function Campo({ rotulo, erro, children }) {
  * @param canal
  * @param aoVoltar
  */
-export default function FormularioContato({ empreendimento = null, opcoes = [], autoFoco = false, aoVoltar, canal = "" }) {
+export default function FormularioContato({ empreendimento = null, opcoes = [], autoFoco = false, aoVoltar, aoEnviar, canal = "", textoBotao = "Quero falar com um especialista" }) {
   const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "" });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
@@ -66,7 +67,9 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         canal,
       });
       registrarEvento({ tipo: "contato" });
+      liberarAcesso();
       setEnviado(true);
+      aoEnviar?.();
     } catch (err) {
       setErros(err.fieldErrors ?? {});
       setErroGeral(err.message);
@@ -125,7 +128,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
 
       {erroGeral && <p role="alert" className="text-xs text-danger">{erroGeral}</p>}
       <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">
-        {enviando ? "Enviando..." : "Quero falar com um especialista"}
+        {enviando ? "Enviando..." : textoBotao}
       </button>
       <p className="text-center text-[11px] text-ink-3">Seus dados são usados só para o contato sobre o empreendimento.</p>
     </form>

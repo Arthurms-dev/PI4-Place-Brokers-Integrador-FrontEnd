@@ -19,10 +19,30 @@ export function Foto({ p, className = "" }) {
   );
 }
 
-export function Etiquetas({ p }) {
+const COR_ETAPA = {
+  Pronto: "bg-[#0f8a5f] text-white",
+  "Em obras": "bg-[#1f5fae] text-white",
+  "Lançamento": "bg-[#e9ad5a] text-[#1a1408]",
+};
+
+const SEGMENTO_CURTO = {
+  mcmv: "Minha Casa Minha Vida",
+  medio_padrao: "Médio padrão",
+  alto_padrao: "Alto padrão",
+  litoral: "Litoral",
+};
+
+export function Etiquetas({ p, comSegmento = false }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      <span className="rounded-full bg-page/80 px-3 py-1 text-[11px] font-medium text-gold backdrop-blur">{p.tag}</span>
+      <span className={`rounded-full px-3 py-1 text-[11px] font-bold shadow-sm ${COR_ETAPA[p.tag] ?? "bg-[#08152b]/80 text-[#f3c47a]"}`}>
+        {p.tag === "Pronto" ? "Pronto para morar" : p.tag}
+      </span>
+      {comSegmento && p.segmento && (
+        <span className="rounded-full bg-[#08152b]/75 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
+          {SEGMENTO_CURTO[p.segmento]}
+        </span>
+      )}
       {!p.disponivel && <span className="rounded-full bg-danger/90 px-3 py-1 text-[11px] font-medium text-white">Esgotado</span>}
     </div>
   );
@@ -31,4 +51,4 @@ export function Etiquetas({ p }) {
 export function Ficha({ p, className = "" }) {
   const partes = [p.quartosTexto, p.suitesTexto, p.tipoTexto, p.vagasTexto, p.area].filter(Boolean);
   return partes.length ? <p className={`text-[13px] text-ink-2 ${className}`}>{partes.join(" · ")}</p> : null;
-}
+}

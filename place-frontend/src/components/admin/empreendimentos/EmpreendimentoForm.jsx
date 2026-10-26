@@ -97,6 +97,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     vagasMin: emp?.vagas_min ?? "", vagasMax: emp?.vagas_max ?? "",
     areaMin: emp?.area_min ?? "", areaMax: emp?.area_max ?? "",
     precoMin: emp?.preco_min ?? "", precoMax: emp?.preco_max ?? "",
+    segmento: emp?.segmento ?? "",
+    parcelaMin: emp?.parcela_min != null ? String(Number(emp.parcela_min)) : "",
+    previsaoEntrega: emp?.previsao_entrega ? String(emp.previsao_entrega).slice(0, 7) : "",
     lazer: (emp?.lazer ?? []).join(", "),
     descricao: emp?.descricao ?? "",
     publicado: emp?.publicado ?? false,
@@ -198,6 +201,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         vagasMin: num(f.vagasMin), vagasMax: num(f.vagasMax),
         areaMin: num(f.areaMin), areaMax: num(f.areaMax),
         precoMin: num(f.precoMin), precoMax: num(f.precoMax),
+        segmento: f.segmento || null,
+        parcelaMin: f.segmento === "mcmv" ? num(f.parcelaMin) : null,
+        previsaoEntrega: f.previsaoEntrega ? `${f.previsaoEntrega}-01` : null,
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
         disponivel: f.disponivel,
@@ -279,6 +285,31 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
           <div className="grid grid-cols-2 gap-3.5">
             <CampoNumero campo="precoMin" rotulo="Preço a partir de (R$)" valor={f.precoMin} onChange={set("precoMin")} erro={erros.precoMin} step="0.01" inputMode="decimal" />
             <CampoNumero campo="precoMax" rotulo="Preço até (R$)" valor={f.precoMax} onChange={set("precoMax")} erro={erros.precoMax} step="0.01" inputMode="decimal" />
+          </div>
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+            <Campo rotulo="Segmento" erro={erros.segmento}>
+              <select value={f.segmento} onChange={set("segmento")} className={`${CAMPO} ${borda(erros, "segmento")}`}>
+                <option value="">Não definido</option>
+                <option value="mcmv">MCMV</option>
+                <option value="medio_padrao">Médio padrão</option>
+                <option value="alto_padrao">Alto padrão</option>
+                <option value="litoral">Litoral</option>
+              </select>
+            </Campo>
+            {f.segmento === "mcmv" && (
+              <Campo rotulo="Parcelas a partir de (R$)" erro={erros.parcelaMin}>
+                <select value={String(f.parcelaMin)} onChange={set("parcelaMin")} className={`${CAMPO} ${borda(erros, "parcelaMin")}`}>
+                  <option value="">Escolha</option>
+                  <option value="399">R$ 399</option>
+                  <option value="499">R$ 499 — longe do centro</option>
+                  <option value="599">R$ 599 — perto do centro</option>
+                  <option value="699">R$ 699</option>
+                </select>
+              </Campo>
+            )}
+            <Campo rotulo="Previsão de entrega (mês/ano)" erro={erros.previsaoEntrega}>
+              <input type="month" value={f.previsaoEntrega} onChange={set("previsaoEntrega")} disabled={f.status === "pronto"} className={`${CAMPO} ${borda(erros, "previsaoEntrega")} disabled:opacity-50`} />
+            </Campo>
           </div>
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
         </Secao>

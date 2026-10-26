@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import { MOCK_PROPERTIES } from "./imoveis";
 import { obterFichaPublicaVerificada } from "./fichasPublicasVerificadas";
+import { prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
 import {
   STATUS,
   formatarFaixa,
   listarEmpreendimentos,
 } from "@/services/empreendimentos";
 
-const formatoPreco = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-  maximumFractionDigits: 0,
-});
 
 function numero(valor) {
   if (valor == null || valor === "") return null;
@@ -96,7 +92,7 @@ export function normalizarApi(empreendimento) {
     tag: STATUS[empreendimento.status]?.label ?? "Lançamento",
     cidade: empreendimento.cidade,
     uf: empreendimento.uf,
-    bairro: empreendimento.bairro ?? "",
+    bairro: empreendimento.bairro && empreendimento.bairro !== "A confirmar" ? empreendimento.bairro : "",
     city: `${empreendimento.cidade}, ${empreendimento.uf}`,
     image: empreendimento.capa_url ?? null,
     galeria,
@@ -113,10 +109,18 @@ export function normalizarApi(empreendimento) {
     ),
     area: formatarArea(empreendimento.area_min, empreendimento.area_max),
     precoMin,
-    preco:
-      precoMin != null
-        ? `A partir de ${formatoPreco.format(precoMin)}`
-        : "Sob consulta",
+    ...(() => {
+      const p = precoDoEmpreendimento(empreendimento);
+      return {
+        precoRotulo: p.rotulo,
+        precoValor: `${p.valor}${p.sufixo}`,
+        preco: p.temValor ? `${p.rotulo} ${p.valor}${p.sufixo}` : "Sob consulta",
+      };
+    })(),
+    segmento: empreendimento.segmento ?? null,
+    parcelaMin: numero(empreendimento.parcela_min),
+    entregaEm: empreendimento.previsao_entrega ?? null,
+    prazo: prazoDoEmpreendimento(empreendimento),
     disponivel: empreendimento.disponivel !== false,
     destaque: Boolean(empreendimento.destaque),
     lazer: empreendimento.lazer ?? [],
@@ -154,6 +158,12 @@ export function normalizarMock(imovel) {
     area: imovel.area ?? null,
     precoMin: null,
     preco: imovel.price ?? "Sob consulta",
+    precoRotulo: String(imovel.price ?? "").startsWith("A partir") ? "A partir de" : "Valores",
+    precoValor: String(imovel.price ?? "Sob consulta").replace("A partir de ", ""),
+    segmento: null,
+    parcelaMin: null,
+    entregaEm: null,
+    prazo: null,
     disponivel: true,
     destaque: ["Destaque", "Lançamento"].includes(imovel.type),
     lazer: imovel.lazer ?? [],
@@ -189,7 +199,15 @@ function carregarCatalogoPublico() {
   if (recente) return Promise.resolve(recente);
   if (carregamento) return carregamento;
 
-  carregamento = listarEmpreendimentos({ publico: true })
+  // O back pode estar reiniciando (nodemon) ou acordando: tenta mais duas vezes antes de mostrar erro.
+  const comNovaTentativa = (tentativa = 0) =>
+    listarEmpreendimentos({ publico: true }).catch((falha) => {
+      if (tentativa >= 2) throw falha;
+      return new Promise((resolver) => setTimeout(resolver, 1200 * (tentativa + 1)))
+        .then(() => comNovaTentativa(tentativa + 1));
+    });
+
+  carregamento = comNovaTentativa()
     .then((lista) => {
       const publicados = lista.filter((item) => item.publicado === true);
 

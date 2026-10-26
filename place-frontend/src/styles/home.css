@@ -181,3 +181,32 @@
 }
 
 @media(prefers-reduced-motion:reduce){ .pb-site .pb-c-hero .pb-c-photo img {animation:none!important;} }
+
+/* Place Brokers — Home D (out/2026): perfis, captação e prazo. Classes pb-c-numeros / pb-d-* só existem na home. */
+.pb-c-numeros li { font-size: 13px; color: #5b6f86; }
+.pb-c-numeros strong { color: #0b203b; font-size: 16px; font-weight: 800; margin-right: .2rem; }
+.pb-c-perfis { scrollbar-width: none; }
+.pb-c-perfis::-webkit-scrollbar { display: none; }
+.pb-d-overline {
+  display: flex; align-items: center; gap: .7rem;
+  color: #f3c47a; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+}
+.pb-d-pilulas {
+  background: rgba(238, 243, 248, .92);
+  backdrop-filter: blur(10px);
+  scrollbar-width: none;
+}
+.pb-d-pilulas::-webkit-scrollbar { display: none; }
+.pb-d-exclusivo {
+  background:
+    radial-gradient(120% 140% at 0% 0%, #163c61 0%, transparent 55%),
+    linear-gradient(135deg, #08152b 0%, #0c2442 60%, #102f52 100%);
+  box-shadow: 0 40px 80px -45px rgba(8, 21, 43, .8);
+}
+.pb-d-exclusivo-form input, .pb-d-exclusivo-form select { color-scheme: light; }
+.pb-detalhe .pb-d-bloqueio {
+  background: linear-gradient(135deg, rgba(233, 173, 90, .12), transparent 65%);
+}
+@media (max-width: 639px) {
+  .pb-d-pilulas { top: 76px; }
+}

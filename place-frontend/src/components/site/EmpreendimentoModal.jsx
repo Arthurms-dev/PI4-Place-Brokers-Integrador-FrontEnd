@@ -10,6 +10,34 @@ import { prepararImagensPublicas } from "@/lib/imagensPublicas";
 import { useContato } from "./ContatoProvider";
 import { Etiquetas } from "./home/pecas";
 import TipologiasPublicas from "./TipologiasPublicas";
+import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
+import { FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
+
+function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
+  const itens = [
+    fotosOcultas > 0 && `+${fotosOcultas} fotos exclusivas`,
+    plantas > 0 ? `${plantas} ${plantas === 1 ? "planta" : "plantas"} e implantação` : "Plantas e implantação",
+    "Tabela de preços do mês",
+  ].filter(Boolean);
+  return (
+    <div className="pb-d-bloqueio relative overflow-hidden rounded-2xl border border-[#e9ad5a]/50 p-5 sm:p-6">
+      <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-[#e9ad5a]/15 blur-2xl" aria-hidden="true" />
+      <p className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[#b07a35]">Material exclusivo</p>
+      <h2 className="mt-1 text-xl font-extrabold tracking-tight">Veja o empreendimento por completo</h2>
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {itens.map((texto) => (
+          <li key={texto} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5 text-[12.5px] font-semibold">
+            <span aria-hidden="true">🔒</span> {texto}
+          </li>
+        ))}
+      </ul>
+      <button type="button" onClick={onLiberar} className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gold-gradient px-5 text-sm font-extrabold text-[#1a1408] transition hover:brightness-110">
+        Liberar acesso gratuito <Icon name="arrowRight" className="size-4" />
+      </button>
+      <p className="mt-2 text-[11.5px] text-ink-3">Cadastro rápido. Um especialista envia a tabela atualizada no seu WhatsApp.</p>
+    </div>
+  );
+}
 
 const MiniMapa = lazy(() => import("./MiniMapa"));
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -45,12 +73,16 @@ export default function EmpreendimentoModal({ item, onClose }) {
     };
   }, [item]);
 
-  const imagens = useMemo(() => prepararImagensPublicas({
-    capa: item.image,
-    galeria: item.galeria,
-    imagens: det?.imagens,
-    titulo: item.title,
-  }), [item, det]);
+  const liberado = useAcessoExclusivo();
+  // A capa já aparece no card; a galeria começa por outra foto e a capa vai para o fim.
+  const todasImagens = useMemo(() => {
+    const galeria = prepararImagensPublicas({ galeria: item.galeria, imagens: det?.imagens, titulo: item.title });
+    const capa = prepararImagensPublicas({ capa: item.image, titulo: item.title });
+    return [...galeria, ...capa.filter((c) => !galeria.some((g) => g.src === c.src))];
+  }, [item, det]);
+  const imagens = liberado ? todasImagens : todasImagens.slice(0, FOTOS_LIVRES);
+  const fotosOcultas = todasImagens.length - imagens.length;
+  const plantas = det?.tipologias ?? item.tipologias ?? [];
 
   const lat = det?.latitude ?? item.lat;
   const lng = det?.longitude ?? item.lng;
@@ -63,6 +95,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
     ["Tipo", item.tipoTexto],
     ["Garagem", vagas],
     ["Metragem", item.area],
+    ["Prazo", prazoCurto(item)],
   ].filter(([, valor]) => valor);
   const sobre = { id: item.id, title: item.title };
 
@@ -84,7 +117,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
               <div className="space-y-6 px-4 sm:px-0">
                 <div className="space-y-3">
-                  <Etiquetas p={item} />
+                  <Etiquetas p={item} comSegmento />
                   <h1 className="text-3xl font-semibold sm:text-4xl">{item.title}</h1>
                   <p className="flex items-center gap-1.5 text-[14px] text-ink-2"><Icon name="mapPin" className="size-4 text-gold" /> {item.bairro ? `${item.bairro} · ` : ""}{item.city}{item.construtora ? ` · ${item.construtora}` : ""}</p>
                 </div>
@@ -106,7 +139,9 @@ export default function EmpreendimentoModal({ item, onClose }) {
                 <p className="px-4 text-xs leading-relaxed text-ink-3 sm:px-0">As informações descrevem o empreendimento; tipologia, condições e disponibilidade variam conforme a unidade. Confirme com um especialista.</p>
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
-                <TipologiasPublicas tipologias={det?.tipologias ?? item.tipologias ?? []} />
+                {liberado
+                  ? <TipologiasPublicas tipologias={plantas} />
+                  : <ConteudoExclusivo fotosOcultas={fotosOcultas} plantas={plantas.length} onLiberar={() => abrirContato(sobre, "material exclusivo do empreendimento")} />}
                 {lazer?.length > 0 && (
                   <div>
                     <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gold">Lazer e diferenciais</h2>
@@ -133,8 +168,9 @@ export default function EmpreendimentoModal({ item, onClose }) {
             <aside className="pb-detalhe-lateral hidden lg:block">
               <div className="sticky top-0 space-y-4 rounded-2xl border border-gold/40 bg-card p-6 shadow-xl shadow-black/30">
                 <div>
-                  <p className="text-[12px] uppercase tracking-wide text-ink-3">{item.preco.startsWith("A partir") ? "A partir de" : "Valores"}</p>
-                  <p className="text-3xl font-semibold text-gold">{item.preco.replace("A partir de ", "")}</p>
+                  <p className="text-[12px] uppercase tracking-wide text-ink-3">{item.precoRotulo}</p>
+                  <p className="text-3xl font-semibold text-gold">{item.precoValor}</p>
+                  {prazoCurto(item) && <p className="mt-1 text-[13px] text-ink-2">Prazo: <strong className="text-ink">{prazoCurto(item)}</strong></p>}
                 </div>
                 <div className="hairline-gold" />
                 <h2 className="text-lg font-semibold">Fale com um especialista</h2>
@@ -146,8 +182,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
         <div className="flex items-center gap-3 border-t border-line-soft bg-page/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] uppercase tracking-wide text-ink-3">{item.preco.startsWith("A partir") ? "A partir de" : "Valores"}</p>
-            <p className="truncate text-lg font-semibold text-gold">{item.preco.replace("A partir de ", "")}</p>
+            <p className="text-[11px] uppercase tracking-wide text-ink-3">{item.precoRotulo}</p>
+            <p className="truncate text-lg font-semibold text-gold">{item.precoValor}</p>
           </div>
           <button type="button" onClick={() => abrirContato(sobre, "detalhe do empreendimento")} className="min-h-12 min-w-0 shrink-0 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] sm:px-6"><span className="sm:hidden">Falar agora</span><span className="hidden sm:inline">Falar com especialista</span></button>
         </div>

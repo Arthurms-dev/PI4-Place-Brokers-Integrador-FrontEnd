@@ -1,103 +1,77 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
+import { SEGMENTOS_HOME, ordenarCatalogo } from "@/lib/catalogoHome";
 import { BotaoFavorito, useFavoritos } from "../favoritos";
 import Reveal from "../Reveal";
 import { Etiquetas, Foto } from "./pecas";
 
-const POR_PAGINA = 6;
+const POR_PAGINA = 9;
 
 function Card({ p, i, onFalar }) {
   const destino = `/imoveis/${p.id}`;
-  const temPreco = p.precoMin != null;
-  const detalhes = [
-    p.quartosTexto,
-    p.suitesTexto,
-    p.tipoTexto,
-    p.vagasTexto,
-    p.area,
-  ].filter(Boolean);
-
-  const preco = temPreco
-    ? p.preco.replace("A partir de ", "")
-    : "Sob consulta";
+  const ehParcela = p.precoRotulo === "Parcelas a partir de";
+  const temValor = p.precoMin != null || ehParcela;
+  const fotos = (p.galeria?.length ?? 0) + (p.image ? 1 : 0);
+  const ficha = [p.quartosTexto, p.area].filter(Boolean).join(" · ");
 
   return (
     <Reveal atraso={(i % 3) * 60}>
-      <article className="pb-home-imovel group flex h-full min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#dce4ed] bg-white shadow-[0_12px_32px_-22px_rgba(8,21,43,.35)] transition-all duration-300 hover:-translate-y-1 hover:border-[#c99e64] hover:shadow-xl">
+      <article className="pb-home-imovel group flex h-full min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#dce4ed] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#c99e64] hover:shadow-xl">
         <div className="relative overflow-hidden">
-          <Link
-            to={destino}
-            aria-label={`Ver detalhes de ${p.title}`}
-            className="block aspect-[16/10] overflow-hidden sm:aspect-[1.47]"
-          >
-            <Foto
-              p={p}
-              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+          <Link to={destino} aria-label={`Ver detalhes de ${p.title}`} className="block aspect-[1.45] overflow-hidden">
+            <Foto p={p} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
           </Link>
-
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
           <div className="absolute left-3 top-3">
-            <Etiquetas p={p} />
+            <Etiquetas p={p} comSegmento />
           </div>
-
-          <BotaoFavorito
-            id={p.id}
-            titulo={p.title}
-            className="absolute right-3 top-3"
-          />
+          <BotaoFavorito id={p.id} titulo={p.title} className="absolute right-3 top-3" />
+          {fotos > 1 && (
+            <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-[#08152b]/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+              {fotos} fotos
+            </span>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
+          {p.construtora && (
+            <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#a87534]">{p.construtora}</p>
+          )}
           <Link
             to={destino}
-            className="line-clamp-2 text-[19px] font-bold leading-snug text-[#102843] transition-colors hover:text-[#a27032]"
+            className="mt-1 line-clamp-2 text-[19px] font-extrabold leading-snug tracking-tight text-[#102843] transition-colors hover:text-[#a27032]"
           >
             {p.title}
           </Link>
-
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#61748b]">
+          <p className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-[#61748b]">
             <Icon name="mapPin" className="size-3.5 shrink-0" />
-            <span className="truncate">
-              {p.bairro ? `${p.bairro} · ` : ""}
-              {p.city}
-            </span>
+            <span className="truncate">{[p.bairro, p.cidade].filter((v) => v && v !== "A confirmar").join(", ")}</span>
           </p>
+          {ficha && <p className="mt-2 text-[12.5px] font-medium text-[#43566c]">{ficha}</p>}
 
-          {detalhes.length > 0 && (
-            <div className="mt-4 rounded-xl bg-[#f1f5f9] px-3 py-2.5">
-              <p className="text-[12px] font-medium leading-5 text-[#43566c]">
-                {detalhes.join(" · ")}
+          <div className="h-4 shrink-0" aria-hidden="true" />
+          <div className="mt-auto flex items-end justify-between gap-3 border-t border-[#e6ebf1] pt-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-[#71839a]">{temValor ? p.precoRotulo : "Valores"}</p>
+              <p className="mt-0.5 truncate text-[22px] font-extrabold tracking-tight text-[#102843]">
+                {temValor ? (
+                  ehParcela ? (
+                    <>
+                      {p.precoValor.replace("/mês", "")}
+                      <span className="ml-0.5 text-[13px] font-bold text-[#a87534]">/mês</span>
+                    </>
+                  ) : p.precoValor
+                ) : "Sob consulta"}
               </p>
             </div>
-          )}
-
-          <div className="mt-auto pt-4">
-            <div className="border-t border-[#e6ebf1] pt-4">
-              <p className="text-[11px] text-[#71839a]">
-                {temPreco ? "A partir de" : "Valor"}
-              </p>
-              <p className="mt-1 text-[23px] font-extrabold tracking-tight text-[#102843]">
-                {preco}
-              </p>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link
-                to={destino}
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#cbd5e1] px-3 text-center text-[12px] font-bold text-[#102843] transition-colors hover:border-[#bd8b4c]"
-              >
-                Ver detalhes
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => onFalar(p)}
-                className="min-h-11 rounded-xl bg-[#e9ad5a] px-3 text-[12px] font-bold text-[#08152b] transition-colors hover:bg-[#f0c182]"
-              >
-                Quero saber mais
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => onFalar(p)}
+              className="shrink-0 rounded-xl bg-[#0c2846] px-3.5 py-2.5 text-[12px] font-bold text-white transition-colors hover:bg-[#163c61]"
+            >
+              Quero saber mais
+            </button>
           </div>
         </div>
       </article>
@@ -109,9 +83,12 @@ export default function ListaEmpreendimentos({
   itens,
   carregando,
   chips,
+  segmento,
+  onSegmento,
   onRemoverChip,
   onLimpar,
   onFalar,
+  segmentosDisponiveis = SEGMENTOS_HOME.map((s) => s.id),
 }) {
   const { ids } = useFavoritos();
   const [ordem, setOrdem] = useState("relevancia");
@@ -119,17 +96,8 @@ export default function ListaEmpreendimentos({
   const [limite, setLimite] = useState(POR_PAGINA);
 
   const lista = useMemo(() => {
-    const resultado = soFavoritos
-      ? itens.filter((item) => ids.includes(item.id))
-      : [...itens];
-
-    if (ordem === "menor") {
-      resultado.sort((a, b) => (a.precoMin ?? Infinity) - (b.precoMin ?? Infinity));
-    } else {
-      resultado.sort((a, b) => Number(b.destaque) - Number(a.destaque));
-    }
-
-    return resultado;
+    const base = soFavoritos ? itens.filter((item) => ids.includes(item.id)) : itens;
+    return ordenarCatalogo(base, ordem);
   }, [itens, ids, ordem, soFavoritos]);
 
   useEffect(() => {
@@ -137,21 +105,15 @@ export default function ListaEmpreendimentos({
   }, [itens, ordem, soFavoritos]);
 
   return (
-    <section
-      id="lista"
-      aria-labelledby="titulo-lista"
-      className="pb-c-catalog mx-auto max-w-7xl scroll-mt-24 px-4 pt-12 sm:px-6 sm:pt-16"
-    >
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <section id="lista" aria-labelledby="titulo-lista" className="pb-c-catalog mx-auto max-w-7xl scroll-mt-24 px-4 pt-12 sm:px-6 sm:pt-16">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="pb-site-eyebrow">Encontre seu lugar</p>
-          <h2 id="titulo-lista" className="mt-1 text-2xl font-bold sm:text-3xl">
-            {chips.length ? "Resultados para você" : "Explore os empreendimentos"}
+          <p className="pb-site-eyebrow">Catálogo atualizado</p>
+          <h2 id="titulo-lista" className="mt-1 text-2xl font-extrabold tracking-tight sm:text-[32px]">
+            {chips.length ? "Resultados para você" : "Empreendimentos à venda"}
           </h2>
-          <p className="mt-1 text-sm text-ink-2">
-            {carregando
-              ? "Carregando…"
-              : `${lista.length} ${lista.length === 1 ? "empreendimento" : "empreendimentos"} no catálogo`}
+          <p className="mt-1 text-sm text-ink-2" aria-live="polite">
+            {carregando ? "Carregando…" : `${lista.length} ${lista.length === 1 ? "empreendimento encontrado" : "empreendimentos encontrados"}`}
           </p>
         </div>
 
@@ -161,24 +123,42 @@ export default function ListaEmpreendimentos({
             onClick={() => setSoFavoritos((valor) => !valor)}
             aria-pressed={soFavoritos}
             className={`min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors ${
-              soFavoritos
-                ? "border-[#c89650] bg-[#fff5e5] text-[#83561b]"
-                : "border-line text-ink-2 hover:text-ink"
+              soFavoritos ? "border-[#c89650] bg-[#fff5e5] text-[#83561b]" : "border-line bg-white text-ink-2 hover:text-ink"
             }`}
           >
-            Favoritos{ids.length ? ` (${ids.length})` : ""}
+            ♥ Favoritos{ids.length ? ` (${ids.length})` : ""}
           </button>
-
           <select
             value={ordem}
             onChange={(evento) => setOrdem(evento.target.value)}
             aria-label="Ordenar imóveis"
-            className="min-h-11 rounded-xl border border-line bg-card px-3 text-xs font-medium text-ink-2 outline-none focus:border-[#c89650]"
+            className="min-h-11 rounded-xl border border-line bg-white px-3 text-xs font-semibold text-ink-2 outline-none focus:border-[#c89650]"
           >
             <option value="relevancia">Em destaque</option>
-            <option value="menor">Menor preço</option>
+            <option value="menor">Menor valor</option>
+            <option value="entrega">Prazo mais curto</option>
           </select>
         </div>
+      </div>
+
+      {/* Barra de perfis fixa no topo da lista (estilo Booking) */}
+      <div className="pb-d-pilulas sticky top-[76px] z-20 -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 py-2.5 sm:mx-0 sm:rounded-2xl sm:px-3">
+        {[{ id: "", rotulo: "Todos" }, ...SEGMENTOS_HOME.filter((s) => segmentosDisponiveis.includes(s.id) || s.id === segmento)].map((opcao) => {
+          const ativo = segmento === opcao.id;
+          return (
+            <button
+              key={opcao.id || "todos"}
+              type="button"
+              onClick={() => onSegmento(opcao.id)}
+              aria-pressed={ativo}
+              className={`min-h-10 shrink-0 rounded-full border px-4 text-[12.5px] font-bold transition-colors ${
+                ativo ? "border-[#0c2846] bg-[#0c2846] text-white" : "border-[#d5dee8] bg-white text-[#2b4058] hover:border-[#c89650]"
+              }`}
+            >
+              {opcao.rotulo}
+            </button>
+          );
+        })}
       </div>
 
       {chips.length > 0 && (
@@ -193,11 +173,7 @@ export default function ListaEmpreendimentos({
               {texto} <Icon name="x" className="size-3.5" />
             </button>
           ))}
-          <button
-            type="button"
-            onClick={onLimpar}
-            className="min-h-9 px-2 text-xs font-medium text-ink-2 underline-offset-2 hover:underline"
-          >
+          <button type="button" onClick={onLimpar} className="min-h-9 px-2 text-xs font-medium text-ink-2 underline-offset-2 hover:underline">
             Limpar filtros
           </button>
         </div>
@@ -205,9 +181,7 @@ export default function ListaEmpreendimentos({
 
       {carregando ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-          {[0, 1, 2].map((indice) => (
-            <div key={indice} className="h-96 animate-pulse rounded-2xl bg-[#e2e8f0]" />
-          ))}
+          {[0, 1, 2].map((indice) => <div key={indice} className="h-96 animate-pulse rounded-2xl bg-[#e2e8f0]" />)}
         </div>
       ) : lista.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-line bg-card p-10 text-center">
@@ -216,7 +190,7 @@ export default function ListaEmpreendimentos({
               ? ids.length === 0
                 ? "Você ainda não adicionou imóveis aos favoritos."
                 : "Nenhum favorito corresponde aos filtros selecionados."
-              : "Nenhum empreendimento encontrado com esses filtros."}
+              : "Nenhum empreendimento com esses filtros, mas um especialista pode achar o ideal para você."}
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             <button
@@ -229,11 +203,7 @@ export default function ListaEmpreendimentos({
             >
               Ver todos
             </button>
-            <button
-              type="button"
-              onClick={() => onFalar(null)}
-              className="min-h-11 rounded-full bg-[#e9ad5a] px-5 text-sm font-semibold text-[#08152b]"
-            >
+            <button type="button" onClick={() => onFalar(null)} className="min-h-11 rounded-full bg-[#e9ad5a] px-5 text-sm font-semibold text-[#08152b]">
               Falar com especialista
             </button>
           </div>
@@ -250,9 +220,9 @@ export default function ListaEmpreendimentos({
         <button
           type="button"
           onClick={() => setLimite((atual) => atual + POR_PAGINA)}
-          className="mx-auto mt-7 block min-h-12 rounded-full border border-line bg-white px-8 text-sm font-semibold text-[#0d203b] transition-colors hover:border-[#c89650]"
+          className="mx-auto mt-8 block min-h-12 rounded-full border border-line bg-white px-8 text-sm font-bold text-[#0d203b] transition-colors hover:border-[#c89650]"
         >
-          Ver mais empreendimentos
+          Ver mais {Math.min(POR_PAGINA, lista.length - limite)} de {lista.length - limite} empreendimentos
         </button>
       )}
     </section>

@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { CAMPO, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, listarDocumentosComerciais, urlDoDocumento, urlDoDocumentoPorId } from "@/services/empreendimentos";
+import { SEGMENTOS, prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
@@ -124,7 +125,9 @@ function Detalhe({ resumo, onClose }) {
   const dados = [
     ["Quartos", formatarFaixa(emp.quartos_min, emp.quartos_max, "quarto", "quartos")],
     ["Vagas", formatarFaixa(emp.vagas_min, emp.vagas_max, "vaga", "vagas")],
-    ["A partir de", emp.preco_min != null ? brl(emp.preco_min) : null],
+    [precoDoEmpreendimento(emp).rotulo, precoDoEmpreendimento(emp).temValor ? `${precoDoEmpreendimento(emp).valor}${precoDoEmpreendimento(emp).sufixo}` : null],
+    ["Segmento", SEGMENTOS[emp.segmento] ?? null],
+    ["Prazo", prazoDoEmpreendimento(emp)],
     ["Até", emp.preco_max != null ? brl(emp.preco_max) : null],
   ].filter(([, v]) => v);
 
@@ -176,7 +179,7 @@ function Detalhe({ resumo, onClose }) {
 }
 
 function Cartao({ e, indice, onAbrir }) {
-  const partes = [formatarFaixa(e.quartos_min, e.quartos_max, "quarto", "quartos"), formatarFaixa(e.vagas_min, e.vagas_max, "vaga", "vagas"), e.preco_min != null ? `a partir de ${brl(e.preco_min)}` : null].filter(Boolean);
+  const partes = [formatarFaixa(e.quartos_min, e.quartos_max, "quarto", "quartos"), formatarFaixa(e.vagas_min, e.vagas_max, "vaga", "vagas"), (() => { const p = precoDoEmpreendimento(e); return p.temValor ? `${p.rotulo.toLowerCase()} ${p.valor}${p.sufixo}` : null; })(), prazoDoEmpreendimento(e)].filter(Boolean);
   return (
     <li style={{ animationDelay: `${Math.min(indice, 6) * 55}ms` }} className="animate-fade-up">
       <button type="button" onClick={() => onAbrir(e)} className="group block w-full overflow-hidden rounded-2xl border border-line bg-card text-left transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-xl hover:shadow-black/30">
@@ -294,4 +297,4 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       }} />}
     </div>
   );
-}
+}
