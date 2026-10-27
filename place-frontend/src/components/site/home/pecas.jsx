@@ -51,4 +51,4 @@ export function Etiquetas({ p, comSegmento = false }) {
 export function Ficha({ p, className = "" }) {
   const partes = [p.quartosTexto, p.suitesTexto, p.tipoTexto, p.vagasTexto, p.area].filter(Boolean);
   return partes.length ? <p className={`text-[13px] text-ink-2 ${className}`}>{partes.join(" · ")}</p> : null;
-}
+}

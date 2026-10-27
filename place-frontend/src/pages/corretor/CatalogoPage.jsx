@@ -300,4 +300,4 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       }} />}
     </div>
   );
-}
+}
