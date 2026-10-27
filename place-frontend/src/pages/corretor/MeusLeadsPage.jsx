@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LeadAtividadesToggle } from "@/components/leads/LeadAtividades";
-import { atualizarStatusLead, criarCliente, listarClientes, listarMeusLeads } from "@/services/meusLeads";
+import { atualizarStatusLead, criarCliente, levarLeadParaCarteira, listarClientes, listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
 
 const STATUS = {
@@ -165,6 +165,26 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
     if (abrirCadastro) navigate("/corretor/leads", { replace: true });
   }, [abrirCadastro, navigate]);
   const [salvando, setSalvando] = useState(null);
+  const [agendando, setAgendando] = useState(null);
+
+  // Lead → visita: garante o cliente na carteira e abre a Agenda já preenchida.
+  const agendarVisita = useCallback(async (lead) => {
+    setErro("");
+    setAgendando(lead.id);
+    try {
+      const cliente = await levarLeadParaCarteira(lead.id);
+      setClientes((lista) => (lista.some((c) => c.id === cliente.id) ? lista : [cliente, ...lista]));
+      if (lead.status === "novo") setLeads((lista) => lista.map((l) => (l.id === lead.id ? { ...l, status: "em_atendimento" } : l)));
+      const q = new URLSearchParams({ novo: "1", cliente: cliente.id });
+      if (lead.empreendimento?.id) q.set("empreendimento", lead.empreendimento.id);
+      if (cliente.leadOrigem?.id === lead.id) q.set("lead", lead.id);
+      navigate(`/corretor/agenda?${q}`);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setAgendando(null);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     let ativo = true;
@@ -254,6 +274,12 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                   <LeadAtividadesToggle leadId={l.id} />
                   <div className="flex flex-wrap gap-2">
                     <BotaoZap telefone={l.telefone} nome={l.nome} />
+                    {l.status !== "perdido" && (
+                      <button type="button" onClick={() => agendarVisita(l)} disabled={agendando === l.id}
+                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-gold/40 px-4 text-sm font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">
+                        <Icon name="calendar" className="size-4.5" /> {agendando === l.id ? "Abrindo agenda..." : "Agendar visita"}
+                      </button>
+                    )}
                     {l.status === "convertido" ? (
                       <span className="inline-flex h-11 items-center px-2 text-[13px] text-ink-3">Convertido em cliente</span>
                     ) : (
@@ -311,4 +337,4 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
       )}
     </div>
   );
-}
+}

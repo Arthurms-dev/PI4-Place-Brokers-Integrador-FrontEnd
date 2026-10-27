@@ -47,10 +47,10 @@ function Indicador({ rotulo, destaque, children, rodape, atraso }) {
 const soDigitos = (s) => s.replace(/\D/g, "");
 const moeda = (digitos) => (digitos ? (Number(digitos) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "");
 
-function LancarVenda({ clienteInicial = "", onClose, onCriada }) {
+function LancarVenda({ clienteInicial = "", empreendimentoInicial = "", onClose, onCriada }) {
   const [empreendimentos, setEmpreendimentos] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [f, setF] = useState({ empreendimentoId: "", clienteId: clienteInicial, centavos: "" });
+  const [f, setF] = useState({ empreendimentoId: empreendimentoInicial, clienteId: clienteInicial, centavos: "" });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -115,6 +115,8 @@ function Venda({ v, indice, decide, onDecidir }) {
   const [acao, setAcao] = useState(null);
   const [salvando, setSalvando] = useState(false);
   const st = STATUS[v.status] ?? STATUS.pendente;
+  // Para o corretor fica claro de quem depende a venda pendente.
+  const rotulo = !decide && v.status === "pendente" ? "Aguardando gerente" : st.rotulo;
 
   async function aplicar() {
     setSalvando(true);
@@ -138,7 +140,7 @@ function Venda({ v, indice, decide, onDecidir }) {
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <Selo tom={st.tom}>{st.rotulo}</Selo>
+          <Selo tom={st.tom}>{rotulo}</Selo>
           <p className="mt-1.5 text-[12px] text-ink-3">{dataCurta(v.criado_em)}</p>
         </div>
       </div>
@@ -175,6 +177,7 @@ export default function VendasPage() {
   const decide = !ehCorretor;
   const [params, setParams] = useSearchParams();
   const clienteInicial = params.get("cliente") ?? "";
+  const empreendimentoInicial = params.get("empreendimento") ?? "";
 
   const [vendas, setVendas] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -292,8 +295,8 @@ export default function VendasPage() {
       )}
 
       {lancando && (
-        <LancarVenda clienteInicial={clienteInicial} onClose={fecharLancamento} onCriada={(nova) => { setVendas((l) => [nova, ...l]); setFiltro(""); fecharLancamento(); }} />
+        <LancarVenda clienteInicial={clienteInicial} empreendimentoInicial={empreendimentoInicial} onClose={fecharLancamento} onCriada={(nova) => { setVendas((l) => [nova, ...l]); setFiltro(""); fecharLancamento(); }} />
       )}
     </div>
   );
-}
+}

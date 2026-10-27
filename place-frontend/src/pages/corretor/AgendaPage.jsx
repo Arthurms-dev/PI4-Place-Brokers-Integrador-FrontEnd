@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { atualizarStatusAgendamento, criarAgendamento, listarAgendamentos, remarcarAgendamento } from "@/services/agenda";
@@ -67,8 +68,15 @@ function Rotulo({ texto, erro, children }) {
   );
 }
 
-function NovoAgendamento({ clientes, empreendimentos, onClose, onCriado }) {
-  const [f, setF] = useState({ tipo: "visita_imovel", clienteId: "", empreendimentoId: "", local: "", dataHora: "", observacoes: "" });
+function NovoAgendamento({ clientes, empreendimentos, inicial = {}, onClose, onCriado }) {
+  const [f, setF] = useState({
+    tipo: "visita_imovel",
+    clienteId: inicial.clienteId ?? "",
+    empreendimentoId: inicial.empreendimentoId ?? "",
+    local: "",
+    dataHora: "",
+    observacoes: "",
+  });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -96,6 +104,8 @@ function NovoAgendamento({ clientes, empreendimentos, onClose, onCriado }) {
           empreendimentoId: visita ? f.empreendimentoId : undefined,
           local: visita ? undefined : f.local.trim() || undefined,
           observacoes: f.observacoes.trim() || undefined,
+          // Visita aberta a partir do lead: fica ligada a ele (o back confere que o lead é desse cliente).
+          leadOrigemId: inicial.leadOrigemId && f.clienteId === inicial.clienteId ? inicial.leadOrigemId : undefined,
         }),
       );
     } catch (err) {
@@ -215,6 +225,18 @@ function Compromisso({ ag, aberto, onAbrir, onStatus, onRemarcar, ocupado }) {
           {ag.observacoes && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{ag.observacoes}</p>}
           {ag.motivoCancelamento && <p className="text-[13px] text-ink-2">Motivo do cancelamento: {ag.motivoCancelamento}</p>}
 
+          {ag.status === "realizado" && ag.tipo === "visita_imovel" && ag.cliente?.id && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3">
+              <p className="text-[13px] text-emerald-200">Visita realizada. Fechou negócio?</p>
+              <Link
+                to={`/corretor/vendas?cliente=${ag.cliente.id}${ag.empreendimento?.id ? `&empreendimento=${ag.empreendimento.id}` : ""}`}
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] hover:brightness-110"
+              >
+                <Icon name="chart" className="size-4" /> Registrar venda
+              </Link>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2">
             {ag.cliente?.telefone && (
               <a href={zap(ag.cliente.telefone, ag.cliente.nome)} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#25D366] px-4 text-[13px] font-semibold text-[#06210f]">
@@ -263,7 +285,17 @@ export default function AgendaPage() {
   const [filtro, setFiltro] = useState("proximos");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [novo, setNovo] = useState(false);
+  const [params, setParams] = useSearchParams();
+  // Vindo de "Agendar visita" no lead: abre o formulário já com cliente e imóvel.
+  const [novo, setNovo] = useState(params.get("novo") === "1");
+  const inicial = useMemo(
+    () => ({ clienteId: params.get("cliente") ?? "", empreendimentoId: params.get("empreendimento") ?? "", leadOrigemId: params.get("lead") ?? "" }),
+    [params],
+  );
+  const fecharNovo = useCallback(() => {
+    setNovo(false);
+    if (params.has("novo")) setParams({}, { replace: true });
+  }, [params, setParams]);
   const [remarcando, setRemarcando] = useState(null);
   const [aberto, setAberto] = useState(null);
   const [ocupado, setOcupado] = useState(false);
@@ -359,12 +391,12 @@ export default function AgendaPage() {
       ))}
 
       {novo && (
-        <NovoAgendamento clientes={clientes} empreendimentos={empreendimentos} onClose={() => setNovo(false)}
-          onCriado={(a) => { setItens((l) => [...l, a]); setFiltro("proximos"); setAberto(a.id); setNovo(false); }} />
+        <NovoAgendamento clientes={clientes} empreendimentos={empreendimentos} inicial={inicial} onClose={fecharNovo}
+          onCriado={(a) => { setItens((l) => [...l, a]); setFiltro("proximos"); setAberto(a.id); fecharNovo(); }} />
       )}
       {remarcando && (
         <Remarcar ag={remarcando} onClose={() => setRemarcando(null)} onRemarcado={(a) => { trocar(a); setRemarcando(null); }} />
       )}
     </div>
   );
-}
+}
