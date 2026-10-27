@@ -2,9 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
 import { liberarAcesso } from "@/lib/catalogoHome";
+import { normalizarTelefone } from "@/lib/telefone";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const digitos = (v = "") => v.replace(/\D/g, "").slice(0, 11);
+// Digitou/colou com 0, 0 + operadora ou +55? Tira antes de aplicar a máscara (DDD nunca começa com 0).
+const digitos = (v = "") => {
+  let d = v.replace(/\D/g, "");
+  if (d.startsWith("0")) d = d.length >= 13 ? d.slice(3) : d.slice(1);
+  else if (d.startsWith("55") && d.length >= 12) d = d.slice(2);
+  return d.slice(0, 11);
+};
 function mascarar(v) {
   const d = digitos(v);
   if (d.length <= 2) return d ? `(${d}` : "";
@@ -50,7 +57,8 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
     const e = {};
     if (!empreendimento && !f.escolha) e.escolha = "Escolha o empreendimento de interesse.";
     if (!f.nome.trim()) e.nome = "Informe seu nome.";
-    if (digitos(f.telefone).length < 10) e.telefone = "Informe um telefone com DDD.";
+    const fone = normalizarTelefone(f.telefone);
+    if (!fone.ok) e.telefone = fone.erro;
     if (!EMAIL_REGEX.test(f.email.trim())) e.email = "Informe um e-mail válido.";
     setErros(e);
     setErroGeral("");
@@ -61,7 +69,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
       await enviarLead({
         nome: f.nome.trim(),
         email: f.email.trim(),
-        telefone: digitos(f.telefone),
+        telefone: fone.digitos,
         empreendimento: escolhido ? { id: escolhido.id, title: escolhido.title } : null,
         website: f.website,
         canal,

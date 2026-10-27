@@ -199,11 +199,13 @@ function carregarCatalogoPublico() {
   if (recente) return Promise.resolve(recente);
   if (carregamento) return carregamento;
 
-  // O back pode estar reiniciando (nodemon) ou acordando: tenta mais duas vezes antes de mostrar erro.
+  // O back pode estar reiniciando (nodemon) ou acordando (no Render gratuito leva até ~50 s):
+  // tenta de novo por cerca de 1 minuto antes de mostrar erro.
+  const ESPERAS_MS = [1500, 3000, 5000, 8000, 12000, 15000, 15000];
   const comNovaTentativa = (tentativa = 0) =>
     listarEmpreendimentos({ publico: true }).catch((falha) => {
-      if (tentativa >= 2) throw falha;
-      return new Promise((resolver) => setTimeout(resolver, 1200 * (tentativa + 1)))
+      if (tentativa >= ESPERAS_MS.length) throw falha;
+      return new Promise((resolver) => setTimeout(resolver, ESPERAS_MS[tentativa]))
         .then(() => comNovaTentativa(tentativa + 1));
     });
 
