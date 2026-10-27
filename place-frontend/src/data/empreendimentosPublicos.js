@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { MOCK_PROPERTIES } from "./imoveis";
 import { obterFichaPublicaVerificada } from "./fichasPublicasVerificadas";
 import { prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
 import {
@@ -38,8 +37,6 @@ export function normalizarApi(empreendimento) {
   const precoMin = preco != null && preco > 0 ? preco : null;
   const ficha = obterFichaPublicaVerificada(empreendimento.nome);
 
-  // A API pode retornar plantas mesmo quando a faixa geral de quartos está vazia.
-  // Não assumimos que uma planta representa todas as unidades do empreendimento.
   const tipologias = Array.isArray(empreendimento.tipologias)
     ? empreendimento.tipologias
     : [];
@@ -131,50 +128,6 @@ export function normalizarApi(empreendimento) {
   };
 }
 
-export function normalizarMock(imovel) {
-  const [cidade = "", uf = "PE"] = String(imovel.city ?? "")
-    .split(",")
-    .map((parte) => parte.trim());
-
-  const quartos = numero(imovel.bedrooms);
-
-  return {
-    id: String(imovel.id),
-    origem: "mock",
-    title: imovel.title,
-    tag: imovel.type ?? "Lançamento",
-    cidade,
-    uf,
-    bairro: "",
-    city: imovel.city,
-    image: imovel.image ?? null,
-    galeria: imovel.galeria ?? [],
-    quartosMax: quartos,
-    quartosTexto: formatarFaixa(quartos, quartos, "quarto", "quartos"),
-    tipologias: [],
-    suitesTexto: "",
-    tipoTexto: "",
-    vagasTexto: formatarFaixa(imovel.vagas, imovel.vagas, "vaga", "vagas"),
-    area: imovel.area ?? null,
-    precoMin: null,
-    preco: imovel.price ?? "Sob consulta",
-    precoRotulo: String(imovel.price ?? "").startsWith("A partir") ? "A partir de" : "Valores",
-    precoValor: String(imovel.price ?? "Sob consulta").replace("A partir de ", ""),
-    segmento: null,
-    parcelaMin: null,
-    entregaEm: null,
-    prazo: null,
-    disponivel: true,
-    destaque: ["Destaque", "Lançamento"].includes(imovel.type),
-    lazer: imovel.lazer ?? [],
-    description: imovel.description ?? "",
-    lat: imovel.lat ?? null,
-    lng: imovel.lng ?? null,
-    construtora: null,
-  };
-}
-
-const MODO_DEMO = import.meta.env.VITE_DEMO_MODE === "true";
 const TEMPO_CACHE = 45_000;
 
 const ESTADO_INICIAL = {
@@ -199,8 +152,6 @@ function carregarCatalogoPublico() {
   if (recente) return Promise.resolve(recente);
   if (carregamento) return carregamento;
 
-  // O back pode estar reiniciando (nodemon) ou acordando (no Render gratuito leva até ~50 s):
-  // tenta de novo por cerca de 1 minuto antes de mostrar erro.
   const ESPERAS_MS = [1500, 3000, 5000, 8000, 12000, 15000, 15000];
   const comNovaTentativa = (tentativa = 0) =>
     listarEmpreendimentos({ publico: true }).catch((falha) => {
@@ -213,29 +164,18 @@ function carregarCatalogoPublico() {
     .then((lista) => {
       const publicados = lista.filter((item) => item.publicado === true);
 
-      if (publicados.length) {
-        return {
-          itens: publicados.map(normalizarApi),
-          carregando: false,
-          origem: "api",
-          erro: null,
-        };
-      }
-
       return {
-        itens: MODO_DEMO ? MOCK_PROPERTIES.map(normalizarMock) : [],
+        itens: publicados.map(normalizarApi),
         carregando: false,
-        origem: MODO_DEMO ? "mock" : "api",
+        origem: "api",
         erro: null,
       };
     })
     .catch(() => ({
-      itens: MODO_DEMO ? MOCK_PROPERTIES.map(normalizarMock) : [],
+      itens: [],
       carregando: false,
-      origem: MODO_DEMO ? "mock" : null,
-      erro: MODO_DEMO
-        ? null
-        : "Não foi possível consultar os empreendimentos na API.",
+      origem: null,
+      erro: "Não foi possível consultar os empreendimentos na API.",
     }))
     .then((estado) => {
       if (!estado.erro) {
