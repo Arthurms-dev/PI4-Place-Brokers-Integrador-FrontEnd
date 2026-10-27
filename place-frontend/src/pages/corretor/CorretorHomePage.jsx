@@ -11,6 +11,10 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { listarEmpreendimentos, STATUS, formatarFaixa } from "@/services/empreendimentos";
 import { listarAgendamentos } from "@/services/agenda";
 import { compromissosDeHoje, localDoCompromisso } from "@/lib/agendaCalendario";
+import { resumirInicio, ultimosAcessos } from "@/lib/inicioCorretor";
+import { listarMeusLeads } from "@/services/meusLeads";
+import { listarVendas } from "@/services/vendas";
+import { listarMeusAcessos } from "@/services/eventos";
 
 const SHORTCUTS = [
   { icon: "book", title: "Ver Book e Tabelas", desc: "Acesse as tabelas atualizadas e materiais dos empreendimentos.", to: "/corretor/books" },
@@ -32,11 +36,44 @@ const uniq = (a) => [...new Set(a)].sort();
 const local = (e) => `${e.bairro} · ${e.cidade}/${e.uf}`;
 
 const hora = (iso) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+
+/** Leads novos, visitas da semana e VGV confirmado, cada um levando para a tela certa. */
+function NumerosRapidos({ resumo, carregando }) {
+  const cards = [
+    {
+      to: "/corretor/leads", icone: "userPlus", rotulo: "Leads novos", valor: resumo.leadsNovos,
+      rodape: resumo.leadsEmAtendimento ? plural(resumo.leadsEmAtendimento, "em atendimento", "em atendimento") : "Responda rápido: lead novo esfria",
+    },
+    {
+      to: "/corretor/agenda", icone: "calendar", rotulo: "Visitas nesta semana", valor: resumo.visitasSemana,
+      rodape: resumo.visitasPendentes ? `${plural(resumo.visitasPendentes, "ainda vai acontecer", "ainda vão acontecer")}` : "Segunda a domingo",
+    },
+    {
+      to: "/corretor/vendas", icone: "chart", rotulo: "VGV confirmado", valor: brl(resumo.vgvConfirmado), destaque: true,
+      rodape: resumo.vendasPendentes ? `${plural(resumo.vendasPendentes, "venda", "vendas")} aguardando gerente · ${brl(resumo.valorPendente)}` : plural(resumo.vendasConfirmadas, "venda confirmada", "vendas confirmadas"),
+    },
+  ];
+  return (
+    <section aria-label="Seus números" className="grid gap-3 sm:grid-cols-3">
+      {cards.map((c) => (
+        <Link key={c.to} to={c.to} className="group rounded-xl border border-line bg-card p-4 transition-colors hover:border-gold">
+          <span className="flex items-center justify-between text-[12px] text-ink-3">
+            <span className="inline-flex items-center gap-1.5"><Icon name={c.icone} className="size-4 text-gold" /> {c.rotulo}</span>
+            <Icon name="arrowRight" className="size-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+          <strong className={cn("mt-1.5 block text-2xl font-semibold", c.destaque && "text-gold")}>{carregando ? "…" : c.valor}</strong>
+          <small className="mt-0.5 block truncate text-[12px] text-ink-3">{carregando ? "\u00a0" : c.rodape}</small>
+        </Link>
+      ))}
+    </section>
+  );
+}
 
 /** Aviso dentro do site quando o corretor entra no dia de uma visita/reunião. */
-function AvisoDoDia() {
-  const { data } = useAsyncData(listarAgendamentos);
-  const hoje = compromissosDeHoje(data);
+function AvisoDoDia({ agendamentos }) {
+  const hoje = compromissosDeHoje(agendamentos);
   if (hoje.length === 0) return null;
 
   return (
@@ -107,6 +144,15 @@ export default function CorretorHomePage() {
 
   const { data: empreendimentos, loading } = useAsyncData(listarEmpreendimentos);
   const lista = empreendimentos ?? [];
+  const agenda = useAsyncData(listarAgendamentos);
+  const leads = useAsyncData(listarMeusLeads);
+  const vendas = useAsyncData(listarVendas);
+  const acessos = useAsyncData(listarMeusAcessos);
+  const resumo = useMemo(
+    () => resumirInicio({ leads: leads.data ?? [], agendamentos: agenda.data ?? [], vendas: vendas.data ?? [] }),
+    [leads.data, agenda.data, vendas.data],
+  );
+  const vistos = useMemo(() => ultimosAcessos(acessos.data ?? [], lista), [acessos.data, lista]);
 
   const [f, setF] = useState({ uf: "", cidade: "", bairro: "", busca: "" });
   const [ocultos, setOcultos] = useState([]);
@@ -147,7 +193,9 @@ export default function CorretorHomePage() {
         </p>
       </header>
 
-      <AvisoDoDia />
+      <NumerosRapidos resumo={resumo} carregando={leads.loading || agenda.loading || vendas.loading} />
+
+      <AvisoDoDia agendamentos={agenda.data} />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {SHORTCUTS.map((s) => (
@@ -289,7 +337,13 @@ export default function CorretorHomePage() {
               <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium">
                 <Icon name="clock" className="size-4" /> Seus últimos acessos
               </h2>
-              {lista.slice(0, 3).map((e) => <Row key={e.id} e={e} className="border-t border-line-soft" />)}
+              {vistos.length > 0 ? (
+                vistos.map((e) => <Row key={e.id} e={e} className="border-t border-line-soft" />)
+              ) : (
+                <p className="border-t border-line-soft pt-3 text-[12px] text-ink-3">
+                  {acessos.loading ? "Carregando…" : "Os empreendimentos que você abrir aparecem aqui."}
+                </p>
+              )}
             </section>
           </div>
         </div>
@@ -310,4 +364,4 @@ export default function CorretorHomePage() {
       )}
     </div>
   );
-}
+}

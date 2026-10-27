@@ -1,4 +1,5 @@
 import { getToken } from "@/lib/authToken";
+import { api } from "@/lib/apiClient";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 const CHAVE_SESSAO = "placebrokers_sessao";
@@ -31,3 +32,5 @@ export function registrarEvento({ tipo, empreendimentoId } = {}) {
     keepalive: true,
   }).catch(() => {});
 }
+/** Últimos empreendimentos que o usuário logado abriu: [{ empreendimentoId, acessadoEm }]. */
+export const listarMeusAcessos = async () => (await api.get("/metricas/meus-acessos")).acessos ?? [];

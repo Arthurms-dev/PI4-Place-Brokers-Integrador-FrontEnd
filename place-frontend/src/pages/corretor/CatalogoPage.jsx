@@ -6,6 +6,7 @@ import { CAMPO, Folha, Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, listarDocumentosComerciais, urlDoDocumento, urlDoDocumentoPorId } from "@/services/empreendimentos";
 import { SEGMENTOS, prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
+import { registrarEvento } from "@/services/eventos";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
@@ -109,6 +110,8 @@ function Detalhe({ resumo, onClose }) {
   useEffect(() => {
     let ativo = true;
     setErroDetalhes("");
+    // Alimenta "Seus últimos acessos" no Início (vai com o token, então conta para o usuário logado).
+    registrarEvento({ tipo: "visualizacao_empreendimento", empreendimentoId: resumo.id });
     buscarEmpreendimentoPorId(resumo.id)
       .then((dados) => { if (ativo) setEmp((atual) => ({ ...atual, ...dados })); })
       .catch(() => {
