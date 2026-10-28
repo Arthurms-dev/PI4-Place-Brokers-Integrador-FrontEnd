@@ -3,6 +3,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import SiteLayout from "@/components/site/SiteLayout";
 import HomePage from "@/pages/HomePage";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import AcessoNegadoPage from "@/pages/AcessoNegadoPage";
+import PainelAdmPage from  "@/pages/admin/PainelAdmPage";
+
 
 const SobrePage = lazy(() => import("@/pages/SobrePage"));
 const ContatoPage = lazy(() => import("@/pages/ContatoPage"));
