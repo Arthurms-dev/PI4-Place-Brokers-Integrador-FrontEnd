@@ -224,7 +224,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
   // Leads novos primeiro (o que espera há mais tempo no topo): quem retorna primeiro leva o cliente.
   const visiveis = useMemo(() => {
     const lista = leads.filter((l) => (filtro === "ativos" ? ATIVOS.includes(l.status) : !filtro || l.status === filtro));
-    const novos = lista.filter((l) => l.status === "novo").sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
+    const novos = lista.filter((l) => l.status === "novo").sort((a, b) => new Date(a.atribuidoEm ?? a.criadoEm) - new Date(b.atribuidoEm ?? b.criadoEm));
     return [...novos, ...lista.filter((l) => l.status !== "novo")];
   }, [leads, filtro]);
 

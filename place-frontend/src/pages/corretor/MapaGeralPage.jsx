@@ -143,6 +143,7 @@ export default function MapaGeralPage() {
                     <Popup>
                       <b>{e.nome}</b>{!e.disponivel && " (esgotado)"}<br />
                       {localExibicao(e)}<br />
+                      {e.localizacao_aproximada && <><small>Localização aproximada (bairro)</small><br /></>}
                       {e.construtora?.nome && <>{e.construtora.nome}<br /></>}
                       <Link to={`/corretor/empreendimentos/${e.id}`}>Ver detalhes</Link>
                     </Popup>
@@ -177,4 +178,4 @@ export default function MapaGeralPage() {
       </div>
     </div>
   );
-}
+}

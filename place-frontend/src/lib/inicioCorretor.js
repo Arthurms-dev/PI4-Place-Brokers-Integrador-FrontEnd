@@ -49,5 +49,5 @@ export function ultimosAcessos(acessos = [], empreendimentos = [], quantidade = 
 export function leadsEsperando(leads = [], ignorar = new Set()) {
   return leads
     .filter((l) => l.status === "novo" && !ignorar.has(l.id))
-    .sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
+    .sort((a, b) => new Date(a.atribuidoEm ?? a.criadoEm) - new Date(b.atribuidoEm ?? b.criadoEm));
 }

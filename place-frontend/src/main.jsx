@@ -23,10 +23,17 @@ window.addEventListener("vite:preloadError", (evento) => {
   window.location.reload();
 });
 
+// Service worker das notificações de lead (só funciona em https e no site publicado).
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
   </StrictMode>,
-);
+);

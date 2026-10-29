@@ -4,6 +4,7 @@ import { Selo, Vazio } from "@/components/admin/equipe/ui";
 import Contagem from "@/components/ui/Contagem";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useDadosEquipe } from "./useDadosEquipe";
+import { AtendimentoEquipe } from "@/components/gerente/AtendimentoEquipe";
 
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const mesmoDia = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
@@ -74,6 +75,8 @@ export default function GerenteInicioPage() {
         <Vazio>Você ainda não tem uma equipe. Peça ao admin para atribuir você como gerente de uma equipe em Equipe → Equipes da Place.</Vazio>
       ) : (
         <>
+          <AtendimentoEquipe membros={membros} />
+
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {indicadores.map(([rotulo, valor, destaque], i) => (
               <div key={rotulo} style={{ animationDelay: `${i * 60}ms` }} className="animate-fade-up rounded-2xl border border-line bg-card p-4">
@@ -144,4 +147,4 @@ export default function GerenteInicioPage() {
       )}
     </div>
   );
-}
+}

@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAgora } from "@/components/leads/AtendimentoLead";
+import { AvisoNotificacoes } from "@/components/leads/AvisoNotificacoes";
 import { listarEmpreendimentos, STATUS } from "@/services/empreendimentos";
 import { listarAgendamentos } from "@/services/agenda";
 import { compromissosDeHoje, localDoCompromisso } from "@/lib/agendaCalendario";
@@ -12,7 +13,7 @@ import { atualizarStatusLead, listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
 import { listarMeusAcessos } from "@/services/eventos";
 import { listarRetornos, registrarAtividade } from "@/services/leadAtividades";
-import { linkLigar, linkWhatsApp, tempoDesde, urgencia } from "@/lib/atendimento";
+import { chegadaDoLead, linkLigar, linkWhatsApp, tempoDesde, urgencia } from "@/lib/atendimento";
 import { minhaRoleta } from "@/services/roleta";
 import { situacaoDoCorretor } from "@/lib/roleta";
 
@@ -43,7 +44,7 @@ function LeadsEsperando({ leads }) {
     setAtendidos((s) => new Set(s).add(lead.id));
   }
 
-  const pior = urgencia(lista[0].criadoEm, agora);
+  const pior = urgencia(chegadaDoLead(lista[0]), agora);
   return (
     <section className={cn("rounded-xl border p-4", pior === "atrasado" ? "border-danger/50 bg-danger/10" : "border-gold/50 bg-gold/10")}>
       <div className="flex items-center justify-between gap-2">
@@ -61,7 +62,7 @@ function LeadsEsperando({ leads }) {
             <span className="min-w-0 flex-1">
               <b className="block truncate text-[14px] font-medium">{l.nome}</b>
               <small className="block truncate text-[12px] text-ink-3">
-                <span className={COR_ESPERA[urgencia(l.criadoEm, agora)]}>{tempoDesde(l.criadoEm, agora)}</span>
+                <span className={COR_ESPERA[urgencia(chegadaDoLead(l), agora)]}>{tempoDesde(chegadaDoLead(l), agora)}</span>
                 {l.empreendimento?.nome ? ` · ${l.empreendimento.nome}` : ""}
               </small>
             </span>
@@ -267,6 +268,8 @@ export default function CorretorHomePage() {
       </header>
 
       <LeadsEsperando leads={leads.data ?? []} />
+
+      <AvisoNotificacoes />
 
       <RoletaDeHoje minha={roleta.data} />
 

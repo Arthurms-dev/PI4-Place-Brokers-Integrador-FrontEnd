@@ -9,6 +9,7 @@ import { SEGMENTOS, prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/p
 import { registrarEvento } from "@/services/eventos";
 import { AbasCatalogo } from "@/components/catalogo/AbasCatalogo";
 import { cn } from "@/lib/cn";
+import { linkGoogleMaps } from "@/lib/localizacao";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
@@ -172,7 +173,8 @@ function Detalhe({ resumo, onClose }) {
                 <MiniMapa lat={emp.latitude} lng={emp.longitude} />
               </Suspense>
             </div>
-            <a href={`https://www.google.com/maps/search/?api=1&query=${emp.latitude},${emp.longitude}`} target="_blank" rel="noreferrer"
+            {emp.localizacao_aproximada && <p className="text-[12px] text-ink-3">Localização aproximada (centro do bairro ou da rua). Confirme o endereço com a construtora antes de mandar para o cliente.</p>}
+            <a href={linkGoogleMaps({ nome: emp.nome, endereco: emp.endereco, bairro: emp.bairro, cidade: emp.cidade, uf: emp.uf, latitude: emp.latitude, longitude: emp.longitude, aproximada: emp.localizacao_aproximada })} target="_blank" rel="noreferrer"
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium transition-colors hover:border-gold">
               <Icon name="mapPin" className="size-4 text-gold" /> Ver no Google Maps
             </a>
@@ -354,4 +356,4 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       }} />}
     </div>
   );
-}
+}

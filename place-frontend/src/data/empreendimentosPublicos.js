@@ -124,6 +124,7 @@ export function normalizarApi(empreendimento) {
     description: empreendimento.descricao ?? "",
     lat: empreendimento.latitude ?? null,
     lng: empreendimento.longitude ?? null,
+    localAproximado: Boolean(empreendimento.localizacao_aproximada),
     construtora: empreendimento.construtora?.nome ?? null,
   };
 }
@@ -208,4 +209,4 @@ export function useEmpreendimentosPublicos() {
   }, []);
 
   return estado;
-}
+}

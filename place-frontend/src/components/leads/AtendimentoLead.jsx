@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import { registrarAtividade } from "@/services/leadAtividades";
 import {
   atalhosLembrete,
+  chegadaDoLead,
   baixarIcsLembrete,
   formatarTelefone,
   linkLigar,
@@ -142,7 +143,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
   const [copiado, setCopiado] = useState(false);
   const [lembrete, setLembrete] = useState(false);
   const ultimoRegistro = useRef(0);
-  const espera = lead.status === "novo" ? urgencia(lead.criadoEm, agora) : null;
+  const espera = lead.status === "novo" ? urgencia(chegadaDoLead(lead), agora) : null;
 
   function registrarContato(tipo) {
     if (Date.now() - ultimoRegistro.current < 2 * 60 * 1000) return; // evita duplicar com toques seguidos
@@ -172,7 +173,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
         <div className="flex flex-wrap gap-2">
           {espera && (
             <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${COR_ESPERA[espera]}`}>
-              <Icon name="clock" className="size-3.5" /> Aguardando retorno {tempoDesde(lead.criadoEm, agora)}
+              <Icon name="clock" className="size-3.5" /> Aguardando retorno {tempoDesde(chegadaDoLead(lead), agora)}
             </span>
           )}
           {retorno && (

@@ -23,3 +23,5 @@ export async function reatribuirLead(id, corretorId) {
   if (!res.ok) throw new Error(data.message ?? "Não foi possível reatribuir o lead.");
   return data.lead;
 }
+/** Leads parados (15 min sem ligação/WhatsApp) e números de atendimento dos últimos 30 dias. */
+export const getDesempenho = () => req("/gerente/desempenho");

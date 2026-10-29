@@ -4,6 +4,9 @@ import { dataIcs, dobrarLinha, escaparIcs } from "@/lib/agendaCalendario";
 
 const MIN = 60 * 1000;
 
+/** Desde quando o lead está com o corretor (a roleta ou o repasse); leads antigos usam a data de criação. */
+export const chegadaDoLead = (lead) => lead.atribuidoEm ?? lead.criadoEm;
+
 /** Só os dígitos do telefone, sem o 55 (a API guarda DDD + número). */
 export const digitosTelefone = (tel = "") => String(tel).replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
 

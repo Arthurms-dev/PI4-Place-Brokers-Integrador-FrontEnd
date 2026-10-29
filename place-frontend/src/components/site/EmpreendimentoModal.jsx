@@ -12,6 +12,7 @@ import { Etiquetas } from "./home/pecas";
 import TipologiasPublicas from "./TipologiasPublicas";
 import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
 import { FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
+import { AVISO_APROXIMADA, linkGoogleMaps } from "@/lib/localizacao";
 
 function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
   const itens = [
@@ -86,6 +87,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
   const lat = det?.latitude ?? item.lat;
   const lng = det?.longitude ?? item.lng;
+  const aproximada = det ? Boolean(det.localizacao_aproximada) : Boolean(item.localAproximado);
   const lazer = det?.lazer?.length ? det.lazer : item.lazer;
   const descricao = det?.descricao ?? item.description;
   const vagas = det ? formatarFaixa(det.vagas_min, det.vagas_max, "vaga", "vagas") : item.vagasTexto;
@@ -157,7 +159,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
                         <MiniMapa lat={lat} lng={lng} />
                       </Suspense>
                     </div>
-                    <a href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`} target="_blank" rel="noreferrer" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium transition-colors hover:border-gold sm:w-auto sm:px-6">
+                    {aproximada && <p className="text-[12px] text-ink-3">{AVISO_APROXIMADA}</p>}
+                    <a href={linkGoogleMaps({ nome: item.title, endereco: det?.endereco, bairro: item.bairro, cidade: item.cidade, uf: det?.uf ?? item.uf, latitude: lat, longitude: lng, aproximada })} target="_blank" rel="noreferrer" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium transition-colors hover:border-gold sm:w-auto sm:px-6">
                       <Icon name="mapPin" className="size-4 text-gold" /> Ver no Google Maps
                     </a>
                   </div>
