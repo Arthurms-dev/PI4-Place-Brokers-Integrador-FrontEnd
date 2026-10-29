@@ -74,6 +74,7 @@ export async function getClientes() {
 
 export async function getEmpreendimentos() {
   const res = await fetch(`${API_URL}/empreendimentos`, { headers: authHeaders() });
-  const { empreendimentos } = await parseResposta(res);
-  return empreendimentos;
+  // A API devolve a lista direto (versões antigas devolviam { empreendimentos }).
+  const dados = await parseResposta(res);
+  return Array.isArray(dados) ? dados : dados?.empreendimentos ?? [];
 }
