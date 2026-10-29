@@ -4,17 +4,20 @@ import { MapContainer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapTiles } from "@/components/map/MapTiles";
 import { Icon } from "@/components/ui/Icon";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { cn } from "@/lib/cn";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listarEmpreendimentos, STATUS } from "@/services/empreendimentos";
 import { listarConstrutoras } from "@/services/construtoras";
 import { normalizarTexto, valoresUnicos, localExibicao, criarIconesPorStatus } from "@/lib/mapHelpers";
 import { FitBounds } from "@/components/map/FitBounds";
+import { AbasCatalogo } from "@/components/catalogo/AbasCatalogo";
 
 const ICONES = criarIconesPorStatus(STATUS);
 const FILTRO_VAZIO = { uf: "", cidade: "", bairro: "", construtoraId: "", busca: "", apenasDisponiveis: false };
 
 export default function MapaGeralPage() {
+  usePageTitle("Mapa dos empreendimentos");
 
   const { data: empreendimentos, loading: carregandoEmpreendimentos } = useAsyncData(listarEmpreendimentos);
   const { data: construtoras, loading: carregandoConstrutoras } = useAsyncData(listarConstrutoras);
@@ -50,14 +53,20 @@ export default function MapaGeralPage() {
     );
   }, [lista, f, ocultos]);
 
+  const semLocal = lista.filter((e) => e.latitude == null || e.longitude == null).length;
+
   return (
     <div className="space-y-4.5">
-      <header>
-        <p className="pb-eyebrow">Visão geográfica</p>
-        <h1 className="text-[28px] font-semibold">Mapa Geral</h1>
-        <p className="mt-1.5 max-w-lg text-[13px] text-ink-2">
-          Todos os empreendimentos num só mapa — filtre por região, construtora, etapa ou disponibilidade.
-        </p>
+      <header className="space-y-3">
+        <div>
+          <h1 className="text-xl font-semibold">Empreendimentos</h1>
+          <p className="text-[13px] text-ink-2">
+            {carregando || semLocal === 0
+              ? "Filtre por região, construtora, etapa ou disponibilidade."
+              : `${lista.length - semLocal} de ${lista.length} empreendimentos têm localização cadastrada; os outros aparecem só na lista.`}
+          </p>
+        </div>
+        <AbasCatalogo />
       </header>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
@@ -168,4 +177,4 @@ export default function MapaGeralPage() {
       </div>
     </div>
   );
-}
+}

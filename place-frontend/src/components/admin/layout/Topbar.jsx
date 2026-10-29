@@ -7,7 +7,7 @@ import { authService } from "@/services/authService";
 export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = [] }) {
   const [perfilAberto, setPerfilAberto] = useState(false);
   const { pathname } = useLocation();
-  const secao = [...items].sort((a, b) => b.href.length - a.href.length).find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label ?? "Painel";
+  const secao = items.flatMap((item) => [item.href, ...(item.match ?? [])].map((href) => ({ href, label: item.label }))).sort((a, b) => b.href.length - a.href.length).find((c) => pathname === c.href || pathname.startsWith(`${c.href}/`))?.label ?? "Painel";
   const [busca, setBusca] = useState("");
   const resultados = busca.trim() ? items.filter((item) => item.label.toLocaleLowerCase("pt-BR").includes(busca.trim().toLocaleLowerCase("pt-BR"))).slice(0, 6) : [];
 
@@ -126,4 +126,4 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
       </div>
     </header>
   );
-}
+}

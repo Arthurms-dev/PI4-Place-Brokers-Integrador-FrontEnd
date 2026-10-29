@@ -51,9 +51,11 @@ export function Sidebar({
         <nav aria-label="Menu principal" className="flex flex-col gap-1 px-3 pt-6">
           <p className="mb-3 px-4 text-[10px] font-semibold uppercase tracking-[0.19em] text-ink-3">Navegação</p>
           {items.map((item) => {
+            // `match`: outras rotas que fazem parte da mesma entrada (ex.: mapa e books dentro de Empreendimentos).
+            const caminhos = [item.href, ...(item.match ?? [])];
             const active = item.end
               ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              : caminhos.some((h) => pathname === h || pathname.startsWith(`${h}/`));
             return (
               <Link
                 key={item.href}

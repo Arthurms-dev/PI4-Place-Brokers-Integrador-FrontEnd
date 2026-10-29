@@ -7,6 +7,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, listarDocumentosComerciais, urlDoDocumento, urlDoDocumentoPorId } from "@/services/empreendimentos";
 import { SEGMENTOS, prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
 import { registrarEvento } from "@/services/eventos";
+import { AbasCatalogo } from "@/components/catalogo/AbasCatalogo";
+import { cn } from "@/lib/cn";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
@@ -181,24 +183,57 @@ function Detalhe({ resumo, onClose }) {
   );
 }
 
-function Cartao({ e, indice, onAbrir }) {
-  const partes = [formatarFaixa(e.quartos_min, e.quartos_max, "quarto", "quartos"), formatarFaixa(e.vagas_min, e.vagas_max, "vaga", "vagas"), (() => { const p = precoDoEmpreendimento(e); return p.temValor ? `${p.rotulo.toLowerCase()} ${p.valor}${p.sufixo}` : null; })(), prazoDoEmpreendimento(e)].filter(Boolean);
+/** Fase da obra legível em cima da foto: fundo sólido e bolinha na cor da fase. */
+function Fase({ status, className }) {
+  const fase = STATUS[status];
   return (
-    <li style={{ animationDelay: `${Math.min(indice, 6) * 55}ms` }} className="animate-fade-up">
-      <button type="button" onClick={() => onAbrir(e)} className="group block w-full overflow-hidden rounded-2xl border border-line bg-card text-left transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-xl hover:shadow-black/30">
-        <div className="relative aspect-16/10 overflow-hidden bg-card-2">
-          {e.capa_url ? <img src={e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-10" /></div>}
-          <div className="absolute left-3 top-3 flex gap-1.5">
-            <Selo tom={TOM_STATUS[e.status] ?? "neutro"}>{STATUS[e.status]?.label ?? e.status}</Selo>
+    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap", className)}>
+      <span className="size-2 shrink-0 rounded-full" style={{ background: fase?.color ?? "var(--color-ink-3)" }} aria-hidden="true" />
+      {fase?.label ?? status}
+    </span>
+  );
+}
+
+function Cartao({ e, indice, onAbrir }) {
+  const preco = precoDoEmpreendimento(e);
+  const detalhes = [formatarFaixa(e.quartos_min, e.quartos_max, "quarto", "quartos"), prazoDoEmpreendimento(e)].filter(Boolean);
+  return (
+    <li style={{ animationDelay: `${Math.min(indice, 6) * 55}ms` }} className="animate-fade-up min-w-0">
+      <button type="button" onClick={() => onAbrir(e)}
+        className="group flex w-full gap-3 overflow-hidden rounded-2xl border border-line bg-card p-2.5 text-left transition duration-300 hover:border-gold/60 sm:block sm:p-0 sm:hover:-translate-y-1 sm:hover:shadow-xl sm:hover:shadow-black/30">
+        <div className="relative aspect-4/3 w-24 shrink-0 overflow-hidden rounded-xl bg-card-2 sm:aspect-16/10 sm:w-full sm:rounded-none">
+          {e.capa_url ? <img src={e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-8" /></div>}
+          <div className="absolute left-3 top-3 hidden gap-1.5 sm:flex">
+            <Fase status={e.status} className="rounded-full bg-page/85 px-2.5 py-1 text-[11px] font-medium text-ink backdrop-blur" />
             {!e.publicado && <Selo tom="neutro">Rascunho</Selo>}
             {!e.disponivel && <Selo tom="perigo">Indisponível</Selo>}
           </div>
         </div>
-        <div className="space-y-2 p-4">
-          <h3 className="truncate font-semibold">{e.nome}</h3>
-          <p className="truncate text-[13px] text-ink-2">{e.bairro} · {e.cidade}/{e.uf}</p>
-          <p className="text-[13px] text-ink-3">{partes.join(" · ") || "Características em breve"}</p>
-          <div className="flex gap-1.5"><Selo tom={e.tem_book ? "ok" : "neutro"}>{e.tem_book ? "Book ✓" : "Sem book"}</Selo><Selo tom={e.tem_tabela ? "ok" : "neutro"}>{e.tem_tabela ? "Tabela ✓" : "Sem tabela"}</Selo></div>
+        <div className="min-w-0 flex-1 space-y-1 py-0.5 sm:space-y-1.5 sm:p-4">
+          <h3 className="truncate text-[15px] font-semibold sm:text-base">{e.nome}</h3>
+          <p className="truncate text-[12px] text-ink-2 sm:text-[13px]">
+            <Fase status={e.status} className="mr-1 text-ink-2 sm:hidden" />
+            <span className="sm:hidden">· </span>{[e.bairro, e.cidade && `${e.cidade}/${e.uf}`].filter(Boolean).join(" · ")}
+          </p>
+          <p className={cn("truncate text-[13px]", preco.temValor ? "font-semibold text-gold" : "text-ink-3")}>
+            {preco.temValor ? (
+              <>
+                {/* No celular "a partir de R$ 499/mês" já diz que é parcela; o rótulo completo vai a partir do tablet. */}
+                <span className="hidden sm:inline">{preco.rotulo} </span>
+                <span className="sm:hidden">A partir de </span>
+                {preco.valor}{preco.sufixo}
+              </>
+            ) : "Valores sob consulta"}
+          </p>
+          {detalhes.length > 0 && <p className="truncate text-[12px] text-ink-3 sm:whitespace-normal sm:text-[13px]">{detalhes.join(" · ")}</p>}
+          {(e.tem_book || e.tem_tabela || !e.disponivel || !e.publicado) && (
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {e.tem_book && <Selo tom="ok">Book</Selo>}
+              {e.tem_tabela && <Selo tom="ok">Tabela</Selo>}
+              {!e.disponivel && <span className="sm:hidden"><Selo tom="perigo">Indisponível</Selo></span>}
+              {!e.publicado && <span className="sm:hidden"><Selo tom="neutro">Rascunho</Selo></span>}
+            </div>
+          )}
         </div>
       </button>
     </li>
@@ -218,6 +253,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("");
   const [status, setStatus] = useState("");
+  const [segmento, setSegmento] = useState("");
   const [soDisponiveis, setSoDisponiveis] = useState(false);
   const [aberto, setAberto] = useState(null);
 
@@ -242,34 +278,52 @@ export default function CatalogoPage({ modo = "catalogo" }) {
   const cidades = useMemo(() => [...new Set(lista.map((e) => e.cidade))].sort((a, b) => a.localeCompare(b)), [lista]);
   const visiveis = useMemo(() => {
     const q = busca.trim().toLowerCase();
-    return lista.filter((e) => (!cidade || e.cidade === cidade) && (!status || e.status === status) && (!soDisponiveis || e.disponivel) && (!q || `${e.nome} ${e.bairro} ${e.cidade}`.toLowerCase().includes(q)));
-  }, [lista, busca, cidade, status, soDisponiveis]);
+    return lista.filter((e) => (!segmento || e.segmento === segmento) && (!cidade || e.cidade === cidade) && (!status || e.status === status) && (!soDisponiveis || e.disponivel) && (!q || `${e.nome} ${e.bairro} ${e.cidade}`.toLowerCase().includes(q)));
+  }, [lista, busca, cidade, status, soDisponiveis, segmento]);
+  // Segmentos do jeito que a Place separa os produtos (MCMV, médio, alto padrão, litoral), só os que existem.
+  const segmentos = useMemo(
+    () => Object.entries(SEGMENTOS).map(([k, rotulo]) => [k, rotulo, lista.filter((e) => e.segmento === k).length]).filter(([, , n]) => n > 0),
+    [lista],
+  );
 
   return (
     <div className="space-y-5">
-      <div className="animate-fade-up">
-        <h1 className="text-xl font-semibold">{books ? "Books e tabelas" : "Empreendimentos"}</h1>
-        <p className="text-[13px] text-ink-2">{books ? "Abra o book e a tabela de preços de cada empreendimento." : "Conheça os produtos, fotos, valores e localização."}</p>
+      <div className="animate-fade-up space-y-3">
+        <div>
+          <h1 className="text-xl font-semibold">Empreendimentos</h1>
+          <p className="text-[13px] text-ink-2">{books ? "Abra o book e a tabela de preços de cada empreendimento." : "Fotos, valores, prazo e localização de cada produto."}</p>
+        </div>
+        <AbasCatalogo />
       </div>
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <div className="grid gap-2 sm:grid-cols-[1fr_11rem_11rem_auto]">
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, bairro ou cidade" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
-        <select value={cidade} onChange={(e) => setCidade(e.target.value)} aria-label="Cidade" className={`${CAMPO} border-line`}>
-          <option value="">Todas as cidades</option>
-          {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-        {!books && (
-          <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Fase" className={`${CAMPO} border-line`}>
-            <option value="">Todas as fases</option>
-            {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+      <div className="space-y-2">
+        <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, bairro ou cidade" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
+          {[["", "Todos", lista.length], ...segmentos].map(([k, rotulo, n]) => (
+            <button key={k || "todos"} type="button" onClick={() => setSegmento(k)} aria-pressed={segmento === k}
+              className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${segmento === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+              {rotulo} <span className="text-ink-3">{n}</span>
+            </button>
+          ))}
+          <button type="button" role="switch" aria-checked={soDisponiveis} onClick={() => setSoDisponiveis((v) => !v)}
+            className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${soDisponiveis ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+            Só disponíveis
+          </button>
+        </div>
+        <div className={`grid gap-2 ${books ? "" : "grid-cols-2"} sm:max-w-md`}>
+          <select value={cidade} onChange={(e) => setCidade(e.target.value)} aria-label="Cidade" className={`${CAMPO} border-line`}>
+            <option value="">Todas as cidades</option>
+            {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-        )}
-        <button type="button" role="switch" aria-checked={soDisponiveis} onClick={() => setSoDisponiveis((v) => !v)}
-          className={`h-12 rounded-xl border px-4 text-sm transition-colors ${soDisponiveis ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
-          Só disponíveis
-        </button>
+          {!books && (
+            <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Fase" className={`${CAMPO} border-line`}>
+              <option value="">Todas as fases</option>
+              {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            </select>
+          )}
+        </div>
       </div>
 
       {carregando ? (
@@ -289,7 +343,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
           ))}
         </ul>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {visiveis.map((e, i) => <Cartao key={e.id} e={e} indice={i} onAbrir={setAberto} />)}
         </ul>
       )}
@@ -300,4 +354,4 @@ export default function CatalogoPage({ modo = "catalogo" }) {
       }} />}
     </div>
   );
-}
+}
