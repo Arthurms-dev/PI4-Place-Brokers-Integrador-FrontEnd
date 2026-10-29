@@ -30,6 +30,7 @@ export const AREAS = {
       { label: "Books e Tabelas", href: "/gerente/books", icon: "book" },
       { label: "Minha equipe", href: "/gerente/equipe", icon: "team" },
       { label: "Leads", href: "/gerente/leads", icon: "users" },
+      { label: "Focos da equipe", href: "/gerente/focos", icon: "list" },
       { label: "Agendamentos", href: "/gerente/agendamentos", icon: "calendar" },
       { label: "Vendas", href: "/gerente/vendas", icon: "chart" },
       { label: "Treinamento", href: "/gerente/treinamento", icon: "star" },

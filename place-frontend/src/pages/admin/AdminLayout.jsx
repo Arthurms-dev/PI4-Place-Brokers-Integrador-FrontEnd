@@ -9,6 +9,7 @@ const MENU = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
   { label: "Empreendimentos", href: "/admin/imoveis", icon: "building" },
   { label: "Leads", href: "/admin/leads", icon: "users" },
+  { label: "Roleta do dia", href: "/admin/roleta", icon: "refresh" },
   { label: "Clientes", href: "/admin/clientes", icon: "user" },
   { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },
   { label: "Vendas", href: "/admin/vendas", icon: "chart" },
@@ -31,4 +32,4 @@ export default function AdminLayout() {
       <Outlet context={{ user }} />
     </AdminShell>
   );
-}
+}

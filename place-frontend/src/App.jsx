@@ -24,6 +24,7 @@ const EmpreendimentosPage = lazy(() => import("@/pages/admin/EmpreendimentosPage
 const ClientesPage = lazy(() => import("@/pages/admin/ClientesPage"));
 const RelatoriosPage = lazy(() => import("@/pages/admin/RelatoriosPage"));
 const EquipePage = lazy(() => import("@/pages/admin/EquipePage"));
+const RoletaPage = lazy(() => import("@/pages/admin/RoletaPage"));
 const CorretorHomePage = lazy(() => import("@/pages/corretor/CorretorHomePage"));
 const CatalogoPage = lazy(() => import("@/pages/corretor/CatalogoPage"));
 const MapaGeralPage = lazy(() => import("@/pages/corretor/MapaGeralPage"));
@@ -34,6 +35,7 @@ const GerenteInicioPage = lazy(() => import("@/pages/gerente/GerenteInicioPage")
 const MinhaEquipePage = lazy(() => import("@/pages/gerente/MinhaEquipePage"));
 const GerenteLeadsPage = lazy(() => import("@/pages/gerente/GerenteLeadsPage"));
 const GerenteAgendaPage = lazy(() => import("@/pages/gerente/GerenteAgendaPage"));
+const FocosEquipePage = lazy(() => import("@/pages/gerente/FocosEquipePage"));
 
 export default function App() {
   return (
@@ -78,6 +80,7 @@ export default function App() {
         <Route path="equipe" element={<MinhaEquipePage />} />
         <Route path="leads" element={<GerenteLeadsPage />} />
         <Route path="agendamentos" element={<GerenteAgendaPage />} />
+        <Route path="focos" element={<FocosEquipePage />} />
         <Route path="treinamento" element={<TreinamentoPage />} />
         <Route path="vendas" element={<VendasPage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
@@ -98,6 +101,8 @@ export default function App() {
         <Route path="vendas" element={<VendasPage />} />
         <Route path="relatorios" element={<RelatoriosPage />} />
         <Route path="equipe" element={<EquipePage />} />
+        <Route path="roleta" element={<RoletaPage />} />
+        <Route path="focos" element={<FocosEquipePage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
         <Route path="perfil" element={<PerfilPage />} />
         <Route path="*" element={<ComingSoonPage />} />

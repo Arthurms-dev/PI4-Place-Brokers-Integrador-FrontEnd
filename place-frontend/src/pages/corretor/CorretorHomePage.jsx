@@ -17,6 +17,8 @@ import { listarVendas } from "@/services/vendas";
 import { listarMeusAcessos } from "@/services/eventos";
 import { listarRetornos } from "@/services/leadAtividades";
 import { linkLigar } from "@/lib/atendimento";
+import { minhaRoleta } from "@/services/roleta";
+import { situacaoDoCorretor } from "@/lib/roleta";
 
 const SHORTCUTS = [
   { icon: "book", title: "Ver Book e Tabelas", desc: "Acesse as tabelas atualizadas e materiais dos empreendimentos.", to: "/corretor/books" },
@@ -110,6 +112,26 @@ function AvisoDoDia({ agendamentos }) {
   );
 }
 
+/** Posição do corretor na roleta de leads de hoje (lista de chegada da recepção). */
+function RoletaDeHoje({ minha }) {
+  const s = situacaoDoCorretor(minha);
+  if (!s) return null;
+  return (
+    <section
+      className={cn(
+        "flex items-start gap-3 rounded-xl border p-4",
+        s.tom === "ok" ? "border-ok/40 bg-ok/10" : s.tom === "aviso" ? "border-gold/40 bg-gold/10" : "border-line bg-card",
+      )}
+    >
+      <Icon name="refresh" className={cn("mt-0.5 size-4.5 shrink-0", s.tom === "ok" ? "text-ok" : s.tom === "aviso" ? "text-gold" : "text-ink-3")} />
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-medium">{s.titulo}</h2>
+        <p className="mt-0.5 text-[12px] text-ink-2">{s.detalhe}</p>
+      </div>
+    </section>
+  );
+}
+
 /** Lembretes de retorno atrasados ou de hoje (marcados em "Lembrete" no lead). */
 function RetornosDeHoje({ retornos }) {
   const fimDoDia = new Date();
@@ -192,6 +214,7 @@ export default function CorretorHomePage() {
   const vendas = useAsyncData(listarVendas);
   const acessos = useAsyncData(listarMeusAcessos);
   const retornos = useAsyncData(listarRetornos);
+  const roleta = useAsyncData(minhaRoleta);
   const resumo = useMemo(
     () => resumirInicio({ leads: leads.data ?? [], agendamentos: agenda.data ?? [], vendas: vendas.data ?? [] }),
     [leads.data, agenda.data, vendas.data],
@@ -238,6 +261,8 @@ export default function CorretorHomePage() {
       </header>
 
       <NumerosRapidos resumo={resumo} carregando={leads.loading || agenda.loading || vendas.loading} />
+
+      <RoletaDeHoje minha={roleta.data} />
 
       <RetornosDeHoje retornos={retornos.data} />
 
