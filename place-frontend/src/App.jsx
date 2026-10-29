@@ -29,6 +29,7 @@ const CatalogoPage = lazy(() => import("@/pages/corretor/CatalogoPage"));
 const MapaGeralPage = lazy(() => import("@/pages/corretor/MapaGeralPage"));
 const MeusLeadsPage = lazy(() => import("@/pages/corretor/MeusLeadsPage"));
 const AgendaPage = lazy(() => import("@/pages/corretor/AgendaPage"));
+const TreinamentoPage = lazy(() => import("@/pages/corretor/TreinamentoPage"));
 const GerenteInicioPage = lazy(() => import("@/pages/gerente/GerenteInicioPage"));
 const MinhaEquipePage = lazy(() => import("@/pages/gerente/MinhaEquipePage"));
 const GerenteLeadsPage = lazy(() => import("@/pages/gerente/GerenteLeadsPage"));
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="clientes/novo" element={<MeusLeadsPage abrirCadastro />} />
         <Route path="leads" element={<MeusLeadsPage />} />
         <Route path="agenda" element={<AgendaPage />} />
+        <Route path="treinamento" element={<TreinamentoPage />} />
         <Route path="vendas" element={<VendasPage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
         <Route path="perfil" element={<PerfilPage />} />
@@ -76,6 +78,7 @@ export default function App() {
         <Route path="equipe" element={<MinhaEquipePage />} />
         <Route path="leads" element={<GerenteLeadsPage />} />
         <Route path="agendamentos" element={<GerenteAgendaPage />} />
+        <Route path="treinamento" element={<TreinamentoPage />} />
         <Route path="vendas" element={<VendasPage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
         <Route path="perfil" element={<PerfilPage />} />

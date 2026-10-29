@@ -1,20 +1,14 @@
-import { getToken } from '@/lib/authToken';
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3333';
-async function request(path, opts = {}) {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...opts,
-    headers: { ...(opts.body ? {'Content-Type':'application/json'} : {}), Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message ?? 'Não foi possível carregar o histórico.');
-  return data;
-}
+import { api } from "@/lib/apiClient";
+
 export async function listarAtividades(leadId) {
-  return (await request(`/leads/${encodeURIComponent(leadId)}/atividades`)).atividades;
+  return (await api.get(`/leads/${encodeURIComponent(leadId)}/atividades`)).atividades;
 }
+
 export async function registrarAtividade(leadId, dados) {
-  return (await request(`/leads/${encodeURIComponent(leadId)}/atividades`, {
-    method:'POST', body:JSON.stringify(dados),
-  })).atividade;
+  return (await api.post(`/leads/${encodeURIComponent(leadId)}/atividades`, dados)).atividade;
+}
+
+/** Lembretes de retorno do corretor (atrasados e dos próximos 7 dias). */
+export async function listarRetornos() {
+  return (await api.get("/leads/retornos")).retornos ?? [];
 }

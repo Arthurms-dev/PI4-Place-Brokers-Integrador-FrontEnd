@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LeadAtividadesToggle } from "@/components/leads/LeadAtividades";
+import { AtendimentoLead } from "@/components/leads/AtendimentoLead";
+import { listarRetornos } from "@/services/leadAtividades";
 import { atualizarStatusLead, criarCliente, levarLeadParaCarteira, listarClientes, listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
 
@@ -152,6 +154,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
   const [leads, setLeads] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [vendas, setVendas] = useState([]);
+  const [retornos, setRetornos] = useState({});
   const [filtro, setFiltro] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -188,8 +191,8 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
 
   useEffect(() => {
     let ativo = true;
-    Promise.all([listarMeusLeads(), listarClientes(), listarVendas().catch(() => [])])
-      .then(([l, c, v]) => ativo && (setLeads(l), setClientes(c), setVendas(v)))
+    Promise.all([listarMeusLeads(), listarClientes(), listarVendas().catch(() => []), listarRetornos().catch(() => [])])
+      .then(([l, c, v, r]) => ativo && (setLeads(l), setClientes(c), setVendas(v), setRetornos(Object.fromEntries(r.map((x) => [x.leadId, x])))))
       .catch((e) => ativo && setErro(e.message))
       .finally(() => ativo && setCarregando(false));
     return () => {
@@ -216,7 +219,12 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
     return mapa;
   }, [vendas]);
 
-  const visiveis = useMemo(() => leads.filter((l) => !filtro || l.status === filtro), [leads, filtro]);
+  // Leads novos primeiro (o que espera há mais tempo no topo): quem retorna primeiro leva o cliente.
+  const visiveis = useMemo(() => {
+    const lista = leads.filter((l) => !filtro || l.status === filtro);
+    const novos = lista.filter((l) => l.status === "novo").sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
+    return [...novos, ...lista.filter((l) => l.status !== "novo")];
+  }, [leads, filtro]);
 
   return (
     <div className="space-y-5">
@@ -269,11 +277,20 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                     </div>
                     <Badge status={l.status} />
                   </div>
-                  <p className="text-[13px] text-ink-2">{l.telefone} · {l.email}</p>
+                  {l.status !== "convertido" && l.status !== "perdido" ? (
+                    <AtendimentoLead
+                      lead={l}
+                      retorno={retornos[l.id]}
+                      onIniciarAtendimento={(lead) => mudarStatus(lead.id, "em_atendimento")}
+                      onRetorno={(lead, r) => setRetornos((m) => ({ ...m, [lead.id]: r }))}
+                    />
+                  ) : (
+                    <p className="text-[13px] text-ink-2">{l.telefone}</p>
+                  )}
+                  {l.email && <p className="truncate text-[13px] text-ink-3">{l.email}</p>}
                   {l.mensagem && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{l.mensagem}</p>}
                   <LeadAtividadesToggle leadId={l.id} />
                   <div className="flex flex-wrap gap-2">
-                    <BotaoZap telefone={l.telefone} nome={l.nome} />
                     {l.status !== "perdido" && (
                       <button type="button" onClick={() => agendarVisita(l)} disabled={agendando === l.id}
                         className="inline-flex h-11 items-center gap-2 rounded-xl border border-gold/40 px-4 text-sm font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">

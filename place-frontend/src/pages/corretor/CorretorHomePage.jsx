@@ -15,6 +15,8 @@ import { resumirInicio, ultimosAcessos } from "@/lib/inicioCorretor";
 import { listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
 import { listarMeusAcessos } from "@/services/eventos";
+import { listarRetornos } from "@/services/leadAtividades";
+import { linkLigar } from "@/lib/atendimento";
 
 const SHORTCUTS = [
   { icon: "book", title: "Ver Book e Tabelas", desc: "Acesse as tabelas atualizadas e materiais dos empreendimentos.", to: "/corretor/books" },
@@ -108,6 +110,47 @@ function AvisoDoDia({ agendamentos }) {
   );
 }
 
+/** Lembretes de retorno atrasados ou de hoje (marcados em "Lembrete" no lead). */
+function RetornosDeHoje({ retornos }) {
+  const fimDoDia = new Date();
+  fimDoDia.setHours(23, 59, 59, 999);
+  const lista = (retornos ?? []).filter((r) => new Date(r.proximoContatoEm) <= fimDoDia);
+  if (lista.length === 0) return null;
+  const atrasados = lista.filter((r) => r.atrasado).length;
+
+  return (
+    <section className={cn("rounded-xl border p-4", atrasados ? "border-danger/40 bg-danger/10" : "border-gold/40 bg-gold/10")}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium">
+          <Icon name="phone" className={cn("size-4.5", atrasados ? "text-danger" : "text-gold")} />
+          {lista.length === 1 ? "1 retorno para fazer" : `${lista.length} retornos para fazer`}
+          {atrasados > 0 && <span className="text-[12px] font-normal text-danger">· {atrasados} atrasado{atrasados > 1 ? "s" : ""}</span>}
+        </h2>
+        <Link to="/corretor/leads" className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
+          Ver leads <Icon name="arrowRight" className="size-3.5" />
+        </Link>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {lista.slice(0, 4).map((r) => (
+          <li key={r.atividadeId} className="flex items-center gap-3 rounded-lg bg-card px-3 py-2.5">
+            <span className={cn("w-12 shrink-0 text-[15px] font-semibold", r.atrasado ? "text-danger" : "text-gold")}>{hora(r.proximoContatoEm)}</span>
+            <span className="min-w-0 flex-1">
+              <b className="block truncate text-[13px] font-medium">{r.nome}</b>
+              <small className="block truncate text-[11px] text-ink-3">{[r.empreendimento?.nome, r.nota].filter(Boolean).join(" · ")}</small>
+            </span>
+            {r.telefone && (
+              <a href={linkLigar(r.telefone)} aria-label={`Ligar para ${r.nome}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-gold-gradient text-[#1a1408]">
+                <Icon name="phone" className="size-4.5" />
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+      {lista.length > 4 && <p className="mt-2 text-[12px] text-ink-2">e mais {lista.length - 4} em Meus leads.</p>}
+    </section>
+  );
+}
+
 function Thumb({ e, tag, className }) {
   return (
     <div
@@ -148,6 +191,7 @@ export default function CorretorHomePage() {
   const leads = useAsyncData(listarMeusLeads);
   const vendas = useAsyncData(listarVendas);
   const acessos = useAsyncData(listarMeusAcessos);
+  const retornos = useAsyncData(listarRetornos);
   const resumo = useMemo(
     () => resumirInicio({ leads: leads.data ?? [], agendamentos: agenda.data ?? [], vendas: vendas.data ?? [] }),
     [leads.data, agenda.data, vendas.data],
@@ -194,6 +238,8 @@ export default function CorretorHomePage() {
       </header>
 
       <NumerosRapidos resumo={resumo} carregando={leads.loading || agenda.loading || vendas.loading} />
+
+      <RetornosDeHoje retornos={retornos.data} />
 
       <AvisoDoDia agendamentos={agenda.data} />
 
