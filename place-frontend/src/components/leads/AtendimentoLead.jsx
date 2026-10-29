@@ -21,7 +21,7 @@ const quandoTexto = (iso) =>
   new Date(iso).toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 /** Atualiza a cada 30 s, para o "há X min" do lead novo andar sozinho. */
-function useAgora() {
+export function useAgora() {
   const [agora, setAgora] = useState(() => new Date());
   useEffect(() => {
     const t = setInterval(() => setAgora(new Date()), 30000);
@@ -164,7 +164,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
     }
   }
 
-  const botao = "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition";
+  const botao = "inline-flex h-11 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition sm:gap-2 sm:text-sm";
 
   return (
     <div className="space-y-2.5">
@@ -195,7 +195,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
         </div>
       )}
 
-      <div className={`grid gap-2 ${lead.telefone ? "grid-cols-3" : "grid-cols-1"}`}>
+      <div className={`grid gap-2 ${lead.telefone ? "grid-cols-[1fr_1fr_auto] sm:grid-cols-3" : "grid-cols-1"}`}>
         {lead.telefone && (<>
         <a href={linkLigar(lead.telefone)} onClick={() => registrarContato("ligacao")} className={`${botao} bg-gold-gradient text-[#1a1408] hover:brightness-110`}>
           <Icon name="phone" className="size-4.5" /> Ligar
@@ -204,8 +204,9 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
           <Icon name="messageCircle" className="size-4.5" /> WhatsApp
         </a>
         </>)}
-        <button type="button" onClick={() => setLembrete(true)} className={`${botao} border border-line text-ink-2 hover:border-gold hover:text-ink`}>
-          <Icon name="bell" className="size-4.5" /> Lembrete
+        <button type="button" onClick={() => setLembrete(true)} aria-label="Lembrete de retorno" title="Lembrete de retorno"
+          className={`${botao} border border-line text-ink-2 hover:border-gold hover:text-ink ${lead.telefone ? "px-3.5" : ""}`}>
+          <Icon name="bell" className="size-4.5" /> <span className={lead.telefone ? "hidden sm:inline" : ""}>Lembrete</span>
         </button>
       </div>
 

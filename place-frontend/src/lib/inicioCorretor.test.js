@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resumirInicio, ultimosAcessos } from "./inicioCorretor";
+import { leadsEsperando, resumirInicio, ultimosAcessos } from "./inicioCorretor";
 
 const agora = new Date("2026-10-28T15:00:00"); // quarta-feira
 
@@ -38,5 +38,15 @@ describe("ultimosAcessos", () => {
     const lista = [{ id: "a", nome: "A" }, { id: "b", nome: "B" }, { id: "c", nome: "C" }];
     const r = ultimosAcessos([{ empreendimentoId: "c" }, { empreendimentoId: "x" }, { empreendimentoId: "a" }], lista);
     expect(r.map((e) => e.nome)).toEqual(["C", "A"]);
+  });
+
+  it("leads esperando: só os novos, quem espera há mais tempo primeiro, sem os já atendidos", () => {
+    const leads = [
+      { id: "1", status: "novo", criadoEm: "2026-10-28T14:50:00" },
+      { id: "2", status: "em_atendimento", criadoEm: "2026-10-28T10:00:00" },
+      { id: "3", status: "novo", criadoEm: "2026-10-28T14:10:00" },
+      { id: "4", status: "novo", criadoEm: "2026-10-28T14:30:00" },
+    ];
+    expect(leadsEsperando(leads, new Set(["4"])).map((l) => l.id)).toEqual(["3", "1"]);
   });
 });

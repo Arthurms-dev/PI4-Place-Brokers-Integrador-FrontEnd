@@ -44,3 +44,10 @@ export function ultimosAcessos(acessos = [], empreendimentos = [], quantidade = 
     .filter(Boolean)
     .slice(0, quantidade);
 }
+
+/** Leads novos que ainda esperam o primeiro contato, do que espera há mais tempo para o mais recente. */
+export function leadsEsperando(leads = [], ignorar = new Set()) {
+  return leads
+    .filter((l) => l.status === "novo" && !ignorar.has(l.id))
+    .sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
+}

@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LeadAtividadesToggle } from "@/components/leads/LeadAtividades";
 import { AtendimentoLead } from "@/components/leads/AtendimentoLead";
+import { formatarTelefone, linkWhatsApp } from "@/lib/atendimento";
 import { listarRetornos } from "@/services/leadAtividades";
 import { atualizarStatusLead, criarCliente, levarLeadParaCarteira, listarClientes, listarMeusLeads } from "@/services/meusLeads";
 import { listarVendas } from "@/services/vendas";
@@ -15,9 +16,9 @@ const STATUS = {
   perdido: { label: "Perdido", cls: "bg-white/10 text-ink-3" },
 };
 const OPCOES_CORRETOR = ["novo", "em_atendimento", "perdido"];
+const ATIVOS = ["novo", "em_atendimento"];
 
 const digitos = (v = "") => v.replace(/\D/g, "");
-const zap = (tel, nome) => `https://wa.me/55${digitos(tel)}?text=${encodeURIComponent(`Olá, ${nome}! Aqui é da Place Brokers.`)}`;
 function mascarar(v) {
   const d = digitos(v).slice(0, 11);
   if (d.length <= 2) return d ? `(${d}` : "";
@@ -34,10 +35,10 @@ function Badge({ status }) {
   return <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${s.cls}`}>{s.label}</span>;
 }
 
-function BotaoZap({ telefone, nome }) {
+function BotaoZap({ telefone }) {
   return (
     <a
-      href={zap(telefone, nome)}
+      href={linkWhatsApp(telefone)}
       target="_blank"
       rel="noreferrer"
       className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-semibold text-[#06210f] transition hover:brightness-105"
@@ -155,7 +156,8 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
   const [clientes, setClientes] = useState([]);
   const [vendas, setVendas] = useState([]);
   const [retornos, setRetornos] = useState({});
-  const [filtro, setFiltro] = useState("");
+  const [filtro, setFiltro] = useState("ativos");
+  const [aberto, setAberto] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const navigate = useNavigate();
@@ -221,10 +223,12 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
 
   // Leads novos primeiro (o que espera há mais tempo no topo): quem retorna primeiro leva o cliente.
   const visiveis = useMemo(() => {
-    const lista = leads.filter((l) => !filtro || l.status === filtro);
+    const lista = leads.filter((l) => (filtro === "ativos" ? ATIVOS.includes(l.status) : !filtro || l.status === filtro));
     const novos = lista.filter((l) => l.status === "novo").sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
     return [...novos, ...lista.filter((l) => l.status !== "novo")];
   }, [leads, filtro]);
+
+  const contagem = (k) => (k === "ativos" ? leads.filter((l) => ATIVOS.includes(l.status)).length : k ? leads.filter((l) => l.status === k).length : leads.length);
 
   return (
     <div className="space-y-5">
@@ -232,7 +236,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
         <div>
           <p className="pb-eyebrow">Relacionamento</p>
           <h1 className="text-xl font-semibold">Meus leads</h1>
-          <p className="text-[13px] text-ink-2">Contatos que o admin passou para você e a sua carteira de clientes.</p>
+          <p className="text-[13px] text-ink-2">Leads que chegaram para você e a sua carteira de clientes.</p>
         </div>
         <button type="button" onClick={() => setModal(true)} className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold-gradient px-5 text-sm font-semibold text-[#1a1408] transition hover:brightness-110">
           <Icon name="userPlus" className="size-4.5" /> Cadastrar cliente
@@ -254,17 +258,17 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
       {!carregando && aba === "leads" && (
         <>
           <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-            {[["", "Todos"], ...Object.entries(STATUS).map(([k, v]) => [k, v.label])].map(([k, rotulo]) => (
+            {[["ativos", "Ativos"], ...Object.entries(STATUS).map(([k, v]) => [k, v.label]), ["", "Todos"]].map(([k, rotulo]) => (
               <button key={k} type="button" onClick={() => setFiltro(k)} aria-pressed={filtro === k}
                 className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${filtro === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
-                {rotulo}
+                {rotulo} <span className="text-ink-3">{contagem(k)}</span>
               </button>
             ))}
           </div>
 
           {visiveis.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-line p-8 text-center text-sm text-ink-2">
-              {leads.length === 0 ? "Você ainda não tem leads. Quando o admin atribuir um contato a você, ele aparece aqui." : "Nenhum lead com esse status."}
+              {leads.length === 0 ? "Você ainda não tem leads. Quando a roleta ou o gerente te passar um contato, ele aparece aqui." : filtro === "ativos" ? "Nenhum lead em aberto agora." : "Nenhum lead com esse status."}
             </div>
           ) : (
             <ul className="grid gap-3 lg:grid-cols-2">
@@ -285,27 +289,38 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                       onRetorno={(lead, r) => setRetornos((m) => ({ ...m, [lead.id]: r }))}
                     />
                   ) : (
-                    <p className="text-[13px] text-ink-2">{l.telefone}</p>
+                    l.telefone && <p className="select-all font-mono text-[14px] text-ink-2">{formatarTelefone(l.telefone)}</p>
                   )}
-                  {l.email && <p className="truncate text-[13px] text-ink-3">{l.email}</p>}
                   {l.mensagem && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{l.mensagem}</p>}
-                  <LeadAtividadesToggle leadId={l.id} />
                   <div className="flex flex-wrap gap-2">
-                    {l.status !== "perdido" && (
+                    {ATIVOS.includes(l.status) && (
                       <button type="button" onClick={() => agendarVisita(l)} disabled={agendando === l.id}
-                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-gold/40 px-4 text-sm font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">
-                        <Icon name="calendar" className="size-4.5" /> {agendando === l.id ? "Abrindo agenda..." : "Agendar visita"}
+                        className="inline-flex h-10 items-center gap-2 rounded-xl border border-gold/40 px-3.5 text-[13px] font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">
+                        <Icon name="calendar" className="size-4" /> {agendando === l.id ? "Abrindo agenda..." : "Agendar visita"}
                       </button>
                     )}
-                    {l.status === "convertido" ? (
-                      <span className="inline-flex h-11 items-center px-2 text-[13px] text-ink-3">Convertido em cliente</span>
-                    ) : (
-                      <select value={l.status} disabled={salvando === l.id} onChange={(e) => mudarStatus(l.id, e.target.value)} aria-label={`Status de ${l.nome}`}
-                        className="h-11 rounded-xl border border-line bg-card-2 px-3 text-sm outline-none focus:border-gold scheme-dark">
-                        {OPCOES_CORRETOR.map((s) => <option key={s} value={s}>{STATUS[s].label}</option>)}
-                      </select>
-                    )}
+                    <button type="button" onClick={() => setAberto((v) => (v === l.id ? null : l.id))} aria-expanded={aberto === l.id}
+                      className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-line px-3.5 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
+                      Mais <Icon name="chevronDown" className={`size-4 transition-transform ${aberto === l.id ? "rotate-180" : ""}`} />
+                    </button>
                   </div>
+                  {aberto === l.id && (
+                    <div className="space-y-3 border-t border-line-soft pt-3">
+                      {l.email && <p className="truncate text-[13px] text-ink-3">{l.email}</p>}
+                      {l.status === "convertido" ? (
+                        <p className="text-[13px] text-ink-3">Convertido em cliente</p>
+                      ) : (
+                        <label className="flex items-center gap-2 text-[13px] text-ink-2">
+                          Status
+                          <select value={l.status} disabled={salvando === l.id} onChange={(e) => mudarStatus(l.id, e.target.value)} aria-label={`Status de ${l.nome}`}
+                            className="h-10 rounded-xl border border-line bg-card-2 px-3 text-sm text-ink outline-none focus:border-gold scheme-dark">
+                            {OPCOES_CORRETOR.map((st) => <option key={st} value={st}>{STATUS[st].label}</option>)}
+                          </select>
+                        </label>
+                      )}
+                      <LeadAtividadesToggle leadId={l.id} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -331,7 +346,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                 {c.observacoes && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{c.observacoes}</p>}
                 <VendasDoCliente vendas={vendasPorCliente.get(c.id)} />
                 <div className="flex flex-wrap gap-2">
-                  {c.telefone && <BotaoZap telefone={c.telefone} nome={c.nome} />}
+                  {c.telefone && <BotaoZap telefone={c.telefone} />}
                   <Link to={`/corretor/vendas?cliente=${c.id}`} className="inline-flex h-11 items-center rounded-xl border border-line px-4 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">
                     Lançar venda
                   </Link>
