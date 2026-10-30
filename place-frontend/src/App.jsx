@@ -13,6 +13,8 @@ const PerfilPage = lazy(() => import("@/pages/PerfilPage"));
 const AreaLayout = lazy(() => import("@/pages/AreaLayout"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
+const EsqueciSenhaPage = lazy(() => import("@/pages/EsqueciSenhaPage"));
+const RedefinirSenhaPage = lazy(() => import("@/pages/RedefinirSenhaPage"));
 const VendasPage = lazy(() => import("@/pages/VendasPage"));
 const ComingSoonPage = lazy(() => import("@/pages/admin/ComingSoonPage"));
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
@@ -53,6 +55,8 @@ export default function App() {
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/esqueci-senha" element={<EsqueciSenhaPage />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenhaPage />} />
       </Route>
 
       <Route path="/corretor" element={<AreaLayout cargo="corretor" />}>

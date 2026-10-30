@@ -64,6 +64,10 @@ export default function LoginPage() {
           />
         </FormField>
 
+        <Link to="/esqueci-senha" className="-mt-2 self-end text-xs text-ink-2 hover:text-gold hover:underline">
+          Esqueci minha senha
+        </Link>
+
         {formError && (
           <p role="alert" className="text-xs text-danger">
             {formError}
@@ -83,4 +87,4 @@ export default function LoginPage() {
       </p>
     </Card>
   );
-}
+}

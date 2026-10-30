@@ -115,9 +115,33 @@ export class AuthService {
   }, this);
   }
 
+  /** "Esqueci minha senha": a API sempre responde a mesma mensagem. */
+  async esqueciSenha(email) {
+    const limpo = String(email ?? "").trim().toLowerCase();
+    if (!limpo) throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", { email: "Informe o e-mail." });
+    if (!EMAIL_REGEX.test(limpo)) throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", { email: "E-mail inválido." });
+    return post("/auth/esqueci-senha", { email: limpo }, this);
+  }
+
+  validateNovaSenha({ novaSenha, confirmarSenha } = {}) {
+    const errors = {};
+    if (!novaSenha || novaSenha.length < 8) errors.novaSenha = "A senha deve ter pelo menos 8 caracteres.";
+    if (confirmarSenha !== novaSenha) errors.confirmarSenha = "As senhas não coincidem.";
+    return errors;
+  }
+
+  /** Cria a senha nova com o token que veio no link do e-mail. */
+  async redefinirSenha({ token, novaSenha, confirmarSenha }) {
+    const fieldErrors = this.validateNovaSenha({ novaSenha, confirmarSenha });
+    if (Object.keys(fieldErrors).length) {
+      throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", fieldErrors);
+    }
+    return post("/auth/redefinir-senha", { token, novaSenha, confirmarSenha }, this);
+  }
+
   logout() {
     clearToken();
   }
 }
 
-export const authService = new AuthService();
+export const authService = new AuthService();
