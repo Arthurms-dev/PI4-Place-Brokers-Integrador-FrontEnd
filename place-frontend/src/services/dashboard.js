@@ -1,26 +1,13 @@
-import { getToken } from "@/lib/authToken";
+import { api } from "@/lib/apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 const NOTA = "em relação ao período anterior";
-
 const STATUS_DO_LEAD = { novo: "novo", em_atendimento: "atendimento", convertido: "convertido" };
 
-/**
- * @param {{ de?: string, ate?: string, equipeId?: string, diretoriaId?: string }} [filtros]
- * @returns {Promise<import("@/types/dashboard").DashboardData>}
- */
+/** @param {{ de?: string, ate?: string, equipeId?: string, diretoriaId?: string }} [filtros]
+ * @returns {Promise<import("@/types/dashboard").DashboardData>} */
 export async function getDashboardData(filtros = {}) {
   const query = new URLSearchParams(Object.entries(filtros).filter(([, v]) => v)).toString();
-  const token = getToken();
-
-  const res = await fetch(`${BASE_URL}/metricas/dashboard${query ? `?${query}` : ""}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({}));
-    throw new Error(e.message ?? "Falha ao carregar o dashboard");
-  }
-  const d = await res.json();
+  const d = await api.get(`/metricas/dashboard${query ? `?${query}` : ""}`);
   if (!d?.vgv || !d?.acessos || !d?.imoveis || !d?.agendamentos || !d?.leads || !d?.avaliacoes) {
     throw new Error(
       `A API respondeu num formato inesperado (campos recebidos: ${Object.keys(d ?? {}).join(", ") || "nenhum"}). ` +
@@ -39,12 +26,8 @@ export async function getDashboardData(filtros = {}) {
     ],
     visits: d.acessos.porDia.map(({ dia, acessos }) => ({ date: dia, value: acessos })),
     topProperties: d.imoveis.maisProcurados.map((i) => ({
-      id: i.id,
-      title: i.nome,
-      city: i.cidade,
-      state: i.uf,
-      views: i.visualizacoes,
-      imageUrl: i.capaUrl ?? undefined,
+      id: i.id, title: i.nome, city: i.cidade, state: i.uf,
+      views: i.visualizacoes, imageUrl: i.capaUrl ?? undefined,
     })),
     bookings: d.agendamentos.porDia.map(({ dia, total }) => ({ date: dia, value: total })),
     bookingsTotal: d.agendamentos.total,
@@ -57,11 +40,8 @@ export async function getDashboardData(filtros = {}) {
     },
     locations: [],
     recentLeads: d.leads.recentes.map((l) => ({
-      id: l.id,
-      name: l.nome,
-      property: l.empreendimento ?? "—",
-      createdAt: l.criadoEm,
-      status: STATUS_DO_LEAD[l.status] ?? "novo",
+      id: l.id, name: l.nome, property: l.empreendimento ?? "—",
+      createdAt: l.criadoEm, status: STATUS_DO_LEAD[l.status] ?? "novo",
     })),
     platform: [
       { id: "visits", label: "Acessos no site", delta: d.acessos.variacao },

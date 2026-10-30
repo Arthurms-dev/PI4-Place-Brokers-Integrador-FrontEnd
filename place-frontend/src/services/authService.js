@@ -1,6 +1,6 @@
 import { setToken, clearToken } from "@/lib/authToken";
+import { apiRequest, API_URL } from "@/lib/apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class AuthError extends Error {
@@ -12,46 +12,21 @@ export class AuthError extends Error {
   }
 }
 
-
-async function post(
-  path,
-  body,
-  { fetchImpl = fetch, baseUrl = BASE_URL } = {}
-) {
-  let response;
-
+/** Usa o mesmo cliente HTTP que os outros serviços e mantém injeção de fetch para testes.
+ * Rotas de login/registro são públicas e NUNCA recebem bearer existente. */
+async function post(path, body, { fetchImpl = fetch, baseUrl = API_URL } = {}) {
   try {
-    response = await fetchImpl(`${baseUrl}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+    return await apiRequest(path, {
+      method: "POST", body, auth: false, fetchImpl, baseUrl,
     });
-  } catch {
-    throw new AuthError(
-      "NETWORK_ERROR",
-      "Não foi possível conectar ao servidor. Tente novamente."
-    );
+  } catch (error) {
+    if (error.status == null) {
+      throw new AuthError("NETWORK_ERROR", "Não foi possível conectar ao servidor. Tente novamente.");
+    }
+    const code = error.code ?? (error.status === 401 ? "INVALID_CREDENTIALS" : "SERVER_ERROR");
+    throw new AuthError(code, error.message ?? "Erro ao processar a solicitação.", error.fieldErrors ?? {});
   }
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const code =
-      data.code ??
-      (response.status === 401
-        ? "INVALID_CREDENTIALS"
-        : "SERVER_ERROR");
-
-    throw new AuthError(
-      code,
-      data.message ?? "Erro ao processar a solicitação.",
-      data.fieldErrors ?? {}
-    );
-  }
-
-  return data;
 }
-
 
 export class AuthService {
   validateLogin({ email, password } = {}) {
@@ -62,14 +37,13 @@ export class AuthService {
     else if (password.length < 6) errors.password = "A senha deve ter pelo menos 6 caracteres.";
     return errors;
   }
-  
-  constructor({ fetchImpl = fetch, baseUrl = BASE_URL } = {}) {
+
+  constructor({ fetchImpl = fetch, baseUrl = API_URL } = {}) {
     this.fetchImpl = fetchImpl;
     this.baseUrl = baseUrl;
   }
 
-
-  /** @returns {Promise<{ user: { id, nome, email, role }, token: string }>} */
+  /** @returns {Promise<{ user: { id: string, nome: string, email: string, role: string }, token: string }>} */
   async login(credentials) {
     const fieldErrors = this.validateLogin(credentials);
     if (Object.keys(fieldErrors).length) {
@@ -80,13 +54,13 @@ export class AuthService {
     return result;
   }
 
-  /** @param {{ name?, email?, password?, confirmPassword?, role?, vinculo?, creci? }} payload */
+  /** @param {{ name?: string, email?: string, password?: string, confirmPassword?: string,
+   * role?: string, vinculo?: string, creci?: string, uf?: string, construtoraId?: string }} payload */
   validateRegister({ name, email, password, confirmPassword, role, vinculo, creci, uf, construtoraId } = {}) {
     const errors = this.validateLogin({ email, password });
     if (!name?.trim()) errors.name = "Informe o nome completo.";
     if (confirmPassword !== password) errors.confirmPassword = "As senhas não coincidem.";
     if (!role) errors.role = "Selecione um perfil.";
-
     if (role === "CORRETOR") {
       if (!vinculo) errors.vinculo = "Informe se é corretor da Place ou parceiro externo.";
       if (vinculo === "externo" && !creci?.trim()) errors.creci = "CRECI é obrigatório para corretores externos.";
@@ -101,21 +75,20 @@ export class AuthService {
     if (Object.keys(fieldErrors).length) {
       throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", fieldErrors);
     }
-  return post("/auth/register", {
-    nome: payload.name.trim(),
-    email: payload.email.trim().toLowerCase(),
-    password: payload.password,
-    confirmPassword: payload.confirmPassword,
-    role: payload.role.toLowerCase(),
-    vinculo: payload.vinculo ?? null,
-    creci: payload.creci?.trim() || null,
-    uf: payload.uf || null,
-    construtoraId:
-    payload.role === "VIABILIZADOR" ? payload.construtoraId : null,
-  }, this);
+    return post("/auth/register", {
+      nome: payload.name.trim(),
+      email: payload.email.trim().toLowerCase(),
+      password: payload.password,
+      confirmPassword: payload.confirmPassword,
+      role: payload.role.toLowerCase(),
+      vinculo: payload.vinculo ?? null,
+      creci: payload.creci?.trim() || null,
+      uf: payload.uf || null,
+      construtoraId: payload.role === "VIABILIZADOR" ? payload.construtoraId : null,
+    }, this);
   }
 
-  /** "Esqueci minha senha": a API sempre responde a mesma mensagem. */
+  /** Não revela se o email informado existe na base. */
   async esqueciSenha(email) {
     const limpo = String(email ?? "").trim().toLowerCase();
     if (!limpo) throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", { email: "Informe o e-mail." });
@@ -130,7 +103,6 @@ export class AuthService {
     return errors;
   }
 
-  /** Cria a senha nova com o token que veio no link do e-mail. */
   async redefinirSenha({ token, novaSenha, confirmarSenha }) {
     const fieldErrors = this.validateNovaSenha({ novaSenha, confirmarSenha });
     if (Object.keys(fieldErrors).length) {
@@ -139,9 +111,7 @@ export class AuthService {
     return post("/auth/redefinir-senha", { token, novaSenha, confirmarSenha }, this);
   }
 
-  logout() {
-    clearToken();
-  }
+  logout() { clearToken(); }
 }
 
-export const authService = new AuthService();
+export const authService = new AuthService();

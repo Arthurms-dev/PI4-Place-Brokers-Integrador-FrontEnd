@@ -1,9 +1,6 @@
-import { getToken } from "@/lib/authToken";
 import { api } from "@/lib/apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 const CHAVE_SESSAO = "placebrokers_sessao";
-
 function obterSessaoId() {
   try {
     let id = localStorage.getItem(CHAVE_SESSAO);
@@ -17,20 +14,11 @@ function obterSessaoId() {
   }
 }
 
-/**
- * @param {{ tipo: "visualizacao_site"|"visualizacao_empreendimento"|"busca"|"contato", empreendimentoId?: string }} evento
- */
+/** Registro de métricas é intencionalmente best-effort. */
 export function registrarEvento({ tipo, empreendimentoId } = {}) {
   const sessaoId = obterSessaoId();
   if (!sessaoId) return;
-
-  const token = getToken();
-  fetch(`${BASE_URL}/metricas/eventos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify({ tipo, empreendimentoId, sessaoId }),
-    keepalive: true,
-  }).catch(() => {});
+  api.post("/metricas/eventos", { tipo, empreendimentoId, sessaoId }, { auth: false, keepalive: true }).catch(() => {});
 }
-/** Últimos empreendimentos que o usuário logado abriu: [{ empreendimentoId, acessadoEm }]. */
+/** Últimos empreendimentos que o usuário logado abriu. */
 export const listarMeusAcessos = async () => (await api.get("/metricas/meus-acessos")).acessos ?? [];

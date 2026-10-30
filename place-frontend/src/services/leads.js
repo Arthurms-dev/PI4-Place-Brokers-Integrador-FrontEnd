@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/apiClient";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TELEFONE_REGEX = /^\D*\d{10,11}\D*$/;
@@ -11,9 +11,7 @@ export function validarLead({ nome, email, telefone } = {}) {
   return erros;
 }
 
-/**
- * @param {{ nome: string, email: string, telefone: string, empreendimentoId?: string, mensagem?: string }} dados
- */
+/** Envia leads para a API, não diretamente ao Supabase (regras e roleta vivem no back). */
 export async function criarLead({ nome, email, telefone, empreendimentoId, mensagem }) {
   const erros = validarLead({ nome, email, telefone });
   if (Object.keys(erros).length) {
@@ -21,15 +19,11 @@ export async function criarLead({ nome, email, telefone, empreendimentoId, mensa
     err.fieldErrors = erros;
     throw err;
   }
-
-  const { error } = await supabase.from("leads").insert({
+  await api.post("/leads", {
     nome: nome.trim(),
     email: email.trim().toLowerCase(),
     telefone: telefone.trim(),
-    empreendimento_id: empreendimentoId ?? null,
+    empreendimentoId: empreendimentoId ?? null,
     mensagem: mensagem?.trim() || null,
-    origem: "site",
-  });
-
-  if (error) throw new Error("Não foi possível enviar seus dados. Tente novamente.");
+  }, { auth: false });
 }

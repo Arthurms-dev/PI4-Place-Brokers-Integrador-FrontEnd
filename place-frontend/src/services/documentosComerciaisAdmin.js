@@ -1,33 +1,18 @@
 import { getToken } from "@/lib/authToken";
+import { api } from "@/lib/apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
-
-async function requisitar(url, metodo = "GET", dados = undefined) {
-  const token = getToken();
-  if (!token) throw new Error("Faça login como administrador.");
-  const response = await fetch(`${BASE_URL}${url}`, {
-    method: metodo,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(dados === undefined ? {} : { "Content-Type": "application/json" }),
-    },
-    ...(dados === undefined ? {} : { body: JSON.stringify(dados) }),
-  });
-  const resultado = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw Object.assign(new Error(resultado.message ?? "Falha ao gerenciar documento."), {
-      fieldErrors: resultado.fieldErrors ?? {},
-    });
-  }
-  return resultado;
+function garantirAdmin() {
+  if (!getToken()) throw new Error("Faça login como administrador.");
 }
-
 export function listarDocumentosAdmin(empreendimentoId) {
-  return requisitar(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin`);
+  garantirAdmin();
+  return api.get(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin`);
 }
 export function criarDocumentoAdmin(empreendimentoId, dados) {
-  return requisitar(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin`, "POST", dados);
+  garantirAdmin();
+  return api.post(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin`, dados);
 }
 export function atualizarDocumentoAdmin(empreendimentoId, docId, dados) {
-  return requisitar(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin/${encodeURIComponent(docId)}`, "PATCH", dados);
+  garantirAdmin();
+  return api.patch(`/empreendimentos/${encodeURIComponent(empreendimentoId)}/documentos/admin/${encodeURIComponent(docId)}`, dados);
 }

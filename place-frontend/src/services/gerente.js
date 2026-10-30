@@ -1,27 +1,9 @@
-import { getToken } from "@/lib/authToken";
+import { api } from "@/lib/apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
-
-async function req(path) {
-  const res = await fetch(`${BASE_URL}${path}`, { headers: { Authorization: `Bearer ${getToken()}` } });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message ?? "Não foi possível carregar os dados da equipe.");
-  return data;
-}
-
-export const getEquipe = () => req("/gerente/equipe");
-export const getLeadsEquipe = async () => (await req("/gerente/leads")).leads;
-export const getAgendaEquipe = async () => (await req("/gerente/agendamentos")).agendamentos;
-
-export async function reatribuirLead(id, corretorId) {
-  const res = await fetch(`${BASE_URL}/gerente/leads/${id}/corretor`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-    body: JSON.stringify({ corretorId }),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message ?? "Não foi possível reatribuir o lead.");
-  return data.lead;
-}
-/** Leads parados (15 min sem ligação/WhatsApp) e números de atendimento dos últimos 30 dias. */
-export const getDesempenho = () => req("/gerente/desempenho");
+export const getEquipe = () => api.get("/gerente/equipe");
+export const getLeadsEquipe = async () => (await api.get("/gerente/leads")).leads;
+export const getAgendaEquipe = async () => (await api.get("/gerente/agendamentos")).agendamentos;
+export const reatribuirLead = async (id, corretorId) =>
+  (await api.patch(`/gerente/leads/${id}/corretor`, { corretorId })).lead;
+/** Leads parados e desempenho de atendimento nos últimos 30 dias. */
+export const getDesempenho = () => api.get("/gerente/desempenho");
