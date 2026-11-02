@@ -4,7 +4,7 @@ import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PERFIL_INSTAGRAM, linkDoVideo } from "@/lib/provaSocial";
-import fotoDoTime from "@/assets/instagram/time-meta-do-mes.webp";
+import fotoDoTime from "@/assets/instagram/time-place.webp";
 
 const PILARES = [
   ["messageCircle", "Atendimento especializado", "Cada cliente fala com um corretor que conhece o imóvel a fundo."],
@@ -25,11 +25,11 @@ export default function SobrePage() {
         </p>
       </Reveal>
 
-      <div className="mt-12 grid items-center gap-8 md:grid-cols-[minmax(0,300px)_1fr]">
+      <div className="mt-12 grid items-center gap-8 md:grid-cols-[minmax(0,420px)_1fr]">
         <Reveal>
-          <figure className="mx-auto w-full max-w-[300px]">
+          <figure className="mx-auto w-full max-w-[420px]">
             <a href={linkDoVideo("DexRVXBBuDj")} target="_blank" rel="noreferrer" aria-label="Ver o vídeo do time no Instagram" className="block overflow-hidden rounded-3xl border border-line">
-              <img src={fotoDoTime} alt="Corretores da Place Brokers reunidos em frente ao escritório" width="360" height="640" loading="lazy" decoding="async" className="aspect-9/16 w-full object-cover" />
+              <img src={fotoDoTime} alt="Corretores da Place Brokers reunidos em frente ao escritório" width="752" height="660" loading="lazy" decoding="async" className="h-auto w-full" />
             </a>
             <figcaption className="mt-2 text-center text-[12px] text-ink-3">Parte do time da Place, no nosso Instagram.</figcaption>
           </figure>
