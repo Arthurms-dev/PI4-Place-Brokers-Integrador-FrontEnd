@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { NUMEROS_DA_PLACE, PERFIL_INSTAGRAM, PREMIACOES, SONHOS_REALIZADOS, VIDEOS_DO_INSTAGRAM, linkDoVideo } from "./provaSocial";
+import { DIA_A_DIA, NUMEROS_DA_PLACE, PREMIACOES, SONHOS_REALIZADOS, linkDoVideo } from "./provaSocial";
 
 describe("prova social", () => {
   it("o link do vídeo ou post é sempre do perfil da Place", () => {
     expect(linkDoVideo("DexRVXBBuDj")).toBe("https://www.instagram.com/placebrokers.imobiliaria/reel/DexRVXBBuDj/");
     expect(linkDoVideo("DJWziNouGLH", "p")).toBe("https://www.instagram.com/placebrokers.imobiliaria/p/DJWziNouGLH/");
-    for (const v of VIDEOS_DO_INSTAGRAM) expect(linkDoVideo(v.id).startsWith(PERFIL_INSTAGRAM.url)).toBe(true);
   });
 
   it("recusa código de post estranho (evita link para outro site)", () => {
@@ -14,10 +13,10 @@ describe("prova social", () => {
   });
 
   it("listas sem repetição e com texto (vira o nome acessível)", () => {
-    for (const lista of [VIDEOS_DO_INSTAGRAM, PREMIACOES, SONHOS_REALIZADOS]) {
+    for (const lista of [DIA_A_DIA, PREMIACOES, SONHOS_REALIZADOS]) {
       expect(new Set(lista.map((x) => x.id)).size).toBe(lista.length);
     }
-    for (const v of VIDEOS_DO_INSTAGRAM) expect(v.legenda.length > 5).toBe(true);
+    for (const v of [...DIA_A_DIA, ...SONHOS_REALIZADOS]) expect(v.legenda.length > 5).toBe(true);
     for (const p of PREMIACOES) expect(Boolean(p.construtora && p.titulo && p.quando)).toBe(true);
   });
 

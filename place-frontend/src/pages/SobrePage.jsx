@@ -1,9 +1,9 @@
 import { useContato } from "@/components/site/ContatoProvider";
-import { NumerosDaPlace, Premiacoes, VideosDoTime } from "@/components/site/home/ProvaSocial";
+import { DiaADia, NumerosDaPlace, Premiacoes } from "@/components/site/home/ProvaSocial";
 import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { PERFIL_INSTAGRAM, linkDoVideo } from "@/lib/provaSocial";
+import { PERFIL_INSTAGRAM } from "@/lib/provaSocial";
 import fotoDoTime from "@/assets/instagram/time-place.webp";
 
 const PILARES = [
@@ -35,10 +35,10 @@ export default function SobrePage() {
         <Reveal>
           <figure className="relative mx-auto w-full max-w-[300px]">
             <div className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-gold/15 blur-3xl" aria-hidden="true" />
-            <a href={linkDoVideo("DexRVXBBuDj")} target="_blank" rel="noreferrer" aria-label="Ver o vídeo do time no Instagram" className="group block overflow-hidden rounded-3xl border border-line transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-2xl">
-              <img src={fotoDoTime} alt="Corretores da Place Brokers reunidos em frente ao escritório" width="540" height="720" loading="lazy" decoding="async" className="animate-kenburns aspect-3/4 w-full object-cover" />
+            <a href={PERFIL_INSTAGRAM.url} target="_blank" rel="noreferrer" aria-label="Ver o time no Instagram da Place" className="group block overflow-hidden rounded-3xl border border-line transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-2xl">
+              <img src={fotoDoTime} alt="Time da Place Brokers reunido no escritório" width="600" height="800" loading="lazy" decoding="async" className="animate-kenburns aspect-3/4 w-full object-cover" />
             </a>
-            <figcaption className="mt-2 text-center text-[12px] text-ink-3">Parte do time da Place, no nosso Instagram.</figcaption>
+            <figcaption className="mt-2 text-center text-[12px] text-ink-3">O time da Place no escritório.</figcaption>
           </figure>
         </Reveal>
         <Reveal atraso={100}>
@@ -57,7 +57,7 @@ export default function SobrePage() {
 
       <section className="mt-14" aria-labelledby="titulo-dia-a-dia">
         <h2 id="titulo-dia-a-dia" className="mb-4 text-xl font-semibold sm:text-2xl">O time no dia a dia</h2>
-        <VideosDoTime />
+        <DiaADia />
       </section>
 
       <div className="mt-14 grid gap-4 sm:grid-cols-3">
