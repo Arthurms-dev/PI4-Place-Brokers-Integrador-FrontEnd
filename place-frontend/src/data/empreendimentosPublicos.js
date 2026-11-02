@@ -92,6 +92,8 @@ export function normalizarApi(empreendimento) {
     bairro: empreendimento.bairro && empreendimento.bairro !== "A confirmar" ? empreendimento.bairro : "",
     city: `${empreendimento.cidade}, ${empreendimento.uf}`,
     image: empreendimento.capa_url ?? null,
+    // Miniatura de 640 px para os cards (a foto grande fica para o destaque e a galeria).
+    miniatura: empreendimento.capa_miniatura_url ?? null,
     galeria,
     quartosMax,
     quartosTexto,
@@ -209,4 +211,4 @@ export function useEmpreendimentosPublicos() {
   }, []);
 
   return estado;
-}
+}

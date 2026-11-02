@@ -260,7 +260,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
           <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
             {[["ativos", "Ativos"], ...Object.entries(STATUS).map(([k, v]) => [k, v.label]), ["", "Todos"]].map(([k, rotulo]) => (
               <button key={k} type="button" onClick={() => setFiltro(k)} aria-pressed={filtro === k}
-                className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${filtro === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+                className={`min-h-11 shrink-0 rounded-full border px-4 text-[13px] ${filtro === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
                 {rotulo} <span className="text-ink-3">{contagem(k)}</span>
               </button>
             ))}

@@ -239,9 +239,15 @@ function Compromisso({ ag, aberto, onAbrir, onStatus, onRemarcar, ocupado }) {
 
           <div className="flex flex-wrap gap-2">
             {ag.cliente?.telefone && (
-              <a href={zap(ag.cliente.telefone, ag.cliente.nome)} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#25D366] px-4 text-[13px] font-semibold text-[#06210f]">
-                <Icon name="messageCircle" className="size-4.5" /> WhatsApp
-              </a>
+              <>
+                {/* Na rua o corretor liga primeiro; o WhatsApp é para quando o cliente não atende. */}
+                <a href={`tel:+55${String(ag.cliente.telefone).replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "")}`} className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408]">
+                  <Icon name="phone" className="size-4.5" /> Ligar
+                </a>
+                <a href={zap(ag.cliente.telefone, ag.cliente.nome)} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#25D366] px-4 text-[13px] font-semibold text-[#06210f]">
+                  <Icon name="messageCircle" className="size-4.5" /> WhatsApp
+                </a>
+              </>
             )}
             {!encerrado && (
               <>

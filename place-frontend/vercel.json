@@ -1,4 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
+  "functions": {
+    "api/*.js": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    {
+      "source": "/imoveis/:id",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i).*(whatsapp|facebookexternalhit|facebot|instagram|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|pinterest|skypeuripreview).*" }],
+      "destination": "/api/previa?id=:id"
+    },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/robots.txt", "destination": "/api/robots" },
+    { "source": "/((?!assets/|api/).*)", "destination": "/index.html" }
+  ]
 }

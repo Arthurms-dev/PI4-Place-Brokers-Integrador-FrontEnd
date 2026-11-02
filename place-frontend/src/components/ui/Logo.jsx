@@ -1,4 +1,4 @@
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 import { cn } from "@/lib/cn";
 
 export function Logo({ className = "h-10", ...props }) {

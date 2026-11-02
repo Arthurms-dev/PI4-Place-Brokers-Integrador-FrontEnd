@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
 import { liberarAcesso } from "@/lib/catalogoHome";
@@ -39,7 +40,7 @@ function Campo({ rotulo, erro, children }) {
  * @param aoVoltar
  */
 export default function FormularioContato({ empreendimento = null, opcoes = [], autoFoco = false, aoVoltar, aoEnviar, canal = "", textoBotao = "Quero falar com um especialista" }) {
-  const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "" });
+  const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "", aceite: false, novidades: false });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -60,6 +61,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
     const fone = normalizarTelefone(f.telefone);
     if (!fone.ok) e.telefone = fone.erro;
     if (!EMAIL_REGEX.test(f.email.trim())) e.email = "Informe um e-mail válido.";
+    if (!f.aceite) e.aceite = "Para continuar, autorize o contato.";
     setErros(e);
     setErroGeral("");
     if (Object.keys(e).length) return;
@@ -73,6 +75,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         empreendimento: escolhido ? { id: escolhido.id, title: escolhido.title } : null,
         website: f.website,
         canal,
+        consentimento: { novidades: f.novidades },
       });
       registrarEvento({ tipo: "contato" });
       liberarAcesso();
@@ -134,11 +137,28 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         </label>
       </div>
 
+      <div className="space-y-2 pt-1">
+        <label className="flex items-start gap-2.5 text-[12px] leading-snug text-ink-2">
+          <input type="checkbox" checked={f.aceite} onChange={(e) => setF((s) => ({ ...s, aceite: e.target.checked }))}
+            aria-invalid={Boolean(erros.aceite)} className="mt-0.5 size-4.5 shrink-0 accent-[#c9a54c]" />
+          <span>
+            Autorizo a Place Brokers a usar meus dados para falar comigo sobre imóveis, conforme a{" "}
+            <Link to="/privacidade" target="_blank" className="text-gold underline">política de privacidade</Link>.
+          </span>
+        </label>
+        {erros.aceite && <span className="block text-[11px] text-danger">{erros.aceite}</span>}
+        <label className="flex items-start gap-2.5 text-[12px] leading-snug text-ink-2">
+          <input type="checkbox" checked={f.novidades} onChange={(e) => setF((s) => ({ ...s, novidades: e.target.checked }))}
+            className="mt-0.5 size-4.5 shrink-0 accent-[#c9a54c]" />
+          <span>Quero receber avisos de lançamentos com o meu perfil (opcional).</span>
+        </label>
+      </div>
+
       {erroGeral && <p role="alert" className="text-xs text-danger">{erroGeral}</p>}
       <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">
         {enviando ? "Enviando..." : textoBotao}
       </button>
-      <p className="text-center text-[11px] text-ink-3">Seus dados são usados só para o contato sobre o empreendimento.</p>
+      <p className="text-center text-[11px] text-ink-3">Você pode pedir para apagar seus dados quando quiser.</p>
     </form>
   );
 }

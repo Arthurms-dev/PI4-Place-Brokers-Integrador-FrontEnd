@@ -3,21 +3,15 @@ import { Meter } from "@/components/admin/dashboard/charts";
 import { Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { getAgendamentos } from "@/services/admin/agendamentos";
-import { getToken } from "@/lib/authToken";
+import { getLeads } from "@/services/admin/leads";
 import { listarVendas } from "@/services/vendas";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const PERIODOS = [[7, "7 dias"], [30, "30 dias"], [90, "90 dias"], [0, "Tudo"]];
 const FUNIL = [["novo", "Novos"], ["em_atendimento", "Em atendimento"], ["convertido", "Convertidos"], ["perdido", "Perdidos"]];
 const AGENDA = [["agendado", "Agendados"], ["confirmado", "Confirmados"], ["realizado", "Realizados"], ["nao_compareceu", "Não compareceram"], ["cancelado", "Cancelados"]];
 
-async function listarLeadsAdmin() {
-  const res = await fetch(`${BASE_URL}/leads`, { headers: { Authorization: `Bearer ${getToken()}` } });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error?.message ?? data.message ?? "Falha ao carregar leads");
-  return data.leads ?? data;
-}
+const listarLeadsAdmin = async () => (await getLeads()) ?? [];
 
 function Contagem({ valor, formato = (n) => Math.round(n) }) {
   const [v, setV] = useState(0);

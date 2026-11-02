@@ -2,7 +2,7 @@ import { Icon } from "@/components/ui/Icon";
 
 export function Foto({ p, className = "" }) {
   return p.image ? (
-    <img src={p.image} alt={p.title} loading="lazy" decoding="async" className={className} />
+    <img src={p.miniatura || p.image} alt={p.title} loading="lazy" decoding="async" className={className} />
   ) : (
     <div
       className={`relative grid place-items-center overflow-hidden bg-card-2 ${className}`}

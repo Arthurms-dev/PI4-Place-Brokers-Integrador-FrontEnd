@@ -32,7 +32,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher }) {
               >
                 <span className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-[#eef3f8]">
                   {segmento.capa?.image ? (
-                    <img src={segmento.capa.image} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={segmento.capa.miniatura || segmento.capa.image} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     <Icon name="building" className="absolute inset-0 m-auto size-7 text-[#b07a35]" />
                   )}

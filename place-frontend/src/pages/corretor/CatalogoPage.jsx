@@ -10,6 +10,7 @@ import { registrarEvento } from "@/services/eventos";
 import { AbasCatalogo } from "@/components/catalogo/AbasCatalogo";
 import { cn } from "@/lib/cn";
 import { linkGoogleMaps } from "@/lib/localizacao";
+import { linkPublicoDoEmpreendimento, linkWhatsApp, mensagemDoEmpreendimento } from "@/lib/compartilhar";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
@@ -107,6 +108,39 @@ function Fotos({ imagens, titulo }) {
   );
 }
 
+/** Corretor manda o empreendimento para o cliente: link da página pública, sem book nem tabela. */
+function Compartilhar({ emp }) {
+  const [copiado, setCopiado] = useState(false);
+  const link = linkPublicoDoEmpreendimento(emp);
+  const texto = mensagemDoEmpreendimento(emp, { link });
+
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      window.prompt("Copie o link:", link);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[12px] text-ink-3">Mandar para o cliente: vai o link com fotos, valores e mapa (book e tabela ficam para a reunião).</p>
+      <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+        <a href={linkWhatsApp(texto)} target="_blank" rel="noreferrer"
+          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1fa855] px-4 text-sm font-semibold text-white transition hover:brightness-110">
+          <Icon name="messageCircle" className="size-4" /> Enviar pelo WhatsApp
+        </a>
+        <button type="button" onClick={copiar} aria-live="polite"
+          className="flex h-12 items-center justify-center gap-2 rounded-xl border border-line px-4 text-sm font-medium transition-colors hover:border-gold">
+          {copiado ? "Link copiado" : "Copiar link"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Detalhe({ resumo, onClose }) {
   const [emp, setEmp] = useState(resumo);
   const [erroDetalhes, setErroDetalhes] = useState("");
@@ -166,6 +200,8 @@ function Detalhe({ resumo, onClose }) {
 
         <DocumentosCorretor empreendimentoId={emp.id} temBook={emp.tem_book} temTabela={emp.tem_tabela} />
 
+        {emp.publicado && emp.disponivel !== false && <Compartilhar emp={emp} />}
+
         {temMapa && (
           <div className="space-y-3">
             <div className="h-56 overflow-hidden rounded-2xl border border-line">
@@ -204,7 +240,7 @@ function Cartao({ e, indice, onAbrir }) {
       <button type="button" onClick={() => onAbrir(e)}
         className="group flex w-full gap-3 overflow-hidden rounded-2xl border border-line bg-card p-2.5 text-left transition duration-300 hover:border-gold/60 sm:block sm:p-0 sm:hover:-translate-y-1 sm:hover:shadow-xl sm:hover:shadow-black/30">
         <div className="relative aspect-4/3 w-24 shrink-0 overflow-hidden rounded-xl bg-card-2 sm:aspect-16/10 sm:w-full sm:rounded-none">
-          {e.capa_url ? <img src={e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-8" /></div>}
+          {e.capa_url ? <img src={e.capa_miniatura_url || e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-8" /></div>}
           <div className="absolute left-3 top-3 hidden gap-1.5 sm:flex">
             <Fase status={e.status} className="rounded-full bg-page/85 px-2.5 py-1 text-[11px] font-medium text-ink backdrop-blur" />
             {!e.publicado && <Selo tom="neutro">Rascunho</Selo>}
@@ -305,12 +341,12 @@ export default function CatalogoPage({ modo = "catalogo" }) {
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
           {[["", "Todos", lista.length], ...segmentos].map(([k, rotulo, n]) => (
             <button key={k || "todos"} type="button" onClick={() => setSegmento(k)} aria-pressed={segmento === k}
-              className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${segmento === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-[13px] ${segmento === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
               {rotulo} <span className="text-ink-3">{n}</span>
             </button>
           ))}
           <button type="button" role="switch" aria-checked={soDisponiveis} onClick={() => setSoDisponiveis((v) => !v)}
-            className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${soDisponiveis ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+            className={`min-h-11 shrink-0 rounded-full border px-4 text-[13px] ${soDisponiveis ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
             Só disponíveis
           </button>
         </div>

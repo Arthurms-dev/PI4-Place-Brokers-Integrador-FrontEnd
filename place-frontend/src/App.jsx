@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 
 
 const SobrePage = lazy(() => import("@/pages/SobrePage"));
+const PrivacidadePage = lazy(() => import("@/pages/PrivacidadePage"));
 const ContatoPage = lazy(() => import("@/pages/ContatoPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const AcessoNegadoPage = lazy(() => import("@/pages/AcessoNegadoPage"));
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/imoveis/:id" element={<HomePage />} />
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
+        <Route path="/privacidade" element={<PrivacidadePage />} />
       </Route>
 
       <Route path="/acesso-negado" element={<AcessoNegadoPage />} />

@@ -190,7 +190,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
           <span className="min-w-0 flex-1 select-all font-mono text-[15px] tracking-wide text-ink" title="Segure para copiar">
             {formatarTelefone(lead.telefone)}
           </span>
-          <button type="button" onClick={copiar} className="h-9 shrink-0 rounded-lg border border-line px-3 text-[12px] text-ink-2 hover:border-gold hover:text-ink">
+          <button type="button" onClick={copiar} className="h-11 shrink-0 rounded-lg border border-line px-3.5 text-[13px] text-ink-2 hover:border-gold hover:text-ink">
             {copiado ? "Copiado!" : "Copiar"}
           </button>
         </div>

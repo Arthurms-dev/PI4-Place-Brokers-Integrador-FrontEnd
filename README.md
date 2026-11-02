@@ -53,13 +53,23 @@ export const listarMeusLeads = async () => (await api.get("/leads/meus")).leads;
 
 | Área | Rotas |
 | --- | --- |
-| Público | `/`, `/sobre`, `/contato`, `/login`, `/register`, `/acesso-negado` |
+| Público | `/`, `/imoveis/:id` (janela do empreendimento), `/sobre`, `/contato`, `/privacidade`, `/login`, `/register`, `/esqueci-senha`, `/redefinir-senha`, `/acesso-negado` |
 | Corretor `/corretor` | início, `empreendimentos`, `empreendimentos/:id`, `mapa`, `books`, `clientes/novo`, `leads`, `agenda`, `vendas`, `configuracoes` |
-| Gerente `/gerente` | início, `empreendimentos`, `books`, `equipe`, `leads`, `agendamentos`, `vendas`, `configuracoes` |
-| Admin `/admin` | `painel`, `dashboard`, `imoveis`, `leads`, `clientes`, `agendamentos`, `vendas`, `relatorios`, `equipe`, `configuracoes` |
+| Gerente `/gerente` | início, `empreendimentos`, `books`, `equipe`, `leads`, `agendamentos`, `focos`, `vendas`, `configuracoes` |
+| Admin `/admin` | `painel`, `dashboard`, `imoveis`, `leads`, `clientes`, `agendamentos`, `vendas`, `relatorios`, `equipe`, `roleta`, `focos`, `configuracoes` |
 | Viabilizador | bloqueado no MVP (redireciona para `/acesso-negado`) |
 
 Os menus laterais de corretor, gerente e viabilizador ficam em `src/lib/areas.js`; o do admin em `src/pages/admin/AdminLayout.jsx`. Cada área usa o mesmo `AdminShell` e o `AreaLayout` confere se o cargo do usuário bate com a área.
+
+## SEO, prévia de link e LGPD
+
+- **Google:** cada empreendimento tem endereço próprio (`/imoveis/:id`) e a página troca título, descrição e imagem ao abrir (`src/lib/seo.js`). `/sitemap.xml` e `/robots.txt` são gerados na hora pelas funções da Vercel em `api/` (as áreas internas ficam fora do Google).
+- **WhatsApp, Instagram, Facebook:** o robô dessas redes não roda JavaScript. O `vercel.json` manda só esses robôs para `api/previa.js`, que devolve o nome, o preço e a foto (miniatura) do empreendimento. Gente de verdade recebe o site normal. Enquanto a API estiver no plano gratuito do Render (que "dorme"), a primeira prévia pode sair genérica; depois fica guardada por 1 dia.
+- **Compartilhar pelo corretor:** no catálogo, "Enviar pelo WhatsApp" monta a mensagem com o link público (sem book nem tabela) e "Copiar link" copia só o endereço.
+- **LGPD:** o formulário de contato pede a autorização (obrigatória) e pergunta à parte se a pessoa quer receber lançamentos. As duas respostas e a versão da política vão na mensagem do lead. A política fica em `/privacidade` (`src/pages/PrivacidadePage.jsx`); a Place deve revisar o texto com o jurídico e indicar o encarregado (DPO) antes de ir para o domínio oficial.
+- **Fotos leves:** os cards usam a miniatura de 640 px da capa (`capa_miniatura_url`), gerada pela API no upload. Para as capas antigas, rode uma vez no back: `node scripts/gerar-miniaturas.cjs`.
+
+Variáveis opcionais na Vercel para as funções de `api/`: `API_URL` (padrão: a API do Render) e `SITE_URL` (padrão: o próprio domínio do pedido).
 
 ## Quem fez o quê
 

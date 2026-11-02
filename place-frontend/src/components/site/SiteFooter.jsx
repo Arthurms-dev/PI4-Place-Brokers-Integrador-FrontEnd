@@ -40,6 +40,7 @@ export default function SiteFooter() {
           <Link to="/" className={item}>Lançamentos</Link>
           <Link to="/sobre" className={item}>Sobre nós</Link>
           <Link to="/contato" className={item}>Contato</Link>
+          <Link to="/privacidade" className={item}>Política de privacidade</Link>
         </div>
 
         <div>

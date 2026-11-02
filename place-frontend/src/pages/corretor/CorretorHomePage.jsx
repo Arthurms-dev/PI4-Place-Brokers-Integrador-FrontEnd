@@ -217,7 +217,7 @@ function Thumb({ e, className }) {
   return (
     <div
       className={cn("shrink-0 rounded-lg bg-card-2 bg-cover bg-center", className)}
-      style={e.capa_url ? { backgroundImage: `url(${e.capa_url})` } : undefined}
+      style={e.capa_url ? { backgroundImage: `url(${e.capa_miniatura_url || e.capa_url})` } : undefined}
     />
   );
 }

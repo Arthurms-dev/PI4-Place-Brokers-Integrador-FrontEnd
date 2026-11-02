@@ -12,7 +12,7 @@ import SegmentosVitrine from "@/components/site/home/SegmentosVitrine";
 import "@/styles/home.css";
 
 import { useEmpreendimentosPublicos } from "@/data/empreendimentosPublicos";
-import { usePageTitle } from "@/hooks/usePageTitle";
+import { aplicarMeta, metaPadrao, NOME_SITE } from "@/lib/seo";
 import { FILTROS_VAZIOS, PRAZOS_HOME, SEGMENTOS_HOME, filtrarCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 import { registrarEvento } from "@/services/eventos";
 
@@ -28,7 +28,24 @@ export default function HomePage() {
   const [filtros, setFiltros] = useState(FILTROS_VAZIOS);
 
   const aberto = id ? itens.find((item) => item.id === id) ?? null : null;
-  usePageTitle(aberto ? aberto.title : "Lançamentos imobiliários em Pernambuco");
+
+  // Título e tags de prévia de cada empreendimento (Google lê depois de rodar o JavaScript;
+  // WhatsApp e redes sociais usam a função /api/previa da Vercel).
+  useEffect(() => {
+    const base = window.location.origin;
+    if (!aberto) {
+      aplicarMeta(metaPadrao(base, "/"));
+      return;
+    }
+    const local = [aberto.bairro, aberto.city].filter(Boolean).join(", ");
+    aplicarMeta({
+      titulo: `${aberto.title}${aberto.cidade ? ` — ${aberto.cidade}` : ""} | ${NOME_SITE}`,
+      descricao: [`${aberto.title}${local ? ` em ${local}` : ""}.`, aberto.preco !== "Sob consulta" ? `${aberto.preco}.` : null, aberto.prazo ? `${aberto.prazo}.` : null, "Fotos, localização e atendimento com especialista da Place Brokers."].filter(Boolean).join(" "),
+      imagem: aberto.miniatura || aberto.image || `${base}/icone-512.png`,
+      url: `${base}/imoveis/${aberto.id}`,
+    });
+  }, [aberto]);
+  useEffect(() => () => aplicarMeta(metaPadrao(window.location.origin, "/")), []);
 
   useEffect(() => {
     registrarEvento({ tipo: "visualizacao_site" });
