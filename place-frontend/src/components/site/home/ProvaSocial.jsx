@@ -22,7 +22,7 @@ import maquinaDeVendas from "@/assets/instagram/maquina-de-vendas.webp";
 import papoDeImovel from "@/assets/instagram/papo-de-imovel.webp";
 import pedidoEspecial from "@/assets/instagram/pedido-especial.webp";
 import pertoDoMar from "@/assets/instagram/perto-do-mar.webp";
-import premioBorgAbril2025 from "@/assets/instagram/premio-borg-abril-2025.webp";
+import premioBoraAbril2025 from "@/assets/instagram/premio-bora-abril-2025.webp";
 import premioCarrilhoAbril2025 from "@/assets/instagram/premio-carrilho-abril-2025.webp";
 import premioCarrilhoMelhores2025 from "@/assets/instagram/premio-carrilho-melhores-2025.webp";
 import premioMaxplural2024 from "@/assets/instagram/premio-maxplural-2024.webp";
@@ -42,7 +42,7 @@ const IMAGENS = {
   "papo-de-imovel": papoDeImovel,
   "pedido-especial": pedidoEspecial,
   "perto-do-mar": pertoDoMar,
-  "premio-borg-abril-2025": premioBorgAbril2025,
+  "premio-bora-abril-2025": premioBoraAbril2025,
   "premio-carrilho-abril-2025": premioCarrilhoAbril2025,
   "premio-carrilho-melhores-2025": premioCarrilhoMelhores2025,
   "premio-maxplural-2024": premioMaxplural2024,

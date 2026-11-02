@@ -43,7 +43,7 @@ export const NUMEROS_DA_PLACE = [
 export const PREMIACOES = [
   { id: "carrilho-2025", imagem: "premio-carrilho-melhores-2025", construtora: "Carrilho", titulo: "Imobiliária destaque do ano (3º lugar)", quando: "Melhores do Ano 2025" },
   { id: "carrilho-abril-2025", imagem: "premio-carrilho-abril-2025", construtora: "Carrilho", titulo: "1º lugar em vendas", quando: "Abril de 2025" },
-  { id: "borg-abril-2025", imagem: "premio-borg-abril-2025", construtora: "Borg Incorporadora", titulo: "2º lugar entre as imobiliárias", quando: "Abril de 2025" },
+  { id: "bora-abril-2025", imagem: "premio-bora-abril-2025", construtora: "Bora Incorporadora", titulo: "2º lugar entre as imobiliárias", quando: "Abril de 2025" },
   { id: "maxplural-2024", imagem: "premio-maxplural-2024", construtora: "MaxPlural", titulo: "3º lugar entre as imobiliárias", quando: "Ano de 2024" },
 ];
 
