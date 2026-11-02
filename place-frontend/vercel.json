@@ -1,16 +1,45 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/*.js": { "maxDuration": 60 }
+    "api/*.js": {
+      "maxDuration": 60
+    }
   },
+  "redirects": [
+    {
+      "source": "/imoveis",
+      "destination": "/imoveis/prontos",
+      "permanent": true
+    },
+    {
+      "source": "/fale-conosco",
+      "destination": "/contato",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/imoveis/:id",
-      "has": [{ "type": "header", "key": "user-agent", "value": "(?i).*(whatsapp|facebookexternalhit|facebot|instagram|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|pinterest|skypeuripreview).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(whatsapp|facebookexternalhit|facebot|instagram|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|pinterest|skypeuripreview).*"
+        }
+      ],
       "destination": "/api/previa?id=:id"
     },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/robots.txt", "destination": "/api/robots" },
-    { "source": "/((?!assets/|api/).*)", "destination": "/index.html" }
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/robots"
+    },
+    {
+      "source": "/((?!assets/|api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }

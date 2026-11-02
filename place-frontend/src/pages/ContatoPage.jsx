@@ -11,6 +11,7 @@ export default function ContatoPage() {
   const canais = [
     ["messageCircle", "Como funciona", "Você envia seus dados e um especialista retorna para você", null],
     ["clock", "Horário de atendimento", CONTATO.horario, null],
+    ["mapPin", "Escritório (ver no mapa)", CONTATO.endereco, CONTATO.mapa],
   ];
   return (
     <main className="pb-editorial-page mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">

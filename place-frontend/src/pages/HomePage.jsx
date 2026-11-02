@@ -16,6 +16,8 @@ import { aplicarMeta, metaPadrao, NOME_SITE } from "@/lib/seo";
 import { FILTROS_VAZIOS, PRAZOS_HOME, SEGMENTOS_HOME, filtrarCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 import { registrarEvento } from "@/services/eventos";
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const irPara = (id) =>
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -52,6 +54,12 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    // Endereço antigo do WordPress (/imoveis/casa-em-rua-publica/): leva para os prontos para morar.
+    if (id && !UUID.test(id)) {
+      setFiltros({ ...FILTROS_VAZIOS, tag: "Pronto" });
+      navigate("/", { replace: true, state: { rolar: "lista" } });
+      return;
+    }
     if (id && !carregando && !erro && !aberto) navigate("/", { replace: true });
   }, [id, carregando, erro, aberto, navigate]);
 
@@ -129,7 +137,16 @@ export default function HomePage() {
       <Hero itens={destaques} filtros={filtros} onFiltros={setFiltros} sugestoes={sugestoes} cidades={cidades} onBuscar={buscar} />
 
       <div className="pb-home-clara">
-        <SegmentosVitrine itens={itens} ativo={filtros.segmento} onEscolher={(segmento) => escolherSegmento(segmento, true)} />
+        <SegmentosVitrine
+          itens={itens}
+          ativo={filtros.segmento}
+          onEscolher={(segmento) => escolherSegmento(segmento, true)}
+          prontoAtivo={filtros.tag === "Pronto"}
+          onPronto={() => {
+            setFiltros((atual) => ({ ...atual, tag: atual.tag === "Pronto" ? "" : "Pronto" }));
+            window.setTimeout(() => irPara("lista"), 60);
+          }}
+        />
 
         <ListaEmpreendimentos
           itens={filtrados}

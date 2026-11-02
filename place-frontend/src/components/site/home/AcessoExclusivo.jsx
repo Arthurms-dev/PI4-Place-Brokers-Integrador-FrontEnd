@@ -5,7 +5,7 @@ import Reveal from "../Reveal";
 
 const BENEFICIOS = [
   ["book", "Plantas e implantação", "Veja a distribuição de cada apartamento e do condomínio."],
-  ["list", "Tabela do mês", "Valores e condições atualizados direto da construtora."],
+  ["list", "Valores do mês", "Condições atualizadas da construtora. Prefere resolver tudo online? A gente envia."],
   ["star", "Galeria completa", "Todas as perspectivas e fotos do decorado."],
   ["bell", "Avisos de lançamento", "Saiba antes quando abrir um empreendimento com o seu perfil."],
 ];

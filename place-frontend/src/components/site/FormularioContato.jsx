@@ -40,7 +40,7 @@ function Campo({ rotulo, erro, children }) {
  * @param aoVoltar
  */
 export default function FormularioContato({ empreendimento = null, opcoes = [], autoFoco = false, aoVoltar, aoEnviar, canal = "", textoBotao = "Quero falar com um especialista" }) {
-  const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "", aceite: false, novidades: false });
+  const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "", aceite: false, novidades: false, preferencia: "conversar" });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -76,6 +76,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         website: f.website,
         canal,
         consentimento: { novidades: f.novidades },
+        preferencia: f.preferencia,
       });
       registrarEvento({ tipo: "contato" });
       liberarAcesso();
@@ -136,6 +137,18 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
           <input type="text" name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set("website")} />
         </label>
       </div>
+
+      <fieldset className="space-y-1.5">
+        <legend className="mb-1.5 text-xs text-ink-2">Como prefere seguir?</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {[["conversar", "Conversar com um especialista"], ["online", "Receber os valores e resolver online"]].map(([valor, rotulo]) => (
+            <label key={valor} className={`flex min-h-12 cursor-pointer items-center rounded-xl border px-3 py-2 text-[12px] leading-snug transition-colors ${f.preferencia === valor ? "border-gold bg-gold/10 text-ink" : "border-line text-ink-2"}`}>
+              <input type="radio" name="preferencia" value={valor} checked={f.preferencia === valor} onChange={() => setF((s) => ({ ...s, preferencia: valor }))} className="sr-only" />
+              {rotulo}
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <div className="space-y-2 pt-1">
         <label className="flex items-start gap-2.5 text-[12px] leading-snug text-ink-2">

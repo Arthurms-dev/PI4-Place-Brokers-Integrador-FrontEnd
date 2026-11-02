@@ -7,6 +7,10 @@ export const CONTATO = {
   email: "suporte@placebrokers.com.br",
   instagram: "https://www.instagram.com/placebrokers.imobiliaria/",
   horario: "Segunda a sexta, das 08h às 18h",
+  // Exigência do COFECI (Resolução 1.065/2007, art. 5º): número da imobiliária em toda publicidade.
+  creci: "CRECI 18303-J",
+  endereco: "R. Bruno Veloso, 333A, Boa Viagem, Recife/PE, 51021-280",
+  mapa: "https://maps.app.goo.gl/AwEPzwRm4A9bqAHNA",
 };
 
 function InstagramIcon({ className }) {
@@ -54,10 +58,11 @@ export default function SiteFooter() {
           <button type="button" onClick={() => abrirContato(null, "rodapé")} className="mb-2 mt-1 h-11 rounded-full bg-gold-gradient px-5 text-[13px] font-semibold text-[#1a1408] transition hover:brightness-110">Fale com um especialista</button>
           <a href={`mailto:${CONTATO.email}`} className={`${item} flex items-center gap-2`}><Icon name="mail" className="size-4 text-gold" /> {CONTATO.email}</a>
           <p className={`${item} flex items-center gap-2`}><Icon name="clock" className="size-4 text-gold" /> {CONTATO.horario}</p>
+          <a href={CONTATO.mapa} target="_blank" rel="noreferrer" className={`${item} flex items-start gap-2`}><Icon name="mapPin" className="mt-0.5 size-4 shrink-0 text-gold" /> {CONTATO.endereco}</a>
         </div>
       </div>
       <div className="border-t border-line-soft">
-        <p className="mx-auto max-w-7xl px-4 py-5 text-[12px] text-ink-3 sm:px-6">© 2026 Place Brokers. Todos os direitos reservados. Valores e condições sujeitos a alteração sem aviso prévio.</p>
+        <p className="mx-auto max-w-7xl px-4 py-5 text-[12px] text-ink-3 sm:px-6">© 2026 Place Brokers Negócios Imobiliários · {CONTATO.creci} · {CONTATO.endereco}. Valores e condições sujeitos a alteração sem aviso prévio.</p>
       </div>
     </footer>
   );

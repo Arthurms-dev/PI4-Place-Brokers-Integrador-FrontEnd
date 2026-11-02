@@ -70,6 +70,10 @@ Os menus laterais de corretor, gerente e viabilizador ficam em `src/lib/areas.js
 - **LGPD:** o formulário de contato pede a autorização (obrigatória) e pergunta à parte se a pessoa quer receber lançamentos. As duas respostas e a versão da política vão na mensagem do lead. A política fica em `/privacidade` (`src/pages/PrivacidadePage.jsx`); a Place deve revisar o texto com o jurídico e indicar o encarregado (DPO) antes de ir para o domínio oficial.
 - **Fotos leves:** os cards usam a miniatura de 640 px da capa (`capa_miniatura_url`), gerada pela API no upload. Para as capas antigas, rode uma vez no back: `node scripts/gerar-miniaturas.cjs`.
 
+- **CRECI e endereço:** o rodapé mostra o CRECI 18303-J e o endereço do escritório, como o COFECI exige em toda publicidade (Resolução 1.065/2007). Os dados ficam em `CONTATO`, no `SiteFooter.jsx`.
+- **Pronto para morar:** a home tem uma vitrine própria para os imóveis prontos, onde depois também entram os usados. Os endereços antigos do WordPress (`/imoveis` e `/imoveis/nome-do-imovel/`) caem nessa lista, e `/fale-conosco` vai para `/contato`.
+- **Sessão:** o login devolve um `refreshToken`. Quando o token de 1 hora vence, o `apiClient` renova sozinho em `POST /auth/renovar` e repete o pedido, sem tirar a pessoa da conta.
+
 Variáveis opcionais na Vercel para as funções de `api/`: `API_URL` (padrão: a API do Render) e `SITE_URL` (padrão: o próprio domínio do pedido).
 
 ## Quem fez o quê

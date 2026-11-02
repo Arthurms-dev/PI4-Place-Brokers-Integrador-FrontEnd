@@ -18,7 +18,7 @@ function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
   const itens = [
     fotosOcultas > 0 && `+${fotosOcultas} fotos exclusivas`,
     plantas > 0 ? `${plantas} ${plantas === 1 ? "planta" : "plantas"} e implantação` : "Plantas e implantação",
-    "Tabela de preços do mês",
+    "Valores e condições do mês",
   ].filter(Boolean);
   return (
     <div className="pb-d-bloqueio relative overflow-hidden rounded-2xl border border-[#e9ad5a]/50 p-5 sm:p-6">
@@ -35,7 +35,7 @@ function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
       <button type="button" onClick={onLiberar} className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gold-gradient px-5 text-sm font-extrabold text-[#1a1408] transition hover:brightness-110">
         Liberar acesso gratuito <Icon name="arrowRight" className="size-4" />
       </button>
-      <p className="mt-2 text-[11.5px] text-ink-3">Cadastro rápido. Um especialista envia a tabela atualizada no seu WhatsApp.</p>
+      <p className="mt-2 text-[11.5px] text-ink-3">Cadastro rápido. Um especialista te apresenta os valores do mês do jeito que você preferir: numa conversa ou tudo online.</p>
     </div>
   );
 }

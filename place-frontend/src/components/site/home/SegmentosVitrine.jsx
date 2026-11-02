@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { resumirSegmentos } from "@/lib/catalogoHome";
+import { resumirProntos, resumirSegmentos } from "@/lib/catalogoHome";
 import Reveal from "../Reveal";
 
 /** Atalhos por perfil: quanto custa para entrar e quantos imóveis há em cada um. */
-export default function SegmentosVitrine({ itens, ativo, onEscolher }) {
+export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo = false, onPronto }) {
   const segmentos = useMemo(() => resumirSegmentos(itens), [itens]);
+  const prontos = useMemo(() => resumirProntos(itens), [itens]);
   if (segmentos.length < 2) return null;
 
   return (
@@ -55,6 +56,27 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher }) {
           );
         })}
       </div>
+
+      {prontos && onPronto && (
+        <Reveal className="mt-3">
+          <button
+            type="button"
+            onClick={onPronto}
+            aria-pressed={prontoAtivo}
+            className={`group flex w-full items-center gap-4 rounded-2xl border bg-[#0b203b] p-3 text-left text-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:p-4 ${prontoAtivo ? "border-[#e9ad5a] ring-2 ring-[#e9ad5a]/40" : "border-[#0b203b]"}`}
+          >
+            <span className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-white/10">
+              {prontos.capa?.image && <img src={prontos.capa.miniatura || prontos.capa.image} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-500 group-hover:scale-110" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <strong className="block text-[16px] leading-tight">Pronto para morar</strong>
+              <span className="mt-1 block text-[12.5px] text-white/70">Mude já, sem esperar obra. {prontos.chamadaPreco && <>{prontos.chamadaPreco.rotulo} <b className="text-[#f3c47a]">{prontos.chamadaPreco.valor}</b></>}</span>
+              <span className="mt-0.5 block text-[11px] text-white/55">{prontos.quantidade} {prontos.quantidade === 1 ? "imóvel" : "imóveis"}</span>
+            </span>
+            <Icon name="arrowRight" className="size-4 shrink-0 text-[#f3c47a] transition-transform group-hover:translate-x-1" />
+          </button>
+        </Reveal>
+      )}
     </section>
   );
 }

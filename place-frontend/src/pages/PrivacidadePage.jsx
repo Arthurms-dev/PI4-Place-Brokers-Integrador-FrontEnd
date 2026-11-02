@@ -7,7 +7,7 @@ import { VERSAO_POLITICA } from "@/lib/consentimento";
 // Antes de ir para o domínio oficial, a Place deve revisar com o jurídico e preencher o encarregado (DPO).
 const SECOES = [
   ["Quem somos", [
-    "A Place Brokers é uma imobiliária de lançamentos em Pernambuco. Ela é a controladora dos dados pessoais coletados neste site.",
+    "A Place Brokers Negócios Imobiliários (CRECI 18303-J), com escritório na R. Bruno Veloso, 333A, Boa Viagem, Recife/PE, é a controladora dos dados pessoais coletados neste site.",
   ]],
   ["Quais dados coletamos", [
     "Quando você preenche um formulário: nome, telefone (WhatsApp), e-mail e o empreendimento de interesse.",

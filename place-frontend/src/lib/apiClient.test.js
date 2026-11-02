@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api, apiRequest } from "./apiClient";
 import { getToken } from "@/lib/authToken";
 
-vi.mock("@/lib/authToken", () => ({ getToken: vi.fn() }));
+vi.mock("@/lib/authToken", () => ({ getToken: vi.fn(), getRefreshToken: vi.fn(), setRefreshToken: vi.fn(), setToken: vi.fn(), clearToken: vi.fn() }));
 const resposta = (status, body) => ({
   ok: status >= 200 && status < 300,
   status,

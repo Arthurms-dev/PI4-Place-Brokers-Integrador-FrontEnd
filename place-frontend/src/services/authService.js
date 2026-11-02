@@ -1,4 +1,4 @@
-import { setToken, clearToken } from "@/lib/authToken";
+import { setToken, clearToken, setRefreshToken } from "@/lib/authToken";
 import { apiRequest, API_URL } from "@/lib/apiClient";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -50,7 +50,10 @@ export class AuthService {
       throw new AuthError("VALIDATION_ERROR", "Verifique os campos destacados.", fieldErrors);
     }
     const result = await post("/auth/login", credentials, this);
-    if (result.token) setToken(result.token);
+    if (result.token) {
+      setRefreshToken(result.refreshToken ?? null);
+      setToken(result.token);
+    }
     return result;
   }
 

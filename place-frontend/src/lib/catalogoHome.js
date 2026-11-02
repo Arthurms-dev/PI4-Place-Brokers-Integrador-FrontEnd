@@ -104,6 +104,19 @@ export function resumirSegmentos(itens) {
   }).filter((segmento) => segmento.quantidade > 0);
 }
 
+/** Vitrine "Pronto para morar": hoje são os prontos dos lançamentos; depois entram os usados captados. */
+export function resumirProntos(itens) {
+  const prontos = itens.filter((item) => item.tag === "Pronto");
+  if (!prontos.length) return null;
+  const precos = prontos.map((i) => i.precoMin).filter((v) => v != null);
+  const parcelas = prontos.map((i) => i.parcelaMin).filter((v) => v != null);
+  const capa = prontos.find((i) => i.destaque && i.image) ?? prontos.find((i) => i.image) ?? null;
+  const chamadaPreco = precos.length
+    ? { rotulo: "A partir de", valor: valorCurto(Math.min(...precos)) }
+    : parcelas.length ? { rotulo: "Parcelas a partir de", valor: `${brl(Math.min(...parcelas))}/mês` } : null;
+  return { quantidade: prontos.length, capa, chamadaPreco };
+}
+
 /** Números do topo da home. */
 export function numerosDoCatalogo(itens) {
   const construtoras = new Set(itens.map((i) => i.construtora).filter(Boolean));

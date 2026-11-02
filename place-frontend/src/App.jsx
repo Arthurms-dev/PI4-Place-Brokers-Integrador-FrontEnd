@@ -47,6 +47,8 @@ export default function App() {
       <Route element={<SiteLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/imoveis/:id" element={<HomePage />} />
+        {/* Endereço antigo do WordPress: lista de imóveis vira os prontos para morar */}
+        <Route path="/imoveis" element={<Navigate to="/imoveis/prontos" replace />} />
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
