@@ -517,3 +517,17 @@ select:-webkit-autofill {
   box-shadow: 0 5px 13px rgb(0 0 0 / .1);
 }
 .pb-site :is(button.bg-gold-gradient, a.bg-gold-gradient):hover { filter: brightness(1.06); }
+
+/* Página Sobre: destaque dourado com brilho suave no título */
+.pb-texto-ouro {
+  background: linear-gradient(100deg, #e9ad5a 0%, #f6d7a3 40%, #c98b3f 60%, #e9ad5a 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: pb-brilho 5s ease-in-out infinite alternate;
+}
+@keyframes pb-brilho { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@media (prefers-reduced-motion: reduce) {
+  .pb-texto-ouro, .pb-editorial-page .animate-kenburns { animation: none; }
+}

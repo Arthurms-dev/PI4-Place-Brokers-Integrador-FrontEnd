@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import {
   DEPOIMENTOS,
@@ -68,6 +69,43 @@ function LinkMais({ href, children, tema }) {
   );
 }
 
+const NUMERO = /^(\D*)(\d+(?:,\d+)?)(\D*)$/;
+
+/** Conta de 0 até o valor quando aparece na tela (o texto real fica para leitor de tela e sem JavaScript). */
+function Contador({ valor }) {
+  const ref = useRef(null);
+  const [texto, setTexto] = useState(valor);
+  useEffect(() => {
+    const m = NUMERO.exec(valor);
+    const el = ref.current;
+    const semMovimento = typeof window === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!m || !el || semMovimento || typeof IntersectionObserver === "undefined") return undefined;
+    const alvo = Number(m[2].replace(",", "."));
+    const casas = (m[2].split(",")[1] ?? "").length;
+    let quadro = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const inicio = performance.now();
+      const passo = (agora) => {
+        const p = Math.min(1, (agora - inicio) / 1400);
+        const v = alvo * (1 - (1 - p) ** 3);
+        setTexto(`${m[1]}${v.toFixed(casas).replace(".", ",")}${m[3]}`);
+        if (p < 1) quadro = requestAnimationFrame(passo);
+      };
+      quadro = requestAnimationFrame(passo);
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => { io.disconnect(); cancelAnimationFrame(quadro); };
+  }, [valor]);
+  return (
+    <span ref={ref}>
+      <span aria-hidden="true" className="tabular-nums">{texto}</span>
+      <span className="sr-only">{valor}</span>
+    </span>
+  );
+}
+
 /** Números reais da Place (vendas, nota no Google, Instagram e CRECI). */
 export function NumerosDaPlace({ className = "", tema = "claro" }) {
   const t = temaDe(tema);
@@ -77,7 +115,7 @@ export function NumerosDaPlace({ className = "", tema = "claro" }) {
         const conteudo = (
           <>
             <strong className={`flex items-center gap-1.5 text-[19px] font-extrabold leading-tight tracking-tight sm:text-[22px] ${t.valor}`}>
-              {n.valor}
+              {n.contar ? <Contador valor={n.valor} /> : n.valor}
               {n.estrela && <Icon name="star" className="size-4.5 fill-[#e9ad5a] text-[#e9ad5a]" />}
             </strong>
             <span className={`mt-0.5 block text-[12px] leading-snug ${t.rotulo}`}>{n.rotulo}</span>
@@ -112,8 +150,8 @@ export function Premiacoes({ tema = "claro" }) {
       <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {PREMIACOES.map((p, i) => (
           <li key={p.id} className="h-full">
-            <Reveal atraso={i * 70} className={`h-full overflow-hidden rounded-2xl border ${t.caixa}`}>
-              <img src={IMAGENS[p.imagem]} alt={`Place Brokers premiada pela ${p.construtora}: ${p.titulo} (${p.quando})`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+            <Reveal atraso={i * 70} className={`group h-full overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 hover:shadow-xl ${t.caixa} ${t.hover}`}>
+              <img src={IMAGENS[p.imagem]} alt={`Place Brokers premiada pela ${p.construtora}: ${p.titulo} (${p.quando})`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105" />
               <div className="p-3 sm:p-4">
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#a77537]">{p.construtora}</p>
                 <p className={`mt-1 text-[14px] font-bold leading-snug sm:text-[15px] ${t.titulo}`}>{p.titulo}</p>
