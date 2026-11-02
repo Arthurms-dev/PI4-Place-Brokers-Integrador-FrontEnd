@@ -1,5 +1,5 @@
 import { useContato } from "@/components/site/ContatoProvider";
-import { NumerosDaPlace } from "@/components/site/home/ProvaSocial";
+import { NumerosDaPlace, Premiacoes, VideosDoTime } from "@/components/site/home/ProvaSocial";
 import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -43,6 +43,15 @@ export default function SobrePage() {
           </a>
         </Reveal>
       </div>
+
+      <section className="mt-14" aria-label="Prêmios da Place">
+        <Premiacoes tema="escuro" />
+      </section>
+
+      <section className="mt-14" aria-labelledby="titulo-dia-a-dia">
+        <h2 id="titulo-dia-a-dia" className="mb-4 text-xl font-semibold sm:text-2xl">O time no dia a dia</h2>
+        <VideosDoTime />
+      </section>
 
       <div className="mt-14 grid gap-4 sm:grid-cols-3">
         {PILARES.map(([icone, titulo, texto], i) => (
