@@ -14,11 +14,13 @@ function obterSessaoId() {
   }
 }
 
-/** Registro de métricas é intencionalmente best-effort. */
+/** Registro de métricas é intencionalmente best-effort.
+ * Manda o token quando há alguém logado: é assim que o back sabe quais empreendimentos
+ * o corretor abriu ("Abertos recentemente" no Início). Visitante anônimo vai sem token. */
 export function registrarEvento({ tipo, empreendimentoId } = {}) {
   const sessaoId = obterSessaoId();
   if (!sessaoId) return;
-  api.post("/metricas/eventos", { tipo, empreendimentoId, sessaoId }, { auth: false, keepalive: true }).catch(() => {});
+  api.post("/metricas/eventos", { tipo, empreendimentoId, sessaoId }, { keepalive: true }).catch(() => {});
 }
 /** Últimos empreendimentos que o usuário logado abriu. */
 export const listarMeusAcessos = async () => (await api.get("/metricas/meus-acessos")).acessos ?? [];
