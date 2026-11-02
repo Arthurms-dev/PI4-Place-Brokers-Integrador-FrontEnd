@@ -15,6 +15,17 @@ describe("enviarLead (LGPD)", () => {
     expect(corpo.mensagem).toContain("Quer receber avisos de lançamentos");
   });
 
+  it("pedido de pronto/usado leva o que o cliente procura e não manda empreendimentoId", async () => {
+    await enviarLead({
+      nome: "Ana", email: "ana@x.com", telefone: "81999998888",
+      empreendimento: { id: "prontos-e-usados", title: "Imóvel pronto ou usado" },
+      canal: "prontos e usados", detalhes: "3 quartos em Boa Viagem", consentimento: { novidades: false },
+    });
+    const corpo = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(corpo.mensagem).toMatch(/^Interesse em: Imóvel pronto ou usado — via prontos e usados\nProcura: 3 quartos em Boa Viagem/);
+    expect(corpo.empreendimentoId).toBeUndefined();
+  });
+
   it("sem marcar avisos, deixa claro que não quer", async () => {
     await enviarLead({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", consentimento: { novidades: false } });
     expect(JSON.parse(fetch.mock.calls[0][1].body).mensagem).toContain("Não quer avisos de lançamentos");

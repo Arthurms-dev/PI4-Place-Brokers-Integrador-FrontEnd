@@ -8,12 +8,14 @@ import ComoFunciona from "@/components/site/home/ComoFunciona";
 import FaixaCTA from "@/components/site/home/FaixaCTA";
 import Hero from "@/components/site/home/Hero";
 import ListaEmpreendimentos from "@/components/site/home/ListaEmpreendimentos";
+import ProvaSocial from "@/components/site/home/ProvaSocial";
 import SegmentosVitrine from "@/components/site/home/SegmentosVitrine";
 import "@/styles/home.css";
 
 import { useEmpreendimentosPublicos } from "@/data/empreendimentosPublicos";
 import { aplicarMeta, metaPadrao, NOME_SITE } from "@/lib/seo";
 import { FILTROS_VAZIOS, PRAZOS_HOME, SEGMENTOS_HOME, filtrarCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
+import { BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS } from "@/lib/prontosEUsados";
 import { registrarEvento } from "@/services/eventos";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -75,6 +77,8 @@ export default function HomePage() {
     (item, canal = "home") => abrirContato(item ? { id: item.id, title: item.title } : null, canal),
     [abrirContato]
   );
+
+  const pedirUsado = useCallback(() => abrirContato(BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS), [abrirContato]);
 
   const buscar = useCallback((novos) => {
     if (novos) setFiltros(novos);
@@ -146,6 +150,7 @@ export default function HomePage() {
             setFiltros((atual) => ({ ...atual, tag: atual.tag === "Pronto" ? "" : "Pronto" }));
             window.setTimeout(() => irPara("lista"), 60);
           }}
+          onBuscarUsado={pedirUsado}
         />
 
         <ListaEmpreendimentos
@@ -162,10 +167,22 @@ export default function HomePage() {
           onFalar={(item) => falar(item, "lista da home")}
         />
 
+        {filtros.tag === "Pronto" && !carregando && (
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-2xl border border-dashed border-[#c99041] bg-[#fff8ee] px-4 py-3 text-center text-[14px] text-[#3b4f68]">
+              Não achou o que queria? Também buscamos usados e prontos com as imobiliárias parceiras.
+              <button type="button" onClick={pedirUsado} className="min-h-11 rounded-full bg-[#0b203b] px-5 text-[13px] font-bold text-white transition hover:bg-[#13315a]">
+                Pedir uma busca
+              </button>
+            </p>
+          </div>
+        )}
+
         <AcessoExclusivo opcoes={itens} />
 
         <Cidades itens={itens} ativa={filtros.texto} onEscolher={(cidade) => buscar({ ...filtros, texto: cidade })} />
         <ComoFunciona />
+        <ProvaSocial />
         <FaixaCTA onFalar={(item) => falar(item, "chamada final da home")} />
       </div>
 

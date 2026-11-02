@@ -32,7 +32,12 @@ function JanelaContato({ inicial, canal, onClose }) {
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold">Fale com um especialista</h2>
-            <p className="mt-1 text-[13px] text-ink-2">Deixe seus dados e um corretor entra em contato.</p>
+            <p className="mt-1 text-[13px] text-ink-2">{inicial?.chamada ?? "Deixe seus dados e um corretor entra em contato."}</p>
+            {inicial?.title && !inicial.chamada && (
+              <p className="mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-[12px] text-gold">
+                <Icon name="building" className="size-3.5" /> <span className="truncate">{inicial.title}</span>
+              </p>
+            )}
           </div>
           <button type="button" onClick={onClose} aria-label="Fechar" className="grid size-11 shrink-0 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-gold hover:text-ink">
             <Icon name="x" className="size-5" />

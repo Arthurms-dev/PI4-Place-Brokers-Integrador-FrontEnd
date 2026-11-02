@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { PARCEIRO_PRONTOS, pedeProntoOuUsado } from "@/lib/prontosEUsados";
 import { registrarAtividade } from "@/services/leadAtividades";
 import {
   atalhosLembrete,
@@ -210,6 +211,15 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
           <Icon name="bell" className="size-4.5" /> <span className={lead.telefone ? "hidden sm:inline" : ""}>Lembrete</span>
         </button>
       </div>
+
+      {pedeProntoOuUsado(lead.mensagem) && (
+        <a href={PARCEIRO_PRONTOS.url} target="_blank" rel="noreferrer"
+          className="flex min-h-11 items-center gap-2.5 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2 text-[13px] leading-snug text-ink transition-colors hover:border-gold">
+          <Icon name="search" className="size-4.5 shrink-0 text-gold" />
+          <span className="min-w-0 flex-1">Pediu pronto ou usado fora do catálogo. Procurar no <b>{PARCEIRO_PRONTOS.nome}</b> (parceiro)</span>
+          <Icon name="arrowRight" className="size-4 shrink-0 text-gold" />
+        </a>
+      )}
 
       {lembrete && (
         <LembreteFolha

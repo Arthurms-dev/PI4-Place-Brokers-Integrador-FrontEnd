@@ -1,10 +1,13 @@
 import { useContato } from "@/components/site/ContatoProvider";
+import { NumerosDaPlace } from "@/components/site/home/ProvaSocial";
 import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PERFIL_INSTAGRAM, linkDoVideo } from "@/lib/provaSocial";
+import fotoDoTime from "@/assets/instagram/time-meta-do-mes.webp";
 
 const PILARES = [
-  ["messageCircle", "Atendimento especializado", "Cada cliente fala com um corretor que conhece o lançamento a fundo."],
+  ["messageCircle", "Atendimento especializado", "Cada cliente fala com um corretor que conhece o imóvel a fundo."],
   ["book", "Informação clara", "Book, tabela de preços e condições sempre atualizados, sem letra miúda."],
   ["building", "Acompanhamento até as chaves", "Da primeira visita à entrega do imóvel, a gente continua por perto."],
 ];
@@ -16,13 +19,32 @@ export default function SobrePage() {
     <main className="pb-editorial-page mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
       <Reveal>
         <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-gold">Sobre nós</p>
-        <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">Imóveis novos, com gente de verdade ao seu lado</h1>
+        <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">Imóveis com gente de verdade ao seu lado</h1>
         <p className="mt-5 text-[16px] leading-relaxed text-ink-2">
-          A Place Brokers é uma imobiliária focada em lançamentos em Pernambuco. Reunimos os melhores empreendimentos do litoral à Região Metropolitana e conectamos cada cliente a um especialista que ajuda a escolher com segurança.
+          A Place Brokers é uma imobiliária de alta performance em Recife. Atuamos na Região Metropolitana, em Caruaru e no litoral, com lançamentos de diversas construtoras e imóveis prontos para morar. Cada cliente é atendido por um corretor do nosso time, que ajuda a escolher com segurança.
         </p>
       </Reveal>
 
-      <div className="mt-12 grid gap-4 sm:grid-cols-3">
+      <div className="mt-12 grid items-center gap-8 md:grid-cols-[minmax(0,300px)_1fr]">
+        <Reveal>
+          <figure className="mx-auto w-full max-w-[300px]">
+            <a href={linkDoVideo("DexRVXBBuDj")} target="_blank" rel="noreferrer" aria-label="Ver o vídeo do time no Instagram" className="block overflow-hidden rounded-3xl border border-line">
+              <img src={fotoDoTime} alt="Corretores da Place Brokers reunidos em frente ao escritório" width="360" height="640" loading="lazy" decoding="async" className="aspect-9/16 w-full object-cover" />
+            </a>
+            <figcaption className="mt-2 text-center text-[12px] text-ink-3">Parte do time da Place, no nosso Instagram.</figcaption>
+          </figure>
+        </Reveal>
+        <Reveal atraso={100}>
+          <h2 className="text-2xl font-semibold sm:text-3xl">A Place em números</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-ink-2">Dados que você mesmo pode conferir: a nota no Google, o nosso Instagram e o registro no CRECI.</p>
+          <NumerosDaPlace tema="escuro" className="mt-5" />
+          <a href={PERFIL_INSTAGRAM.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center gap-2 text-[14px] font-semibold text-gold underline-offset-4 hover:underline">
+            <Icon name="instagram" className="size-5" /> Acompanhe o dia a dia em @{PERFIL_INSTAGRAM.usuario}
+          </a>
+        </Reveal>
+      </div>
+
+      <div className="mt-14 grid gap-4 sm:grid-cols-3">
         {PILARES.map(([icone, titulo, texto], i) => (
           <Reveal key={titulo} atraso={i * 100}>
             <div className="h-full rounded-2xl border border-line bg-card p-6">

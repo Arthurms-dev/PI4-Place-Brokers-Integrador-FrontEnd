@@ -4,6 +4,7 @@ import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
 import { liberarAcesso } from "@/lib/catalogoHome";
 import { normalizarTelefone } from "@/lib/telefone";
+import { LIMITE_DETALHES } from "@/lib/prontosEUsados";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Digitou/colou com 0, 0 + operadora ou +55? Tira antes de aplicar a máscara (DDD nunca começa com 0).
@@ -21,6 +22,7 @@ function mascarar(v) {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3 scheme-dark";
+const CAMPO_TEXTO = CAMPO.replace("h-12 ", "");
 const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold");
 
 function Campo({ rotulo, erro, children }) {
@@ -40,7 +42,7 @@ function Campo({ rotulo, erro, children }) {
  * @param aoVoltar
  */
 export default function FormularioContato({ empreendimento = null, opcoes = [], autoFoco = false, aoVoltar, aoEnviar, canal = "", textoBotao = "Quero falar com um especialista" }) {
-  const [f, setF] = useState({ escolha: "", nome: "", email: "", telefone: "", website: "", aceite: false, novidades: false, preferencia: "conversar" });
+  const [f, setF] = useState({ escolha: "", detalhes: "", nome: "", email: "", telefone: "", website: "", aceite: false, novidades: false, preferencia: "conversar" });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -52,6 +54,8 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
 
   const set = (campo) => (e) => setF((s) => ({ ...s, [campo]: campo === "telefone" ? mascarar(e.target.value) : e.target.value }));
   const escolhido = empreendimento ?? opcoes.find((o) => String(o.id) === f.escolha) ?? null;
+  // Pedido de pronto/usado fora do catálogo: o cliente conta o que procura.
+  const pedirDetalhes = Boolean(empreendimento?.pedirDetalhes);
 
   async function enviar(ev) {
     ev.preventDefault();
@@ -77,6 +81,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         canal,
         consentimento: { novidades: f.novidades },
         preferencia: f.preferencia,
+        detalhes: pedirDetalhes ? f.detalhes : "",
       });
       registrarEvento({ tipo: "contato" });
       liberarAcesso();
@@ -121,8 +126,15 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
           </select>
         </Campo>
       )}
+      {pedirDetalhes && (
+        <Campo rotulo="O que você procura? (opcional)">
+          <textarea ref={primeiro} value={f.detalhes} onChange={set("detalhes")} maxLength={LIMITE_DETALHES} rows={3}
+            placeholder="Ex.: 3 quartos em Boa Viagem, até R$ 700 mil, pronto para morar"
+            className={`${CAMPO_TEXTO} ${borda()} resize-none py-3 leading-relaxed`} />
+        </Campo>
+      )}
       <Campo rotulo="Nome" erro={erros.nome}>
-        <input ref={empreendimento ? primeiro : undefined} value={f.nome} onChange={set("nome")} autoComplete="name" className={`${CAMPO} ${borda(erros.nome)}`} />
+        <input ref={empreendimento && !pedirDetalhes ? primeiro : undefined} value={f.nome} onChange={set("nome")} autoComplete="name" className={`${CAMPO} ${borda(erros.nome)}`} />
       </Campo>
       <Campo rotulo="WhatsApp (com DDD)" erro={erros.telefone}>
         <input value={f.telefone} onChange={set("telefone")} inputMode="tel" autoComplete="tel" placeholder="(81) 99999-9999" className={`${CAMPO} ${borda(erros.telefone)}`} />
