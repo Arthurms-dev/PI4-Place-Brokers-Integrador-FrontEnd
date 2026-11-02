@@ -41,41 +41,31 @@ export const NUMEROS_DA_PLACE = [
 
 /** Prêmios dados por construtoras parceiras (destaque "Premiações"). */
 export const PREMIACOES = [
-  { id: "carrilho-agosto-2026", imagem: "premio-carrilho-agosto-2026", construtora: "Carrilho", titulo: "Destaque em vendas, imobiliária parceira", quando: "Agosto de 2026" },
   { id: "carrilho-2025", imagem: "premio-carrilho-melhores-2025", construtora: "Carrilho", titulo: "Imobiliária destaque do ano (3º lugar)", quando: "Melhores do Ano 2025" },
   { id: "carrilho-abril-2025", imagem: "premio-carrilho-abril-2025", construtora: "Carrilho", titulo: "1º lugar em vendas", quando: "Abril de 2025" },
   { id: "bora-abril-2025", imagem: "premio-bora-abril-2025", construtora: "Bora Incorporadora", titulo: "2º lugar entre as imobiliárias", quando: "Abril de 2025" },
   { id: "maxplural-2024", imagem: "premio-maxplural-2024", construtora: "MaxPlural", titulo: "3º lugar entre as imobiliárias", quando: "Ano de 2024" },
 ];
 
-/** Clientes no dia da compra (fotos da Place). Sem fotos com criança. */
+/** Clientes com o "Meu sonho realizado" (destaque "Clientes"). Sem fotos com criança. */
 export const SONHOS_REALIZADOS = [
-  { id: "chave-houly", imagem: "cliente-chave-houly", legenda: "Chave na mão no escritório" },
-  { id: "familia-sonho", imagem: "cliente-familia-sonho", legenda: "Mais que um imóvel, um sonho realizado" },
-  { id: "chave-place", imagem: "cliente-chave-place", legenda: "Mais um sonho realizado com a Place" },
-  { id: "carrilho", imagem: "cliente-carrilho", legenda: "Chave da Carrilho" },
-  { id: "feirao", imagem: "cliente-feirao", legenda: "Venda no feirão Minha Casa Minha Vida" },
-  { id: "casal", imagem: "cliente-casal", legenda: "Casal com a chave do novo lar" },
-  { id: "usina", imagem: "cliente-usina", legenda: "Chave da Usina de Obras no feirão" },
-  { id: "casa-concreto", imagem: "cliente-casa-concreto", legenda: "Chave da Casa Concreto" },
-  { id: "houly-trio", imagem: "cliente-houly-trio", legenda: "Mais um sonho realizado no escritório" },
-  { id: "houly-entrada", imagem: "cliente-houly-entrada", legenda: "Cliente com o time na entrada da Place" },
-  { id: "feira", imagem: "cliente-feira", legenda: "Venda fechada na rua, com a chave da Place" },
-  { id: "place-quatro", imagem: "cliente-place-quatro", legenda: "Mais um sonho realizado com a Place" },
+  { id: "janga-garden", imagem: "cliente-janga-garden", legenda: "Lançamento do Janga Garden" },
+  { id: "sonho-realizado", imagem: "cliente-sonho-realizado", legenda: "Mais um sonho realizado" },
+  { id: "emily-mateus", imagem: "cliente-emily-mateus", legenda: "Emily e Mateus" },
+  { id: "familia-contrato", imagem: "cliente-familia-contrato", legenda: "Contrato assinado" },
+  { id: "e-venda", imagem: "cliente-e-venda", legenda: "É venda!" },
+  { id: "chave-place", imagem: "cliente-chave-place", legenda: "Chave na mão" },
 ];
 
 /** Vídeo em que clientes contam como foi comprar com a Place. */
 export const DEPOIMENTOS = linkDoVideo("DYUudAMA7pZ");
 
-/** Vídeo da família chegando para receber as chaves. */
-export const VIDEO_FAMILIA = { url: "https://www.instagram.com/reel/DfLroCWNpo-/", capa: "video-familia-feliz", legenda: "Mais uma família feliz com o seu sonho realizado" };
-
-/** O time no dia a dia (fotos da Place). */
-export const DIA_A_DIA = [
-  { id: "festa", imagem: "dia-festa-time", legenda: "Time reunido no escritório" },
-  { id: "atendimento", imagem: "dia-atendimento", legenda: "Atendimento na sala de reunião" },
-  { id: "maquete", imagem: "dia-maquete", legenda: "Corretor apresentando a maquete ao cliente" },
-  { id: "plantao", imagem: "dia-plantao", legenda: "Plantão de vendas no estande" },
-  { id: "escritorio", imagem: "dia-escritorio", legenda: "Corretores trabalhando no escritório" },
-  { id: "selfie", imagem: "dia-selfie-time", legenda: "Comemoração do time" },
+/** Vídeos do time no Instagram (capa salva no site; o clique abre o vídeo no Instagram). */
+export const VIDEOS_DO_INSTAGRAM = [
+  { id: "DexRVXBBuDj", capa: "time-meta-do-mes", legenda: "O time da Place reunido para bater a meta do mês" },
+  { id: "DfF7E5fhhQN", capa: "papo-de-imovel", legenda: "Papo de imóvel: sem complicação" },
+  { id: "Dez5kVZBYpO", capa: "perto-do-mar", legenda: "Perto do mar e longe do comum" },
+  { id: "De-MwedhKSd", capa: "pedido-especial", legenda: "Um pedido especial" },
+  { id: "DerhjXwxVPR", capa: "caruaru", legenda: "Caruaru e um novo jeito para você morar" },
+  { id: "De2XggthflK", capa: "maquina-de-vendas", legenda: "Bastidores: um dia de corretor na Place" },
 ];

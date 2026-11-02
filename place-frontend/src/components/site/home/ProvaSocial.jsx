@@ -8,61 +8,45 @@ import {
   PERFIL_INSTAGRAM,
   PREMIACOES,
   SONHOS_REALIZADOS,
-  DIA_A_DIA,
-  VIDEO_FAMILIA,
+  VIDEOS_DO_INSTAGRAM,
+  linkDoVideo,
 } from "@/lib/provaSocial";
-import clienteCarrilho from "@/assets/instagram/cliente-carrilho.webp";
-import clienteCasal from "@/assets/instagram/cliente-casal.webp";
-import clienteChaveHouly from "@/assets/instagram/cliente-chave-houly.webp";
+import caruaru from "@/assets/instagram/caruaru.webp";
 import clienteChavePlace from "@/assets/instagram/cliente-chave-place.webp";
-import clienteFamiliaSonho from "@/assets/instagram/cliente-familia-sonho.webp";
-import clienteFeirao from "@/assets/instagram/cliente-feirao.webp";
-import diaFestaTime from "@/assets/instagram/dia-festa-time.webp";
-import diaMaquete from "@/assets/instagram/dia-maquete.webp";
-import diaSelfieTime from "@/assets/instagram/dia-selfie-time.webp";
+import clienteEVenda from "@/assets/instagram/cliente-e-venda.webp";
+import clienteEmilyMateus from "@/assets/instagram/cliente-emily-mateus.webp";
+import clienteFamiliaContrato from "@/assets/instagram/cliente-familia-contrato.webp";
+import clienteJangaGarden from "@/assets/instagram/cliente-janga-garden.webp";
+import clienteSonhoRealizado from "@/assets/instagram/cliente-sonho-realizado.webp";
+import maquinaDeVendas from "@/assets/instagram/maquina-de-vendas.webp";
+import papoDeImovel from "@/assets/instagram/papo-de-imovel.webp";
+import pedidoEspecial from "@/assets/instagram/pedido-especial.webp";
+import pertoDoMar from "@/assets/instagram/perto-do-mar.webp";
 import premioBoraAbril2025 from "@/assets/instagram/premio-bora-abril-2025.webp";
 import premioCarrilhoAbril2025 from "@/assets/instagram/premio-carrilho-abril-2025.webp";
 import premioCarrilhoMelhores2025 from "@/assets/instagram/premio-carrilho-melhores-2025.webp";
 import premioMaxplural2024 from "@/assets/instagram/premio-maxplural-2024.webp";
-import videoFamiliaFeliz from "@/assets/instagram/video-familia-feliz.webp";
-import clienteUsina from "@/assets/instagram/cliente-usina.webp";
-import clienteCasaConcreto from "@/assets/instagram/cliente-casa-concreto.webp";
-import clienteHoulyTrio from "@/assets/instagram/cliente-houly-trio.webp";
-import clienteHoulyEntrada from "@/assets/instagram/cliente-houly-entrada.webp";
-import clienteFeira from "@/assets/instagram/cliente-feira.webp";
-import clientePlaceQuatro from "@/assets/instagram/cliente-place-quatro.webp";
-import premioCarrilhoAgosto2026 from "@/assets/instagram/premio-carrilho-agosto-2026.webp";
-import diaAtendimento from "@/assets/instagram/dia-atendimento.webp";
-import diaPlantao from "@/assets/instagram/dia-plantao.webp";
-import diaEscritorio from "@/assets/instagram/dia-escritorio.webp";
+import timeMetaDoMes from "@/assets/instagram/time-meta-do-mes.webp";
 import Reveal from "../Reveal";
 
 // Imagens salvas no próprio site: sem script do Instagram (que põe cookies de terceiros) e sem link que expira.
 const IMAGENS = {
-  "cliente-usina": clienteUsina,
-  "cliente-casa-concreto": clienteCasaConcreto,
-  "cliente-houly-trio": clienteHoulyTrio,
-  "cliente-houly-entrada": clienteHoulyEntrada,
-  "cliente-feira": clienteFeira,
-  "cliente-place-quatro": clientePlaceQuatro,
-  "premio-carrilho-agosto-2026": premioCarrilhoAgosto2026,
-  "dia-atendimento": diaAtendimento,
-  "dia-plantao": diaPlantao,
-  "dia-escritorio": diaEscritorio,
-  "cliente-carrilho": clienteCarrilho,
-  "cliente-casal": clienteCasal,
-  "cliente-chave-houly": clienteChaveHouly,
+  caruaru,
   "cliente-chave-place": clienteChavePlace,
-  "cliente-familia-sonho": clienteFamiliaSonho,
-  "cliente-feirao": clienteFeirao,
-  "dia-festa-time": diaFestaTime,
-  "dia-maquete": diaMaquete,
-  "dia-selfie-time": diaSelfieTime,
+  "cliente-e-venda": clienteEVenda,
+  "cliente-emily-mateus": clienteEmilyMateus,
+  "cliente-familia-contrato": clienteFamiliaContrato,
+  "cliente-janga-garden": clienteJangaGarden,
+  "cliente-sonho-realizado": clienteSonhoRealizado,
+  "maquina-de-vendas": maquinaDeVendas,
+  "papo-de-imovel": papoDeImovel,
+  "pedido-especial": pedidoEspecial,
+  "perto-do-mar": pertoDoMar,
   "premio-bora-abril-2025": premioBoraAbril2025,
   "premio-carrilho-abril-2025": premioCarrilhoAbril2025,
   "premio-carrilho-melhores-2025": premioCarrilhoMelhores2025,
   "premio-maxplural-2024": premioMaxplural2024,
-  "video-familia-feliz": videoFamiliaFeliz,
+  "time-meta-do-mes": timeMetaDoMes,
 };
 
 const TEMAS = {
@@ -163,7 +147,7 @@ export function Premiacoes({ tema = "claro" }) {
         <h3 className={`text-xl font-extrabold tracking-tight sm:text-2xl ${t.titulo}`}>Reconhecida pelas construtoras</h3>
         <LinkMais href={DESTAQUES.premiacoes} tema={tema}>Ver as premiações</LinkMais>
       </div>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {PREMIACOES.map((p, i) => (
           <li key={p.id} className="h-full">
             <Reveal atraso={i * 70} className={`group h-full overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 hover:shadow-xl ${t.caixa} ${t.hover}`}>
@@ -196,11 +180,11 @@ export function SonhosRealizados({ tema = "claro" }) {
           <LinkMais href={DESTAQUES.clientes} tema={tema}>Ver mais clientes</LinkMais>
         </div>
       </div>
-      <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         {SONHOS_REALIZADOS.map((s, i) => (
           <li key={s.id}>
-            <Reveal atraso={(i % 4) * 60} className="group overflow-hidden rounded-2xl">
-              <img src={IMAGENS[s.imagem]} alt={`Clientes da Place Brokers: ${s.legenda}`} width="480" height="640" loading="lazy" decoding="async" className="aspect-3/4 w-full object-cover transition duration-700 group-hover:scale-105" />
+            <Reveal atraso={i * 60} className="overflow-hidden rounded-2xl">
+              <img src={IMAGENS[s.imagem]} alt={`Clientes da Place Brokers: ${s.legenda}`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
             </Reveal>
           </li>
         ))}
@@ -209,24 +193,30 @@ export function SonhosRealizados({ tema = "claro" }) {
   );
 }
 
-/** O time no dia a dia: fotos da Place e o vídeo da família recebendo as chaves (página Sobre). */
-export function DiaADia() {
+function Video({ video }) {
   return (
-    <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4" aria-label="O time da Place no dia a dia">
-      <li className="row-span-2">
-        <a href={VIDEO_FAMILIA.url} target="_blank" rel="noreferrer" aria-label={`Ver no Instagram: ${VIDEO_FAMILIA.legenda}`}
-          className="group relative block h-full min-h-[300px] overflow-hidden rounded-2xl border border-line bg-[#0b203b] transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-lg">
-          <img src={IMAGENS[VIDEO_FAMILIA.capa]} alt="" width="360" height="640" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          <span className="absolute right-2.5 top-2.5 grid size-9 place-items-center rounded-full bg-black/50 text-white backdrop-blur-sm" aria-hidden="true">
-            <svg viewBox="0 0 24 24" className="ml-0.5 size-4" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z" /></svg>
-          </span>
-        </a>
-      </li>
-      {DIA_A_DIA.map((f, i) => (
-        <li key={f.id}>
-          <Reveal atraso={i * 70} className="group overflow-hidden rounded-2xl">
-            <img src={IMAGENS[f.imagem]} alt={f.legenda} width="480" height="480" loading="lazy" decoding="async" className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105" />
-          </Reveal>
+    <a
+      href={linkDoVideo(video.id)}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`Ver no Instagram: ${video.legenda}`}
+      className="group relative block aspect-9/16 overflow-hidden rounded-2xl border border-line bg-[#0b203b] shadow-sm transition duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#ad7832]"
+    >
+      <img src={IMAGENS[video.capa]} alt="" width="360" height="640" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      <span className="absolute right-2.5 top-2.5 grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm" aria-hidden="true">
+        <svg viewBox="0 0 24 24" className="ml-0.5 size-3.5" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+      </span>
+    </a>
+  );
+}
+
+/** Vídeos do time no Instagram (usado na página Sobre). */
+export function VideosDoTime() {
+  return (
+    <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6" aria-label="Vídeos do time no Instagram">
+      {VIDEOS_DO_INSTAGRAM.map((video) => (
+        <li key={video.id} className="w-[42vw] max-w-[220px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+          <Video video={video} />
         </li>
       ))}
     </ul>
