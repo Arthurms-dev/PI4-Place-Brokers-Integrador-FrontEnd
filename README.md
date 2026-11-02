@@ -8,7 +8,9 @@ API: [PI4-Place-Brokers-Integrador-BackEnd](https://github.com/Arthurms-dev/PI4-
 
 ## Stack
 
-Vite · React 19 · React Router 7 · Tailwind CSS v4 · Leaflet (mapas) · Supabase JS · Vitest + Testing Library
+Vite · React 19 · React Router 7 · Tailwind CSS v4 · Leaflet (mapas) · Sentry (erros) · Vitest + Testing Library. Funções da Vercel em `api/` (prévia de link, sitemap e robots).
+
+O front não fala com o Supabase direto: tudo passa pela API.
 
 ## Como rodar
 
@@ -24,8 +26,7 @@ npm run build           # build de produção
 | Variável | Para quê |
 | --- | --- |
 | `VITE_API_URL` | endereço da API (padrão `http://localhost:3333`) |
-| `VITE_SUPABASE_URL` | URL do projeto no Supabase |
-| `VITE_SUPABASE_ANON_KEY` | chave pública do Supabase (nunca use a service role aqui) |
+| `VITE_SENTRY_DSN` | opcional: envia os erros do site para o Sentry |
 
 A API precisa estar rodando para login e painéis funcionarem.
 
@@ -79,6 +80,9 @@ Variáveis opcionais na Vercel para as funções de `api/`: `API_URL` (padrão: 
 | Landing page | Gabriel Soares |
 | Galeria de imóveis e formulários do site | Sérgio Bandeira |
 | Painel administrativo com feeds | Sofia Viana |
-| Área do corretor e do gerente, empreendimentos/documentos no admin, equipe, vendas/VGV, integração com a API | João Victor |
+| Área do corretor e do gerente, empreendimentos/documentos no admin, equipe, vendas/VGV, roleta, integração com a API | João Victor |
+| `apiClient` em todos os services, roteiro de entrega do AOS | Sérgio Bandeira |
+
+O app do corretor (React Native + Expo) fica no repositório próprio `PI4-Place-Brokers-App`.
 
 O andamento do projeto fica no quadro **Place-Brokers** do Trello.
