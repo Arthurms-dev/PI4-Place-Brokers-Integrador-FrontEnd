@@ -74,7 +74,7 @@ export default function HomePage() {
 
   const fechar = useCallback(() => navigate("/"), [navigate]);
   const falar = useCallback(
-    (item, canal = "home") => abrirContato(item ? { id: item.id, title: item.title } : null, canal),
+    (item, canal = "home") => abrirContato(item ? { id: item.id, title: item.title, segmento: item.segmento, tag: item.tag } : null, canal),
     [abrirContato]
   );
 

@@ -169,3 +169,14 @@ export function liberarAcesso() {
   }
   window.dispatchEvent(new Event("pb-acesso-liberado"));
 }
+
+/**
+ * "Receber os valores e resolver online" só aparece onde faz sentido fechar a distância:
+ * alto padrão, litoral, imóvel pronto e o pedido de usado/pronto. Minha Casa Minha Vida e médio
+ * padrão dependem de análise de crédito e documentação, então seguem com o especialista.
+ */
+export function aceitaResolverOnline(item) {
+  if (!item) return false;
+  if (item.pedirDetalhes) return true;
+  return item.segmento === "alto_padrao" || item.segmento === "litoral" || item.tag === "Pronto";
+}

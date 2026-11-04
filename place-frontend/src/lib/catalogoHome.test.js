@@ -73,3 +73,16 @@ describe("ordenarCatalogo", () => {
     expect(ordenarCatalogo(itens, "menor").map((i) => i.id)).toEqual(["1", "4", "2", "3"]);
   });
 });
+
+describe("resolver online", () => {
+  it("só aparece para alto padrão, litoral, pronto e pedido de usado", async () => {
+    const { aceitaResolverOnline } = await import("./catalogoHome");
+    expect(aceitaResolverOnline({ segmento: "mcmv", tag: "Lançamento" })).toBe(false);
+    expect(aceitaResolverOnline({ segmento: "medio_padrao", tag: "Em obras" })).toBe(false);
+    expect(aceitaResolverOnline({ segmento: "alto_padrao" })).toBe(true);
+    expect(aceitaResolverOnline({ segmento: "litoral" })).toBe(true);
+    expect(aceitaResolverOnline({ segmento: "mcmv", tag: "Pronto" })).toBe(true);
+    expect(aceitaResolverOnline({ pedirDetalhes: true })).toBe(true);
+    expect(aceitaResolverOnline(null)).toBe(false);
+  });
+});

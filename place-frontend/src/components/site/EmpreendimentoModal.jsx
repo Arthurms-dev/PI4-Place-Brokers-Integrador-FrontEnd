@@ -99,7 +99,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
     ["Metragem", item.area],
     ["Prazo", prazoCurto(item)],
   ].filter(([, valor]) => valor);
-  const sobre = { id: item.id, title: item.title };
+  const sobre = { id: item.id, title: item.title, segmento: item.segmento, tag: item.tag };
 
   return (
     <div className="animate-fade-in fixed inset-0 z-[55] overflow-x-hidden bg-black/75 sm:flex sm:items-center sm:justify-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>

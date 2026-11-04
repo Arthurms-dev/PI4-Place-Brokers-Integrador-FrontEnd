@@ -20,6 +20,7 @@ export async function getCurrentUser() {
       return {
         name: user.nome, email: user.email, role: CARGO_LABEL[user.role] ?? user.role,
         cargo: user.role, avatarUrl: null, unreadNotifications: 0,
+        avisoLeadEmail: Boolean(user.avisoLeadEmail),
       };
     } catch (erro) {
       if (erro?.status === 401 && getToken() === token) clearToken();
@@ -38,7 +39,7 @@ export async function getCurrentUser() {
   }
 }
 
-/** @param {{ nome?: string, telefone?: string }} dados */
+/** @param {{ nome?: string, telefone?: string, avisoLeadEmail?: boolean }} dados */
 export const atualizarPerfil = async (dados) => (await api.patch("/auth/me", dados)).user;
 export async function alterarSenha({ senhaAtual, novaSenha, confirmarSenha }) {
   await api.patch("/auth/senha", { senhaAtual, novaSenha, confirmarSenha });

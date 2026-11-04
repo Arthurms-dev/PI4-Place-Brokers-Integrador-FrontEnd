@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
-import { liberarAcesso } from "@/lib/catalogoHome";
+import { aceitaResolverOnline, liberarAcesso } from "@/lib/catalogoHome";
 import { normalizarTelefone } from "@/lib/telefone";
 import { LIMITE_DETALHES } from "@/lib/prontosEUsados";
 
@@ -56,6 +56,10 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
   const escolhido = empreendimento ?? opcoes.find((o) => String(o.id) === f.escolha) ?? null;
   // Pedido de pronto/usado fora do catálogo: o cliente conta o que procura.
   const pedirDetalhes = Boolean(empreendimento?.pedirDetalhes);
+  // Dados completos (segmento, etapa) do imóvel escolhido, para decidir se mostra "resolver online".
+  const doCatalogo = escolhido ? opcoes.find((o) => String(o.id) === String(escolhido.id)) : null;
+  const mostrarOnline = aceitaResolverOnline(pedirDetalhes ? empreendimento : escolhido && { segmento: doCatalogo?.segmento ?? escolhido.segmento, tag: doCatalogo?.tag ?? escolhido.tag });
+  const preferencia = mostrarOnline ? f.preferencia : "conversar";
 
   async function enviar(ev) {
     ev.preventDefault();
@@ -80,7 +84,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         website: f.website,
         canal,
         consentimento: { novidades: f.novidades },
-        preferencia: f.preferencia,
+        preferencia,
         detalhes: pedirDetalhes ? f.detalhes : "",
       });
       registrarEvento({ tipo: "contato" });
@@ -150,6 +154,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         </label>
       </div>
 
+      {mostrarOnline && (
       <fieldset className="space-y-1.5">
         <legend className="mb-1.5 text-xs text-ink-2">Como prefere seguir?</legend>
         <div className="grid grid-cols-2 gap-2">
@@ -161,6 +166,7 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
           ))}
         </div>
       </fieldset>
+      )}
 
       <div className="space-y-2 pt-1">
         <label className="flex items-start gap-2.5 text-[12px] leading-snug text-ink-2">

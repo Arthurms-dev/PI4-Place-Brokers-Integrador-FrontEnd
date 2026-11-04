@@ -3,8 +3,8 @@ import { NumerosDaPlace, Premiacoes, VideosDoTime } from "@/components/site/home
 import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { PERFIL_INSTAGRAM, linkDoVideo } from "@/lib/provaSocial";
-import fotoDoTime from "@/assets/instagram/time-meta-do-mes.webp";
+import { PERFIL_INSTAGRAM } from "@/lib/provaSocial";
+import fotoDoTime from "@/assets/instagram/time-place.webp";
 
 const PILARES = [
   ["messageCircle", "Atendimento especializado", "Cada cliente fala com um corretor que conhece o imóvel a fundo."],
@@ -31,14 +31,14 @@ export default function SobrePage() {
         </Reveal>
       </div>
 
-      <div className="mt-12 grid items-center gap-8 md:grid-cols-[minmax(0,300px)_1fr]">
+      <div className="mt-12 grid items-center gap-8 md:grid-cols-[1.15fr_1fr]">
         <Reveal>
-          <figure className="relative mx-auto w-full max-w-[300px]">
+          <figure className="relative w-full">
             <div className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-gold/15 blur-3xl" aria-hidden="true" />
-            <a href={linkDoVideo("DexRVXBBuDj")} target="_blank" rel="noreferrer" aria-label="Ver o vídeo do time no Instagram" className="group block overflow-hidden rounded-3xl border border-line transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-2xl">
-              <img src={fotoDoTime} alt="Corretores da Place Brokers reunidos em frente ao escritório" width="360" height="640" loading="lazy" decoding="async" className="animate-kenburns aspect-9/16 w-full object-cover" />
+            <a href={PERFIL_INSTAGRAM.url} target="_blank" rel="noreferrer" aria-label="Ver o time no Instagram da Place" className="group block overflow-hidden rounded-3xl border border-line transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-2xl">
+              <img src={fotoDoTime} alt="Time da Place Brokers reunido em treinamento no escritório" width="1024" height="768" loading="lazy" decoding="async" className="animate-kenburns aspect-4/3 w-full object-cover" />
             </a>
-            <figcaption className="mt-2 text-center text-[12px] text-ink-3">Parte do time da Place, no nosso Instagram.</figcaption>
+            <figcaption className="mt-2 text-center text-[12px] text-ink-3">O time da Place reunido no escritório.</figcaption>
           </figure>
         </Reveal>
         <Reveal atraso={100}>
