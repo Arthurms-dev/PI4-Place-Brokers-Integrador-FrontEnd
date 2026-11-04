@@ -8,7 +8,7 @@ export const DESCRICAO_PADRAO =
 export const IMAGEM_PADRAO = "/icone-512.png";
 
 /** Páginas públicas que entram no sitemap (as áreas internas ficam de fora). */
-export const PAGINAS_PUBLICAS = ["/", "/sobre", "/contato", "/privacidade"];
+export const PAGINAS_PUBLICAS = ["/", "/prontos", "/sobre", "/contato", "/privacidade"];
 
 const escapar = (s = "") => String(s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")

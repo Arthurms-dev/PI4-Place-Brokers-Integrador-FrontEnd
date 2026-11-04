@@ -58,8 +58,7 @@ export default function HomePage() {
   useEffect(() => {
     // Endereço antigo do WordPress (/imoveis/casa-em-rua-publica/): leva para os prontos para morar.
     if (id && !UUID.test(id)) {
-      setFiltros({ ...FILTROS_VAZIOS, tag: "Pronto" });
-      navigate("/", { replace: true, state: { rolar: "lista" } });
+      navigate("/prontos", { replace: true });
       return;
     }
     if (id && !carregando && !erro && !aberto) navigate("/", { replace: true });
@@ -145,11 +144,7 @@ export default function HomePage() {
           itens={itens}
           ativo={filtros.segmento}
           onEscolher={(segmento) => escolherSegmento(segmento, true)}
-          prontoAtivo={filtros.tag === "Pronto"}
-          onPronto={() => {
-            setFiltros((atual) => ({ ...atual, tag: atual.tag === "Pronto" ? "" : "Pronto" }));
-            window.setTimeout(() => irPara("lista"), 60);
-          }}
+          onPronto={() => navigate("/prontos")}
           onBuscarUsado={pedirUsado}
         />
 

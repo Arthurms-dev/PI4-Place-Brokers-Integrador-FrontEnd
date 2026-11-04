@@ -8,7 +8,7 @@ import { Etiquetas, Foto } from "./pecas";
 
 const POR_PAGINA = 9;
 
-function Card({ p, i, onFalar }) {
+export function CartaoImovel({ p, i, onFalar }) {
   const destino = `/imoveis/${p.id}`;
   const ehParcela = p.precoRotulo === "Parcelas a partir de";
   const temValor = p.precoMin != null || ehParcela;
@@ -211,7 +211,7 @@ export default function ListaEmpreendimentos({
       ) : (
         <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {lista.slice(0, limite).map((item, indice) => (
-            <Card key={item.id} p={item} i={indice} onFalar={onFalar} />
+            <CartaoImovel key={item.id} p={item} i={indice} onFalar={onFalar} />
           ))}
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { PARCEIRO_PRONTOS, pedeProntoOuUsado } from "@/lib/prontosEUsados";
+import { querVenderImovel } from "@/lib/vendaImovel";
 import { registrarAtividade } from "@/services/leadAtividades";
 import {
   atalhosLembrete,
@@ -219,6 +220,13 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
           <span className="min-w-0 flex-1">Pediu pronto ou usado fora do catálogo. Procurar no <b>{PARCEIRO_PRONTOS.nome}</b> (parceiro)</span>
           <Icon name="arrowRight" className="size-4 shrink-0 text-gold" />
         </a>
+      )}
+
+      {querVenderImovel(lead.mensagem) && (
+        <p className="flex min-h-11 items-center gap-2.5 rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-[13px] leading-snug text-ink">
+          <Icon name="home" className="size-4.5 shrink-0 text-emerald-300" />
+          <span className="min-w-0 flex-1"><b>Captação:</b> o cliente quer vender o imóvel. Ligue e combine a avaliação.</span>
+        </p>
       )}
 
       {lembrete && (

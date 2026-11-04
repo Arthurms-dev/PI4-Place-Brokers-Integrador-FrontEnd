@@ -42,6 +42,7 @@ export default function SiteFooter() {
         <div>
           <h3 className={titulo}>Navegue</h3>
           <Link to="/" className={item}>Lançamentos</Link>
+          <Link to="/prontos" className={item}>Prontos e seminovos</Link>
           <Link to="/sobre" className={item}>Sobre nós</Link>
           <Link to="/contato" className={item}>Contato</Link>
           <Link to="/privacidade" className={item}>Política de privacidade</Link>

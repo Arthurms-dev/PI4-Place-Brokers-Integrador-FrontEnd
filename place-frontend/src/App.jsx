@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 
 
 const SobrePage = lazy(() => import("@/pages/SobrePage"));
+const ProntosPage = lazy(() => import("@/pages/ProntosPage"));
 const PrivacidadePage = lazy(() => import("@/pages/PrivacidadePage"));
 const ContatoPage = lazy(() => import("@/pages/ContatoPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
@@ -48,7 +49,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/imoveis/:id" element={<HomePage />} />
         {/* Endereço antigo do WordPress: lista de imóveis vira os prontos para morar */}
-        <Route path="/imoveis" element={<Navigate to="/imoveis/prontos" replace />} />
+        <Route path="/imoveis" element={<Navigate to="/prontos" replace />} />
+        <Route path="/prontos" element={<ProntosPage />} />
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />

@@ -14,18 +14,18 @@ const digitos = (v = "") => {
   else if (d.startsWith("55") && d.length >= 12) d = d.slice(2);
   return d.slice(0, 11);
 };
-function mascarar(v) {
+export function mascarar(v) {
   const d = digitos(v);
   if (d.length <= 2) return d ? `(${d}` : "";
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
-const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3 scheme-dark";
-const CAMPO_TEXTO = CAMPO.replace("h-12 ", "");
-const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold");
+export const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3 scheme-dark";
+export const CAMPO_TEXTO = CAMPO.replace("h-12 ", "");
+export const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold");
 
-function Campo({ rotulo, erro, children }) {
+export function Campo({ rotulo, erro, children }) {
   return (
     <label className="block text-xs text-ink-2">
       {rotulo}

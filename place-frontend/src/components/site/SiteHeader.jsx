@@ -6,7 +6,7 @@ import { Logo } from "@/components/ui/Logo";
 import { useContato } from "./ContatoProvider";
 
 const SECOES = [["Lançamentos", "lista"], ["Cidades", "cidades"], ["Como funciona", "como-funciona"]];
-const PAGINAS = [["Sobre nós", "/sobre"], ["Contato", "/contato"]];
+const PAGINAS = [["Prontos e seminovos", "/prontos"], ["Sobre nós", "/sobre"], ["Contato", "/contato"]];
 
 export default function SiteHeader() {
   const { abrirContato } = useContato();
