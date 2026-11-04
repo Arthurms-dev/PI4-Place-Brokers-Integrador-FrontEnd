@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
+import { SinoLeads } from "@/components/leads/SinoLeads";
 import { authService } from "@/services/authService";
 
 export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = [] }) {
@@ -66,6 +67,7 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
           className="hidden h-10 shrink-0 items-center gap-2 rounded-lg border border-line px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-gold/50 hover:text-gold md:inline-flex">
           <Icon name="home" className="size-4" /> Ver site
         </Link>
+        {user?.cargo === "corretor" && <SinoLeads />}
         {Number(user?.unreadNotifications) > 0 && (
           <span role="status" title="Notificações não lidas" className="flex items-center gap-1.5 text-xs text-gold">
             <Icon name="bell" className="size-4" /> {user.unreadNotifications}
@@ -126,4 +128,4 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
       </div>
     </header>
   );
-}
+}
