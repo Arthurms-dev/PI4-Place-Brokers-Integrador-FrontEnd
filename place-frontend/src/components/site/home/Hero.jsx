@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
+import LogoHero from "./LogoHero";
 import { ETAPAS_HOME, PRAZOS_HOME, SEGMENTOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 
 const campo =
@@ -32,17 +33,14 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
 
   return (
     <section className="pb-c-hero relative isolate overflow-hidden" aria-labelledby="pb-home-hero-title">
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 lg:pb-14 lg:pt-12">
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:pb-14 lg:pt-6">
         <div className="grid items-center gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-12">
-          <div className="pb-c-hero-copy relative z-10 py-4 lg:py-12">
-            <p className="pb-c-overline">
-              <span className="inline-block h-[2px] w-6 bg-[#bf8c47]" />
-              IMÓVEIS QUE FAZEM SENTIDO PARA VOCÊ
-            </p>
+          <div className="pb-c-hero-copy relative z-10 py-4 lg:py-6">
+            <LogoHero className="max-w-[300px] sm:max-w-[400px] lg:max-w-[440px]" />
 
             <h1
               id="pb-home-hero-title"
-              className="mt-6 max-w-[570px] font-sans text-[clamp(2.65rem,4.35vw,4.25rem)] font-extrabold leading-[1.065] tracking-[-.055em] text-[#0b203b]"
+              className="mt-7 max-w-[540px] font-sans text-[clamp(2.1rem,3.3vw,3.2rem)] font-extrabold leading-[1.08] tracking-[-.05em] text-[#0b203b]"
             >
               Encontre seu <span className="text-[#bd8741]">próximo lugar.</span>
             </h1>
