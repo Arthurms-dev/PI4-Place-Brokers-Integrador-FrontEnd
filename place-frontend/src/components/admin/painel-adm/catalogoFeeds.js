@@ -45,7 +45,7 @@ export function criarFeedsDoCatalogo({ data, loading, error }) {
       date: dataDe(e),
       tagLabel: e.publicado ? 'Publicado' : 'Rascunho',
       tagTone: e.publicado ? 'ok' : 'neutral',
-      ...arguments(e.atualizado_por_nome ? { author: e.atualizado_por_nome}: {}),
+      ...(e.atualizado_por_nome ? { author: e.atualizado_por_nome}: {}),
     }));
 
   return {
