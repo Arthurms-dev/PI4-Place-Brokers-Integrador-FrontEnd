@@ -1,5 +1,5 @@
 // Feed derivado exclusivamente dos empreendimentos retornados pela API.
-// Nao confundir atualizado_em com auditoria: o campo nao identifica autor ou alteracao.
+// atualizado_em/atualizado_por mostram só a última alteração (não é histórico de auditoria).
 const dataValida = (valor) => typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}/.test(valor);
 const dataDe = (imovel) => dataValida(imovel.atualizado_em)
   ? imovel.atualizado_em.slice(0, 10)
@@ -45,6 +45,7 @@ export function criarFeedsDoCatalogo({ data, loading, error }) {
       date: dataDe(e),
       tagLabel: e.publicado ? 'Publicado' : 'Rascunho',
       tagTone: e.publicado ? 'ok' : 'neutral',
+      ...arguments(e.atualizado_por_nome ? { author: e.atualizado_por_nome}: {}),
     }));
 
   return {
