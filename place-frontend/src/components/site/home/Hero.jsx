@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import LogoHero from "./LogoHero";
-import fotoDoTime from "@/assets/instagram/time-place.webp";
+import pinoPlace from "@/assets/logo-pino.webp";
 import { ETAPAS_HOME, PRAZOS_HOME, SEGMENTOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 
 const campo =
@@ -86,8 +86,19 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                   className="pb-c-photo-image absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
-                // Enquanto os destaques carregam (a API do plano gratuito pode demorar para acordar), mostra o time da Place.
-                <img src={fotoDoTime} alt="Time da Place Brokers" loading="eager" decoding="async" className="pb-c-photo-image absolute inset-0 h-full w-full object-cover" />
+                // Enquanto os destaques carregam (a API do plano gratuito pode demorar para acordar): fundo da marca Place.
+                <div className="pb-hero-fundo absolute inset-0 z-[1]" role="img" aria-label="Place Brokers: carregando os destaques">
+                  <span className="absolute inset-x-0 top-[7%] bottom-[42%] flex justify-center sm:top-[8%] sm:bottom-[30%]">
+                    <span className="pb-hero-fundo-pino flex h-full">
+                      <img src={pinoPlace} alt="" aria-hidden="true" decoding="async" className="h-full w-auto max-w-none" />
+                    </span>
+                  </span>
+                  <div className="absolute inset-x-6 bottom-6 sm:inset-x-8 sm:bottom-8">
+                    <p className="text-[10px] font-bold uppercase tracking-[.19em] text-[#eec37e]">Place Brokers</p>
+                    <p className="mt-1 text-lg font-extrabold text-white sm:text-xl">Separando os melhores destaques</p>
+                    <span className="pb-hero-fundo-barra mt-3 block h-1 w-40 overflow-hidden rounded-full bg-white/15" />
+                  </div>
+                </div>
               )}
 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#06162a]/85 via-[#06162a]/10 to-transparent" />
