@@ -34,7 +34,7 @@ export const DESTAQUES = {
 /** Números arredondados para baixo: continuam verdadeiros enquanto a Place cresce. */
 export const NUMEROS_DA_PLACE = [
   { id: "vgv", contar: true, valor: "R$ 142 mi", rotulo: "em vendas no 1º semestre de 2026", link: linkDoVideo("DbWohBrAmEO") },
-  { id: "google", contar: true, valor: "4,9", rotulo: "de nota no Google", link: MAPA_GOOGLE, estrela: true },
+  { id: "google", valor: "4,9", rotulo: "de nota no Google", link: MAPA_GOOGLE, estrela: true },
   { id: "instagram", contar: true, valor: "+20 mil", rotulo: "seguidores no Instagram", link: PERFIL_INSTAGRAM.url },
   { id: "creci", valor: "CRECI 18303-J", rotulo: "imobiliária registrada, desde 2023" },
 ];
