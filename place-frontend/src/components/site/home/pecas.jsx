@@ -1,21 +1,35 @@
 import { Icon } from "@/components/ui/Icon";
 
-export function Foto({ p, className = "" }) {
-  return p.image ? (
-    <img src={p.miniatura || p.image} alt={p.title} loading="lazy" decoding="async" className={className} />
-  ) : (
-    <div
-      className={`relative grid place-items-center overflow-hidden bg-card-2 ${className}`}
-      style={{
-        backgroundImage:
-          "radial-gradient(120% 120% at 20% 0%, rgb(233 173 90 / 0.14), transparent 60%), radial-gradient(100% 100% at 100% 100%, rgb(233 173 90 / 0.08), transparent 55%)",
-      }}
-    >
-      <Icon name="building" className="size-10 text-gold/40" />
-      <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-wide text-ink-3/70">
-        Foto em breve
-      </span>
-    </div>
+export function Foto({ p, className = "", sizes = "(min-width: 768px) 360px, 90vw" }) {
+  if (!p.image) {
+    return (
+      <div
+        className={`relative grid place-items-center overflow-hidden bg-card-2 ${className}`}
+        style={{
+          backgroundImage:
+            "radial-gradient(120% 120% at 20% 0%, rgb(233 173 90 / 0.14), transparent 60%), radial-gradient(100% 100% at 100% 100%, rgb(233 173 90 / 0.08), transparent 55%)",
+        }}
+      >
+        <Icon name="building" className="size-10 text-gold/40" />
+        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-wide text-ink-3/70">
+          Foto em breve
+        </span>
+      </div>
+    );
+  }
+
+  const temMiniatura = Boolean(p.miniatura) && p.miniatura !== p.image;
+
+  return (
+    <img
+      src={temMiniatura ? p.miniatura : p.image}
+      srcSet={temMiniatura ? `${p.miniatura} 640w, ${p.image} 1600w` : undefined}
+      sizes={temMiniatura ? sizes : undefined}
+      alt={p.title}
+      loading="lazy"
+      decoding="async"
+      className={className}
+    />
   );
 }
 
