@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import LogoHero from "./LogoHero";
-import pinoPlace from "@/assets/logo-pino.webp";
+import pinoPlace from "@/assets/logo-pino.svg";
 import { ETAPAS_HOME, PRAZOS_HOME, SEGMENTOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 
 const campo =

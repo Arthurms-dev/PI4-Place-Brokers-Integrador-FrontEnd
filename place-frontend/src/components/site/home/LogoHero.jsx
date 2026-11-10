@@ -1,5 +1,5 @@
-import pino from "@/assets/logo-pino.webp";
-import texto from "@/assets/logo-texto-escuro.webp";
+import pino from "@/assets/logo-pino.svg";
+import texto from "@/assets/logo-texto-escuro.svg";
 
 // Logo grande do topo da home (pedido da diretoria): o pino "pousa" no mapa,
 // o nome aparece da esquerda para a direita e um brilho dourado passa pelo pino.
