@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { Meter } from "@/components/admin/dashboard/charts";
 import { authService } from "@/services/authService";
 import { alterarSenha, atualizarPerfil } from "@/services/session";
@@ -42,6 +43,7 @@ function CampoSenha({ rotulo, valor, onChange, erro, auto }) {
 }
 
 export default function PerfilPage() {
+  usePageTitle("Configurações");
   const { user } = useOutletContext();
   const navigate = useNavigate();
 
@@ -148,4 +150,4 @@ export default function PerfilPage() {
       </button>
     </div>
   );
-}
+}

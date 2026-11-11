@@ -34,7 +34,7 @@ export function Foto({ p, className = "", sizes = "(min-width: 768px) 360px, 90v
 }
 
 const COR_ETAPA = {
-  Pronto: "bg-[#0f8a5f] text-white",
+  Pronto: "bg-[#0d7d56] text-white",
   "Em obras": "bg-[#1f5fae] text-white",
   "Lançamento": "bg-[#e9ad5a] text-[#1a1408]",
 };

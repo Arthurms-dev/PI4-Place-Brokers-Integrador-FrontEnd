@@ -153,7 +153,7 @@ export function Premiacoes({ tema = "claro" }) {
             <Reveal atraso={i * 70} className={`group h-full overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 hover:shadow-xl ${t.caixa} ${t.hover}`}>
               <img src={IMAGENS[p.imagem]} alt={`Place Brokers premiada pela ${p.construtora}: ${p.titulo} (${p.quando})`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105" />
               <div className="p-3 sm:p-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#a77537]">{p.construtora}</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8f6129]">{p.construtora}</p>
                 <p className={`mt-1 text-[14px] font-bold leading-snug sm:text-[15px] ${t.titulo}`}>{p.titulo}</p>
                 <p className={`mt-0.5 text-[12px] ${t.rotulo}`}>{p.quando}</p>
               </div>

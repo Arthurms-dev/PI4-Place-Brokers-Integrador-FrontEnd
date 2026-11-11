@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function Reveal({ children, atraso = 0, className = "" }) {
+/** `as` troca a tag do invólucro (ex.: "li" dentro de <ol>/<ul>, para a lista continuar válida). */
+export default function Reveal({ children, atraso = 0, className = "", as: Tag = "div" }) {
   const ref = useRef(null);
   const [visivel, setVisivel] = useState(false);
 
@@ -24,8 +25,8 @@ export default function Reveal({ children, atraso = 0, className = "" }) {
   }, []);
 
   return (
-    <div ref={ref} style={{ animationDelay: `${atraso}ms` }} className={`${visivel ? "animate-fade-up" : "opacity-0"} ${className}`}>
+    <Tag ref={ref} style={{ animationDelay: `${atraso}ms` }} className={`${visivel ? "animate-fade-up" : "opacity-0"} ${className}`}>
       {children}
-    </div>
+    </Tag>
   );
 }

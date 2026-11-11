@@ -58,8 +58,8 @@ export default function PrivacidadePage() {
           <h2 className="text-lg font-semibold">Como falar com a gente</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
             Para exercer seus direitos ou tirar dúvidas sobre seus dados, escreva para{" "}
-            <a href={`mailto:${CONTATO.email}`} className="text-gold hover:underline">{CONTATO.email}</a>{" "}
-            ou fale pelo <Link to="/contato" className="text-gold hover:underline">contato</Link>. Respondemos em até 15 dias.
+            <a href={`mailto:${CONTATO.email}`} className="text-gold underline underline-offset-2">{CONTATO.email}</a>{" "}
+            ou fale pelo <Link to="/contato" className="text-gold underline underline-offset-2">contato</Link>. Respondemos em até 15 dias.
           </p>
         </section>
       </div>

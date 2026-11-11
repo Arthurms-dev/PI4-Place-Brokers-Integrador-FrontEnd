@@ -46,11 +46,11 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
                       <b className="font-extrabold text-[#9a6a2c]">{segmento.chamadaPreco.valor}</b>
                     </span>
                   )}
-                  <span className="mt-0.5 block text-[11px] text-[#7a8ca1]">
+                  <span className="mt-0.5 block text-[11px] text-[#5b6e86]">
                     {segmento.quantidade} {segmento.quantidade === 1 ? "imóvel" : "imóveis"}
                   </span>
                 </span>
-                <Icon name="arrowRight" className="size-4 shrink-0 text-[#a77537] transition-transform group-hover:translate-x-1" />
+                <Icon name="arrowRight" className="size-4 shrink-0 text-[#8f6129] transition-transform group-hover:translate-x-1" />
               </button>
             </Reveal>
           );
@@ -93,7 +93,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
                   <strong className="block text-[16px] leading-tight text-[#102843]">Procura um usado ou pronto?</strong>
                   <span className="mt-1 block text-[12.5px] leading-snug text-[#5d7088]">Diga bairro, quartos e valor. A gente busca com as imobiliárias parceiras e volta com opções.</span>
                 </span>
-                <Icon name="arrowRight" className="size-4 shrink-0 text-[#a77537] transition-transform group-hover:translate-x-1" />
+                <Icon name="arrowRight" className="size-4 shrink-0 text-[#8f6129] transition-transform group-hover:translate-x-1" />
               </button>
             </Reveal>
           )}

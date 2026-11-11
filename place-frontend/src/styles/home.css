@@ -9,7 +9,7 @@
   --color-line-soft: #e5ebf3;
   --color-ink: #0b1f3a;
   --color-ink-2: #475b76;
-  --color-ink-3: #6b7d97;
+  --color-ink-3: #5b6e86;
   --color-gold: #996827;
   --color-gold-2: #be8b43;
   background-color: #f7f9fc;
@@ -60,7 +60,7 @@
   --color-line-soft: #e5ecf3;
   --color-ink: #0b203b;
   --color-ink-2: #465c74;
-  --color-ink-3: #657a91;
+  --color-ink-3: #5b6e86;
   background: linear-gradient(180deg, #dce8f2 0, #eaf1f7 140px, #f5f8fb 530px, #eef3f8 100%);
   color: var(--color-ink);
 }
@@ -111,7 +111,7 @@
   --color-card-2:#fff;
   --color-ink:#0b203b;
   --color-ink-2:#516783;
-  --color-ink-3:#71859c;
+  --color-ink-3:#5b6e86;
   --color-line:#dce5ee;
   --color-line-soft:#e3eaf1;
   background: linear-gradient(180deg,#edf3f8 0,#f5f7fa 550px,#f7f9fb 80%,#edf3f8 100%);

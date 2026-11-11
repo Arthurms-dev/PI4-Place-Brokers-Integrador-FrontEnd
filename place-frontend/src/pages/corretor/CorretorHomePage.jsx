@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAgora } from "@/components/leads/AtendimentoLead";
 import { AvisoNotificacoes } from "@/components/leads/AvisoNotificacoes";
@@ -240,6 +241,7 @@ function Row({ e, mostrarFase, className }) {
 }
 
 export default function CorretorHomePage() {
+  usePageTitle("Início");
   const { user } = useOutletContext();
 
   const { data: empreendimentos } = useAsyncData(listarEmpreendimentos);

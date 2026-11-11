@@ -43,7 +43,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               id="pb-home-hero-title"
               className="mt-7 max-w-[540px] font-sans text-[clamp(2.1rem,3.3vw,3.2rem)] font-extrabold leading-[1.08] tracking-[-.05em] text-[#0b203b]"
             >
-              Encontre seu <span className="text-[#bd8741]">próximo lugar.</span>
+              Seu próximo lugar <span className="text-[#bd8741]">é com a Place.</span>
             </h1>
 
             <p className="mt-5 max-w-[470px] text-[15px] leading-7 text-[#526780] sm:text-[17px]">
@@ -131,7 +131,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
             </div>
 
             {fotos.length > 1 && (
-              <div className="absolute right-5 top-5 flex gap-1.5 rounded-full bg-[#08152b]/70 p-2 backdrop-blur">
+              <div className="absolute right-4 top-4 flex rounded-full bg-[#08152b]/70 px-1 backdrop-blur">
                 {fotos.map((foto, posicao) => (
                   <button
                     key={foto.id}
@@ -139,10 +139,12 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                     aria-label={`Mostrar ${foto.title}`}
                     aria-current={posicao === indiceAtual ? "true" : undefined}
                     onClick={() => setIndice(posicao)}
-                    className={`h-1.5 rounded-full transition-[width,background] duration-300 ${
-                      posicao === indiceAtual ? "w-6 bg-[#e9ad5a]" : "w-1.5 bg-white/55 hover:bg-white"
-                    }`}
-                  />
+                    className={`group grid h-6 place-items-center transition-[width] duration-300 ${posicao === indiceAtual ? "w-9" : "w-6"}`}
+                  >
+                    <span aria-hidden="true" className={`h-1.5 rounded-full transition-[width,background] duration-300 ${
+                      posicao === indiceAtual ? "w-6 bg-[#e9ad5a]" : "w-1.5 bg-white/55 group-hover:bg-white"
+                    }`} />
+                  </button>
                 ))}
               </div>
             )}

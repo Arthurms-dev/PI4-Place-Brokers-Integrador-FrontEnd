@@ -7,6 +7,10 @@ import Reveal from "../Reveal";
 import { Etiquetas, Foto } from "./pecas";
 
 const POR_PAGINA = 9;
+const POR_PAGINA_CELULAR = 4;
+// No celular a lista fica em uma coluna: menos cartões por vez deixam a página mais curta.
+const porPagina = () =>
+  typeof window !== "undefined" && window.matchMedia?.("(max-width: 639px)")?.matches ? POR_PAGINA_CELULAR : POR_PAGINA;
 
 export function CartaoImovel({ p, i, onFalar }) {
   const destino = `/imoveis/${p.id}`;
@@ -36,7 +40,7 @@ export function CartaoImovel({ p, i, onFalar }) {
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           {p.construtora && (
-            <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#a87534]">{p.construtora}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#8f6129]">{p.construtora}</p>
           )}
           <Link
             to={destino}
@@ -53,13 +57,13 @@ export function CartaoImovel({ p, i, onFalar }) {
           <div className="h-4 shrink-0" aria-hidden="true" />
           <div className="mt-auto flex items-end justify-between gap-3 border-t border-[#e6ebf1] pt-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-[#71839a]">{temValor ? p.precoRotulo : "Valores"}</p>
+              <p className="text-[11px] font-semibold text-[#5b6e86]">{temValor ? p.precoRotulo : "Valores"}</p>
               <p className="mt-0.5 truncate text-[22px] font-extrabold tracking-tight text-[#102843]">
                 {temValor ? (
                   ehParcela ? (
                     <>
                       {p.precoValor.replace("/mês", "")}
-                      <span className="ml-0.5 text-[13px] font-bold text-[#a87534]">/mês</span>
+                      <span className="ml-0.5 text-[13px] font-bold text-[#8f6129]">/mês</span>
                     </>
                   ) : p.precoValor
                 ) : "Sob consulta"}
@@ -93,7 +97,7 @@ export default function ListaEmpreendimentos({
   const { ids } = useFavoritos();
   const [ordem, setOrdem] = useState("relevancia");
   const [soFavoritos, setSoFavoritos] = useState(false);
-  const [limite, setLimite] = useState(POR_PAGINA);
+  const [limite, setLimite] = useState(porPagina);
 
   const lista = useMemo(() => {
     const base = soFavoritos ? itens.filter((item) => ids.includes(item.id)) : itens;
@@ -101,7 +105,7 @@ export default function ListaEmpreendimentos({
   }, [itens, ids, ordem, soFavoritos]);
 
   useEffect(() => {
-    setLimite(POR_PAGINA);
+    setLimite(porPagina());
   }, [itens, ordem, soFavoritos]);
 
   return (
@@ -219,10 +223,10 @@ export default function ListaEmpreendimentos({
       {lista.length > limite && (
         <button
           type="button"
-          onClick={() => setLimite((atual) => atual + POR_PAGINA)}
+          onClick={() => setLimite((atual) => atual + porPagina())}
           className="mx-auto mt-8 block min-h-12 rounded-full border border-line bg-white px-8 text-sm font-bold text-[#0d203b] transition-colors hover:border-[#c89650]"
         >
-          Ver mais {Math.min(POR_PAGINA, lista.length - limite)} de {lista.length - limite} empreendimentos
+          Ver mais {Math.min(porPagina(), lista.length - limite)} de {lista.length - limite} empreendimentos
         </button>
       )}
     </section>

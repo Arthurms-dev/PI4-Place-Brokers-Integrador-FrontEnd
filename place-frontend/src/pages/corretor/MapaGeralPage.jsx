@@ -139,7 +139,7 @@ export default function MapaGeralPage() {
                 <MapTiles />
                 <FitBounds pontos={filtrados} />
                 {filtrados.map((e) => (
-                  <Marker key={e.id} position={[e.latitude, e.longitude]} icon={ICONES[e.status]}>
+                  <Marker key={e.id} position={[e.latitude, e.longitude]} icon={ICONES[e.status]} title={e.nome}>
                     <Popup>
                       <b>{e.nome}</b>{!e.disponivel && " (esgotado)"}<br />
                       {localExibicao(e)}<br />

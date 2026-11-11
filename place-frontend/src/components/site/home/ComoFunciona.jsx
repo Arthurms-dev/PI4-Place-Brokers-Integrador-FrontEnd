@@ -15,13 +15,13 @@ export default function ComoFunciona() {
       </Reveal>
       <ol className="grid gap-4 md:grid-cols-3">
         {PASSOS.map((p, i) => (
-          <Reveal key={p.titulo} atraso={i * 110}>
-            <li className="relative h-full rounded-2xl border border-line bg-card p-6 transition-colors duration-300 hover:border-gold/50">
+          <Reveal as="li" key={p.titulo} atraso={i * 110}>
+            <div className="relative h-full rounded-2xl border border-line bg-card p-6 transition-colors duration-300 hover:border-gold/50">
               <span className="absolute right-5 top-4 text-5xl font-semibold text-white/5" aria-hidden="true">{i + 1}</span>
               <span className="grid size-12 place-items-center rounded-xl bg-gold/15 text-gold"><Icon name={p.icone} className="size-6" /></span>
               <h3 className="mt-4 text-lg font-semibold">{p.titulo}</h3>
               <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">{p.texto}</p>
-            </li>
+            </div>
           </Reveal>
         ))}
       </ol>

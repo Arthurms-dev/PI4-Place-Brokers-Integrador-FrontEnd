@@ -110,14 +110,14 @@ export default function ProntosPage() {
           </p>
           <ol className="mt-7 space-y-4">
             {PASSOS_VENDA.map(([icone, titulo, texto], i) => (
-              <Reveal key={titulo} atraso={i * 80}>
-                <li className="flex gap-4">
+              <Reveal as="li" key={titulo} atraso={i * 80}>
+                <div className="flex gap-4">
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold"><Icon name={icone} className="size-5" /></span>
                   <div>
                     <h3 className="text-[15px] font-semibold">{i + 1}. {titulo}</h3>
                     <p className="mt-0.5 text-[14px] leading-relaxed text-ink-2">{texto}</p>
                   </div>
-                </li>
+                </div>
               </Reveal>
             ))}
           </ol>

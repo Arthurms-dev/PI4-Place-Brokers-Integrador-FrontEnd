@@ -46,8 +46,7 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
             onKeyDown={(event) => { if (event.key === "Escape") setBusca(""); }}
             placeholder="Pesquisar no menu..."
             aria-label="Buscar página do painel"
-            aria-controls="pesquisa-navegacao"
-            aria-expanded={Boolean(busca.trim())}
+            aria-controls={busca.trim() ? "pesquisa-navegacao" : undefined}
             className="min-w-0 w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
           />
         </label>
@@ -63,7 +62,7 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
-        <Link to="/" aria-label="Abrir o site publico da Place Brokers"
+        <Link to="/" aria-label="Ver site público da Place Brokers"
           className="hidden h-10 shrink-0 items-center gap-2 rounded-lg border border-line px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-gold/50 hover:text-gold md:inline-flex">
           <Icon name="home" className="size-4" /> Ver site
         </Link>
@@ -84,6 +83,7 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
             className="pb-account-button flex items-center gap-3 rounded-xl px-1 py-1 transition-colors hover:bg-white/5"
           >
             <Avatar name={user.name} src={user.avatarUrl} />
+            <span className="sr-only">Abrir menu da conta</span>
             <div className="hidden text-left sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>
               <div className="text-[11px] text-ink-3">{user.role}</div>

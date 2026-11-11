@@ -10,7 +10,7 @@ const pino = L.divIcon({
   iconAnchor: [13, 26],
 });
 
-export default function MiniMapa({ lat, lng }) {
+export default function MiniMapa({ lat, lng, titulo = "Localização do empreendimento" }) {
   return (
     <MapContainer
       center={[lat, lng]}
@@ -20,7 +20,7 @@ export default function MiniMapa({ lat, lng }) {
       className="size-full bg-card-2"
     >
       <MapTiles />
-      <Marker position={[lat, lng]} icon={pino} />
+      <Marker position={[lat, lng]} icon={pino} title={titulo} />
     </MapContainer>
   );
 }

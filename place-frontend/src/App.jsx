@@ -1,8 +1,10 @@
 import { lazy, Suspense } from "react";
+import * as Sentry from "@sentry/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import SiteLayout from "@/components/site/SiteLayout";
 import HomePage from "@/pages/HomePage";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import ErroDeTela from "@/components/ui/ErroDeTela";
 
 
 const SobrePage = lazy(() => import("@/pages/SobrePage"));
@@ -43,6 +45,8 @@ const FocosEquipePage = lazy(() => import("@/pages/gerente/FocosEquipePage"));
 
 export default function App() {
   return (
+    // Se uma tela quebrar, mostra um aviso com saída em vez de deixar a página em branco.
+    <Sentry.ErrorBoundary fallback={<ErroDeTela />}>
     <Suspense fallback={<div role="status" className="grid min-h-[50vh] place-items-center bg-page px-6 text-sm text-ink-2">Carregando página…</div>}>
       <Routes>
       <Route element={<SiteLayout />}>
@@ -121,5 +125,6 @@ export default function App() {
       <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
+    </Sentry.ErrorBoundary>
   );
 }
