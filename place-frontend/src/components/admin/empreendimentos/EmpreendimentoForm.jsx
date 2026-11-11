@@ -7,6 +7,7 @@ import TipologiasForm from "./TipologiasForm";
 import DocumentosComerciaisForm from "./DocumentosComerciaisForm";
 import ImagensEmpreendimentoForm from "./ImagensEmpreendimentoForm";
 import { auditarTipologias } from "@/lib/auditoriaTipologias";
+import { avisoDeSegmento } from "@/lib/precoCatalogo";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const MAX_ARQUIVO = 15 * 1024 * 1024;
@@ -104,6 +105,7 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     descricao: emp?.descricao ?? "",
     publicado: emp?.publicado ?? false,
     disponivel: emp?.disponivel ?? true,
+    destaque: emp?.destaque ?? false,
   }));
   const [tipologias, setTipologias] = useState(() =>
     Array.isArray(emp?.tipologias) ? emp.tipologias : []
@@ -207,6 +209,8 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
         disponivel: f.disponivel,
+        // O destaque só é aceito na edição (o cadastro novo entra sem destaque).
+        ...(emp ? { destaque: f.destaque } : {}),
       };
       const salvo = emp ? await atualizarEmpreendimento(emp.id, base) : await criarEmpreendimento({ ...base, ...arquivos });
       onSalvo(salvo, !emp);
@@ -311,6 +315,11 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
               <input type="month" value={f.previsaoEntrega} onChange={set("previsaoEntrega")} disabled={f.status === "pronto"} className={`${CAMPO} ${borda(erros, "previsaoEntrega")} disabled:opacity-50`} />
             </Campo>
           </div>
+          {avisoDeSegmento(f) && (
+            <p role="status" className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-xs leading-5 text-amber-700 dark:text-amber-300">
+              {avisoDeSegmento(f)}
+            </p>
+          )}
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
         </Secao>
         {emp && avisosTipologias.length > 0 && (
@@ -390,6 +399,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         <Secao titulo="Publicação">
           <Interruptor ativo={f.publicado} onChange={(v) => setF((s) => ({ ...s, publicado: v }))} rotulo="Publicado" ajuda="Visível para quem não está logado" />
           <Interruptor ativo={f.disponivel} onChange={(v) => setF((s) => ({ ...s, disponivel: v }))} rotulo="Disponível para venda" ajuda="Desmarque quando as unidades acabarem" />
+          {emp && (
+            <Interruptor ativo={f.destaque} onChange={(v) => setF((s) => ({ ...s, destaque: v }))} rotulo="Destaque na tela inicial" ajuda="Aparece primeiro no topo e na lista do site" />
+          )}
         </Secao>
         <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">
           {enviando ? (emp ? "Salvando..." : "Enviando arquivos...") : emp ? "Salvar alterações" : "Cadastrar empreendimento"}

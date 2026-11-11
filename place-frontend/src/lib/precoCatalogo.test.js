@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { prazoDoEmpreendimento, precoDoEmpreendimento } from "./precoCatalogo";
+import { avisoDeSegmento, prazoDoEmpreendimento, precoDoEmpreendimento } from "./precoCatalogo";
 
 const limpa = (s) => s.replace(/\s/g, " ");
 
@@ -20,6 +20,19 @@ describe("precoDoEmpreendimento", () => {
   it("MCMV sem parcela cai no valor total; sem nada vira sob consulta", () => {
     expect(precoDoEmpreendimento({ segmento: "mcmv", preco_min: 225000 }).rotulo).toBe("A partir de");
     expect(precoDoEmpreendimento({}).valor).toBe("Sob consulta");
+  });
+});
+
+describe("avisoDeSegmento", () => {
+  it("médio padrão é acima de R$ 300 mil", () => {
+    expect(avisoDeSegmento({ segmento: "medio_padrao", precoMin: "279000" })).toMatch(/o segmento é MCMV/);
+    expect(avisoDeSegmento({ segmento: "mcmv", precoMin: 314000 })).toMatch(/Médio padrão/);
+  });
+  it("não avisa quando está dentro da regra ou sem preço", () => {
+    expect(avisoDeSegmento({ segmento: "mcmv", precoMin: 300000 })).toBeNull();
+    expect(avisoDeSegmento({ segmento: "medio_padrao", precoMin: 300001 })).toBeNull();
+    expect(avisoDeSegmento({ segmento: "litoral", precoMin: 219322 })).toBeNull();
+    expect(avisoDeSegmento({ segmento: "medio_padrao", precoMin: "" })).toBeNull();
   });
 });
 

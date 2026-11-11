@@ -134,8 +134,11 @@ export function numerosDoCatalogo(itens) {
 export function ordenarCatalogo(lista, ordem) {
   const copia = [...lista];
   if (ordem === "menor") {
-    // MCMV primeiro pelo valor total também, para a ordem fazer sentido entre segmentos.
-    copia.sort((a, b) => (a.precoMin ?? Infinity) - (b.precoMin ?? Infinity));
+    // Quem mostra parcela (MCMV) vem primeiro, da menor parcela para a maior; depois, os demais pelo valor total.
+    const parcela = (i) => (i.segmento === "mcmv" && i.parcelaMin != null ? i.parcelaMin : Infinity);
+    const total = (i) => i.precoMin ?? Infinity;
+    const comparar = (x, y) => (x === y ? 0 : x - y);
+    copia.sort((a, b) => comparar(parcela(a), parcela(b)) || comparar(total(a), total(b)));
   } else if (ordem === "entrega") {
     const quando = (i) => (i.tag === "Pronto" ? 0 : i.entregaEm ? Date.parse(i.entregaEm) : Infinity);
     copia.sort((a, b) => quando(a) - quando(b));

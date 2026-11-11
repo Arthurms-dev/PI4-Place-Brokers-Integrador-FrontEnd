@@ -1,6 +1,7 @@
 // Regras de exibição de preço e prazo do catálogo (definidas pela Place):
 // - MCMV: "Parcelas a partir de" (R$ 399, 499, 599 ou 699, conforme localização e produto) -> campo parcela_min
 // - Médio padrão, alto padrão e litoral: "A partir de" = valor total da unidade mais barata -> preco_min
+// - Médio padrão é acima de R$ 300 mil (pela unidade mais barata); até esse valor, o segmento é MCMV
 // - Prazo: "Pronto para morar" quando status = pronto; senão "Entrega prevista: mês/ano" (previsao_entrega)
 
 export const SEGMENTOS = {
@@ -18,6 +19,22 @@ const numero = (v) => {
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? n : null;
 };
+
+/** Regra da Place: médio padrão é acima deste valor (pela unidade mais barata). */
+export const PISO_MEDIO_PADRAO = 300_000;
+
+/** Aviso para o cadastro quando o segmento não combina com o preço; null quando está certo. */
+export function avisoDeSegmento({ segmento, precoMin } = {}) {
+  const preco = numero(precoMin);
+  if (preco == null) return null;
+  if (segmento === "medio_padrao" && preco <= PISO_MEDIO_PADRAO) {
+    return "Pela regra da Place, médio padrão é acima de R$ 300 mil. Com este preço, o segmento é MCMV.";
+  }
+  if (segmento === "mcmv" && preco > PISO_MEDIO_PADRAO) {
+    return "Pela regra da Place, acima de R$ 300 mil o segmento é Médio padrão.";
+  }
+  return null;
+}
 
 /**
  * @param {{ segmento?: string, parcela_min?: number|string, preco_min?: number|string }} emp

@@ -69,8 +69,15 @@ describe("ordenarCatalogo", () => {
   it("entrega mais próxima coloca prontos primeiro", () => {
     expect(ordenarCatalogo(itens, "entrega").map((i) => i.id)).toEqual(["3", "2", "4", "1"]);
   });
-  it("menor valor usa o valor total", () => {
-    expect(ordenarCatalogo(itens, "menor").map((i) => i.id)).toEqual(["1", "4", "2", "3"]);
+  it("menor valor: menores parcelas primeiro, depois o valor total", () => {
+    const lista = [
+      ...itens,
+      { id: "5", segmento: "mcmv", parcelaMin: 499, precoMin: 280000 },
+      { id: "6", segmento: "mcmv", parcelaMin: null, precoMin: 200000 },
+      { id: "7", segmento: "mcmv", parcelaMin: 499, precoMin: 210000 },
+      { id: "8", segmento: "medio_padrao", parcelaMin: null, precoMin: null },
+    ];
+    expect(ordenarCatalogo(lista, "menor").map((i) => i.id)).toEqual(["1", "7", "5", "4", "6", "2", "3", "8"]);
   });
 });
 
