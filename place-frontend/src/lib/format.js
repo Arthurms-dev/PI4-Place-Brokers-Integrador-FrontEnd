@@ -1,7 +1,8 @@
 const TZ = "America/Sao_Paulo";
 
 export function formatNumber(value, maxFractionDigits = 0) {
-  return value.toLocaleString("pt-BR", { maximumFractionDigits: maxFractionDigits });
+  const numero = Number(value);
+  return Number.isFinite(numero) ? numero.toLocaleString("pt-BR", { maximumFractionDigits: maxFractionDigits }) : "—";
 }
 
 export function formatShortDate(iso) {

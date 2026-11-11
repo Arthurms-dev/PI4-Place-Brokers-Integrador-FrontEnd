@@ -1,0 +1,31 @@
+name: Monitor do site
+
+# Confere de hora em hora se o site abre e se o catálogo devolve imóveis.
+# Se falhar, o GitHub manda e-mail para quem editou este arquivo por último.
+# (Em novembro/2026 o catálogo ficou dois dias fora do ar sem ninguém perceber.)
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Site no ar
+        run: curl -fsS --max-time 30 -o /dev/null https://placebrokers-frontend.vercel.app/
+
+      - name: Catálogo responde com imóveis
+        run: |
+          # No plano gratuito a API pode levar cerca de 1 minuto para acordar: tenta 3 vezes.
+          ok=0
+          for tentativa in 1 2 3; do
+            if curl -fsS --max-time 90 -o lista.json https://placebrokers-api.onrender.com/empreendimentos; then ok=1; break; fi
+            sleep 20
+          done
+          test "$ok" -eq 1
+          total=$(jq 'length' lista.json)
+          echo "Empreendimentos publicados: $total"
+          test "$total" -gt 0

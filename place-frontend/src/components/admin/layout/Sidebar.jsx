@@ -5,8 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
-  { label: "Imóveis", href: "/admin/imoveis", icon: "home" },
+  { label: "Início", href: "/admin/dashboard", icon: "dashboard" },
   { label: "Leads", href: "/admin/leads", icon: "users" },
   { label: "Clientes", href: "/admin/clientes", icon: "user" },
   { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },
@@ -38,22 +37,25 @@ export function Sidebar({
       <aside
         id="admin-sidebar"
         className={cn(
-          "fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-line-soft bg-side pb-6 transition-transform",
+          "pb-sidebar fixed inset-y-0 left-0 z-30 flex w-[16.5rem] flex-col overflow-y-auto border-r border-line-soft bg-side pb-6 transition-transform",
           "lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-20 items-center border-b border-line-soft px-6">
-          <Link to={home} aria-label="Place Brokers - início">
-            <Logo />
+        <div className="flex min-h-24 items-center border-b border-line-soft px-6">
+          <Link to={home} aria-label="Place Brokers - início" className="flex flex-col gap-1.5">
+            <Logo className="max-h-12" />
           </Link>
         </div>
 
-        <nav aria-label="Menu principal" className="flex flex-col gap-1 px-3.5 pt-4">
+        <nav aria-label="Menu principal" className="flex flex-col gap-1 px-3 pt-6">
+          <p className="mb-3 px-4 text-[10px] font-semibold uppercase tracking-[0.19em] text-ink-3">Navegação</p>
           {items.map((item) => {
+            // `match`: outras rotas que fazem parte da mesma entrada (ex.: mapa e books dentro de Empreendimentos).
+            const caminhos = [item.href, ...(item.match ?? [])];
             const active = item.end
               ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              : caminhos.some((h) => pathname === h || pathname.startsWith(`${h}/`));
             return (
               <Link
                 key={item.href}
@@ -61,14 +63,15 @@ export function Sidebar({
                 onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-10 items-center gap-3.5 rounded-lg px-4.5 text-[13px] transition-colors",
+                  "pb-nav-item relative flex min-h-11 items-center gap-3 rounded-xl px-4 text-[13px] font-medium transition-colors",
                   active
-                    ? "bg-gold-gradient font-medium text-[#1a1408] shadow-[0_4px_14px_rgba(233,173,90,.25)]"
+                    ? "pb-nav-active bg-gold/10 text-gold"
                     : "text-ink-2 hover:bg-white/5 hover:text-ink",
                 )}
               >
-                <Icon name={item.icon} />
-                {item.label}
+                <Icon name={item.icon} className="size-[18px] shrink-0" />
+                <span>{item.label}</span>
+                {active && <span className="ml-auto size-1.5 rounded-full bg-gold" aria-hidden="true" />}
               </Link>
             );
           })}
@@ -82,35 +85,12 @@ export function Sidebar({
 
 export function SidebarPromo() {
   return (
-    <div className="relative mx-4 mt-auto overflow-hidden rounded-xl border border-line bg-linear-to-br from-[#1b3a66] to-[#0c1d3a] px-4 pb-4 pt-22">
-      <svg
-        viewBox="0 0 160 110"
-        preserveAspectRatio="xMidYMax slice"
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-28 w-full opacity-55"
-      >
-        <g fill="#2a4a7d">
-          <rect x="18" y="30" width="42" height="80" />
-          <rect x="66" y="8" width="38" height="102" />
-          <rect x="110" y="42" width="34" height="68" />
-        </g>
-        <g fill="#e9ad5a" opacity=".75">
-          <rect x="24" y="40" width="4" height="6" /><rect x="34" y="52" width="4" height="6" /><rect x="44" y="40" width="4" height="6" />
-          <rect x="72" y="20" width="4" height="6" /><rect x="84" y="34" width="4" height="6" /><rect x="72" y="58" width="4" height="6" /><rect x="92" y="20" width="4" height="6" />
-          <rect x="118" y="54" width="4" height="6" /><rect x="128" y="68" width="4" height="6" />
-        </g>
-      </svg>
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-page/85 to-page" />
-      <div className="relative">
-        <h4 className="text-[13px] font-bold leading-tight">
-          Mais visibilidade
-          <br />
-          para o seu imóvel
-        </h4>
-        <p className="mb-3.5 mt-1.5 text-[11px] text-ink-2">Invista em tecnologia e alcance mais clientes.</p>
-        <ButtonLink to="/admin/imoveis/novo" className="w-full">
-          Cadastrar imóvel
-        </ButtonLink>
+    <div className="pb-sidebar-quick mx-4 mt-auto pt-8">
+      <div className="rounded-2xl border border-line bg-card-2 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">Acesso rápido</p>
+        <h4 className="mt-2 text-[14px] font-semibold leading-snug">Seu catálogo em um lugar</h4>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">Consulte e gerencie os empreendimentos da plataforma.</p>
+        <ButtonLink to="/admin/imoveis" className="mt-4 w-full">Ver empreendimentos</ButtonLink>
       </div>
     </div>
   );

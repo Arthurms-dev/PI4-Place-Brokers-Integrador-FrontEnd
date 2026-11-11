@@ -1,245 +1,314 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useMemo, useState } from "react";
+import { Link, useOutletContext } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
-import { EMPREENDIMENTOS, STATUS } from "@/services/empreendimentos";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { useAgora } from "@/components/leads/AtendimentoLead";
+import { AvisoNotificacoes } from "@/components/leads/AvisoNotificacoes";
+import { listarEmpreendimentos, STATUS } from "@/services/empreendimentos";
+import { listarAgendamentos } from "@/services/agenda";
+import { compromissosDeHoje, localDoCompromisso } from "@/lib/agendaCalendario";
+import { leadsEsperando, resumirInicio, ultimosAcessos } from "@/lib/inicioCorretor";
+import { atualizarStatusLead, listarMeusLeads } from "@/services/meusLeads";
+import { listarVendas } from "@/services/vendas";
+import { listarMeusAcessos } from "@/services/eventos";
+import { listarRetornos, registrarAtividade } from "@/services/leadAtividades";
+import { chegadaDoLead, linkLigar, linkWhatsApp, tempoDesde, urgencia } from "@/lib/atendimento";
+import { minhaRoleta } from "@/services/roleta";
+import { situacaoDoCorretor } from "@/lib/roleta";
 
-const SHORTCUTS = [
-  { icon: "book", title: "Ver Book e Tabelas", desc: "Acesse as tabelas atualizadas e materiais dos empreendimentos.", to: "/corretor/books" },
-  { icon: "building", title: "Empreendimentos", desc: "Veja todos os lançamentos e em andamento.", to: "/corretor/empreendimentos" },
-  { icon: "mapPin", title: "Mapa Geral", desc: "Localize todos os empreendimentos no mapa e filtre por região.", to: "/corretor/mapa" },
-  { icon: "userPlus", title: "Cadastrar Cliente", desc: "Adicione um novo cliente e acompanhe o histórico.", to: "/corretor/clientes/novo" },
-];
+const local = (e) => [e.bairro, e.cidade && `${e.cidade}/${e.uf}`].filter(Boolean).join(" · ");
+const hora = (iso) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+const hojePorExtenso = () => new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-const pin = (color) =>
-  L.divIcon({
-    className: "",
-    html: `<span style="display:block;width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.5);background:${color}"></span>`,
-    iconSize: [22, 22], iconAnchor: [11, 22], popupAnchor: [0, -22],
-  });
-const PIN_ICONS = Object.fromEntries(Object.entries(STATUS).map(([k, v]) => [k, pin(v.color)]));
+const COR_ESPERA = { ok: "text-emerald-300", atencao: "text-amber-300", atrasado: "text-danger" };
 
-const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-const uniq = (a) => [...new Set(a)].sort();
-const local = (e) => `${e.bairro} · ${e.cidade}/${e.uf}`;
+/**
+ * O mais urgente do dia: lead novo esperando o primeiro contato, com ligar e WhatsApp à mão.
+ * Quem retorna primeiro leva o cliente.
+ */
+function LeadsEsperando({ leads }) {
+  const agora = useAgora();
+  const [atendidos, setAtendidos] = useState(() => new Set());
+  const lista = leadsEsperando(leads, atendidos);
+  if (lista.length === 0) return null;
 
-function FitBounds({ pontos }) {
-  const map = useMap();
-  useEffect(() => {
-    if (pontos.length) map.fitBounds(pontos.map((p) => [p.lat, p.lng]), { padding: [40, 40], maxZoom: 15 });
-  }, [pontos, map]);
-  return null;
-}
+  function contato(lead, tipo) {
+    registrarAtividade(lead.id, {
+      tipo,
+      descricao: tipo === "ligacao" ? "Ligou para o cliente pelo app." : "Abriu a conversa no WhatsApp pelo app.",
+    }).catch(() => {});
+    atualizarStatusLead(lead.id, "em_atendimento").catch(() => {});
+    setAtendidos((s) => new Set(s).add(lead.id));
+  }
 
-function Thumb({ e, tag, className }) {
+  const pior = urgencia(chegadaDoLead(lista[0]), agora);
   return (
-    <div
-      className={cn("relative shrink-0 rounded-lg bg-card-2 bg-cover bg-center", className)}
-      style={e.capa ? { backgroundImage: `url(${e.capa})` } : undefined}
-    >
-      {tag && (
-        <span
-          className="absolute left-2 top-2 rounded-md px-2 py-0.5 text-[11px] font-semibold text-page"
-          style={{ background: STATUS[e.status].color }}
-        >
-          {STATUS[e.status].label}
-        </span>
-      )}
-    </div>
+    <section className={cn("rounded-xl border p-4", pior === "atrasado" ? "border-danger/50 bg-danger/10" : "border-gold/50 bg-gold/10")}>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-semibold">
+          <Icon name="userPlus" className={cn("size-4.5", pior === "atrasado" ? "text-danger" : "text-gold")} />
+          {lista.length === 1 ? "1 lead esperando contato" : `${lista.length} leads esperando contato`}
+        </h2>
+        <Link to="/corretor/leads" className="inline-flex shrink-0 items-center gap-1 text-[12px] text-gold hover:underline">
+          Meus leads <Icon name="arrowRight" className="size-3.5" />
+        </Link>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {lista.slice(0, 3).map((l) => (
+          <li key={l.id} className="flex items-center gap-2.5 rounded-lg bg-card px-3 py-2.5">
+            <span className="min-w-0 flex-1">
+              <b className="block truncate text-[14px] font-medium">{l.nome}</b>
+              <small className="block truncate text-[12px] text-ink-3">
+                <span className={COR_ESPERA[urgencia(chegadaDoLead(l), agora)]}>{tempoDesde(chegadaDoLead(l), agora)}</span>
+                {l.empreendimento?.nome ? ` · ${l.empreendimento.nome}` : ""}
+              </small>
+            </span>
+            {l.telefone && (
+              <>
+                <a href={linkWhatsApp(l.telefone)} target="_blank" rel="noreferrer" onClick={() => contato(l, "whatsapp")}
+                  aria-label={`WhatsApp de ${l.nome}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-[#25D366] text-[#06210f]">
+                  <Icon name="messageCircle" className="size-4.5" />
+                </a>
+                <a href={linkLigar(l.telefone)} onClick={() => contato(l, "ligacao")}
+                  aria-label={`Ligar para ${l.nome}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-gold-gradient text-[#1a1408]">
+                  <Icon name="phone" className="size-4.5" />
+                </a>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+      {lista.length > 3 && <p className="mt-2 text-[12px] text-ink-2">e mais {lista.length - 3} em Meus leads.</p>}
+    </section>
   );
 }
 
-function Row({ e, tag, className }) {
+/** Números da semana numa linha só; cada um leva para a tela certa. */
+function NumerosRapidos({ resumo, carregando }) {
+  const cards = [
+    {
+      to: "/corretor/leads", rotulo: "Em atendimento", valor: resumo.leadsEmAtendimento,
+      rodape: resumo.leadsNovos ? plural(resumo.leadsNovos, "novo esperando", "novos esperando") : "Nenhum novo esperando",
+    },
+    {
+      to: "/corretor/agenda", rotulo: "Visitas na semana", valor: resumo.visitasSemana,
+      rodape: resumo.visitasPendentes ? `${plural(resumo.visitasPendentes, "ainda vai acontecer", "ainda vão acontecer")}` : "Segunda a domingo",
+    },
+    {
+      to: "/corretor/vendas", rotulo: "VGV confirmado", valor: brl(resumo.vgvConfirmado), destaque: true,
+      rodape: resumo.vendasPendentes ? `${plural(resumo.vendasPendentes, "venda aguardando", "vendas aguardando")} · ${brl(resumo.valorPendente)}` : plural(resumo.vendasConfirmadas, "venda confirmada", "vendas confirmadas"),
+    },
+  ];
+  return (
+    <section aria-label="Seus números" className="grid grid-cols-3 gap-2 sm:gap-3">
+      {cards.map((c) => (
+        <Link key={c.to} to={c.to} className="min-w-0 rounded-xl border border-line bg-card px-3 py-2.5 transition-colors hover:border-gold sm:p-4">
+          <span className="block text-[11px] leading-tight text-ink-3 sm:truncate sm:text-[12px]">{c.rotulo}</span>
+          <strong className={cn("mt-0.5 block truncate text-lg font-semibold sm:text-2xl", c.destaque && "text-gold")}>{carregando ? "…" : c.valor}</strong>
+          <small className="mt-0.5 hidden truncate text-[12px] text-ink-3 sm:block">{carregando ? "\u00a0" : c.rodape}</small>
+        </Link>
+      ))}
+    </section>
+  );
+}
+
+/** Aviso dentro do site quando o corretor entra no dia de uma visita/reunião. */
+function AvisoDoDia({ agendamentos }) {
+  const hoje = compromissosDeHoje(agendamentos);
+  if (hoje.length === 0) return null;
+
+  return (
+    <section role="status" className="rounded-xl border border-gold/40 bg-gold/10 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium">
+          <Icon name="bell" className="size-4.5 text-gold" />
+          {hoje.length === 1 ? "Você tem 1 compromisso hoje" : `Você tem ${hoje.length} compromissos hoje`}
+        </h2>
+        <Link to="/corretor/agenda" className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
+          Ver agenda <Icon name="arrowRight" className="size-3.5" />
+        </Link>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {hoje.slice(0, 3).map((a) => (
+          <li key={a.id}>
+            <Link to="/corretor/agenda" className="flex items-center gap-3 rounded-lg bg-card px-3 py-2.5 hover:bg-card-2">
+              <span className="w-12 shrink-0 text-[15px] font-semibold text-gold">{hora(a.dataHora)}</span>
+              <span className="min-w-0 flex-1">
+                <b className="block truncate text-[13px] font-medium">{a.cliente?.nome ?? "Cliente"}</b>
+                <small className="flex items-center gap-1 truncate text-[11px] text-ink-3">
+                  <Icon name={a.tipo === "visita_imovel" ? "mapPin" : "home"} className="size-3 shrink-0" />
+                  {localDoCompromisso(a)}
+                </small>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {hoje.length > 3 && <p className="mt-2 text-[12px] text-ink-2">e mais {hoje.length - 3} na agenda.</p>}
+    </section>
+  );
+}
+
+/** Posição do corretor na roleta de leads de hoje (lista de chegada da recepção). */
+function RoletaDeHoje({ minha }) {
+  const s = situacaoDoCorretor(minha);
+  if (!s) return null;
+  return (
+    <section
+      className={cn(
+        "flex items-start gap-3 rounded-xl border p-4",
+        s.tom === "ok" ? "border-ok/40 bg-ok/10" : s.tom === "aviso" ? "border-gold/40 bg-gold/10" : "border-line bg-card",
+      )}
+    >
+      <Icon name="refresh" className={cn("mt-0.5 size-4.5 shrink-0", s.tom === "ok" ? "text-ok" : s.tom === "aviso" ? "text-gold" : "text-ink-3")} />
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-medium">{s.titulo}</h2>
+        <p className="mt-0.5 text-[12px] text-ink-2">{s.detalhe}</p>
+      </div>
+    </section>
+  );
+}
+
+/** Lembretes de retorno atrasados ou de hoje (marcados em "Lembrete" no lead). */
+function RetornosDeHoje({ retornos }) {
+  const fimDoDia = new Date();
+  fimDoDia.setHours(23, 59, 59, 999);
+  const lista = (retornos ?? []).filter((r) => new Date(r.proximoContatoEm) <= fimDoDia);
+  if (lista.length === 0) return null;
+  const atrasados = lista.filter((r) => r.atrasado).length;
+
+  return (
+    <section className={cn("rounded-xl border p-4", atrasados ? "border-danger/40 bg-danger/10" : "border-gold/40 bg-gold/10")}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium">
+          <Icon name="phone" className={cn("size-4.5", atrasados ? "text-danger" : "text-gold")} />
+          {lista.length === 1 ? "1 retorno para fazer" : `${lista.length} retornos para fazer`}
+          {atrasados > 0 && <span className="text-[12px] font-normal text-danger">· {atrasados} atrasado{atrasados > 1 ? "s" : ""}</span>}
+        </h2>
+        <Link to="/corretor/leads" className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
+          Ver leads <Icon name="arrowRight" className="size-3.5" />
+        </Link>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {lista.slice(0, 4).map((r) => (
+          <li key={r.atividadeId} className="flex items-center gap-3 rounded-lg bg-card px-3 py-2.5">
+            <span className={cn("w-12 shrink-0 text-[15px] font-semibold", r.atrasado ? "text-danger" : "text-gold")}>{hora(r.proximoContatoEm)}</span>
+            <span className="min-w-0 flex-1">
+              <b className="block truncate text-[13px] font-medium">{r.nome}</b>
+              <small className="block truncate text-[11px] text-ink-3">{[r.empreendimento?.nome, r.nota].filter(Boolean).join(" · ")}</small>
+            </span>
+            {r.telefone && (
+              <a href={linkLigar(r.telefone)} aria-label={`Ligar para ${r.nome}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-gold-gradient text-[#1a1408]">
+                <Icon name="phone" className="size-4.5" />
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+      {lista.length > 4 && <p className="mt-2 text-[12px] text-ink-2">e mais {lista.length - 4} em Meus leads.</p>}
+    </section>
+  );
+}
+
+function Thumb({ e, className }) {
+  return (
+    <div
+      className={cn("shrink-0 rounded-lg bg-card-2 bg-cover bg-center", className)}
+      style={e.capa_url ? { backgroundImage: `url(${e.capa_miniatura_url || e.capa_url})` } : undefined}
+    />
+  );
+}
+
+function Row({ e, mostrarFase, className }) {
+  const fase = STATUS[e.status];
   return (
     <Link to={`/corretor/empreendimentos/${e.id}`} className={cn("flex items-center gap-3 py-2.5", className)}>
-      <Thumb e={e} tag={tag} className="h-12 w-16" />
+      <Thumb e={e} className="h-12 w-16" />
       <div className="min-w-0 flex-1">
         <b className="block truncate text-[13px] font-medium">{e.nome}</b>
-        <small className="text-[11px] text-ink-3">{local(e)}</small>
+        <small className="flex items-center gap-1.5 truncate text-[11px] text-ink-3">
+          {mostrarFase && fase && <span className="size-2 shrink-0 rounded-full" style={{ background: fase.color }} aria-hidden="true" />}
+          {mostrarFase && fase ? `${fase.label} · ` : ""}{local(e)}
+        </small>
       </div>
-      {!tag && <Icon name="arrowRight" className="size-4 text-ink-3" />}
+      <Icon name="arrowRight" className="size-4 shrink-0 text-ink-3" />
     </Link>
   );
 }
 
-export default function CorretorHomePage({ nome = "João Victor" }) {
-  const [f, setF] = useState({ uf: "PE", cidade: "Recife", bairro: "", busca: "" });
-  const [ocultos, setOcultos] = useState([]);
+export default function CorretorHomePage() {
+  usePageTitle("Início");
+  const { user } = useOutletContext();
 
-  const set = (k, v) =>
-    setF((s) => ({ ...s, [k]: v, ...(k === "uf" && { cidade: "", bairro: "" }), ...(k === "cidade" && { bairro: "" }) }));
-  const limpar = () => { setF({ uf: "", cidade: "", bairro: "", busca: "" }); setOcultos([]); };
-  const alternar = (s) => setOcultos((o) => (o.includes(s) ? o.filter((x) => x !== s) : [...o, s]));
-
-  const lista = EMPREENDIMENTOS; // TODO: trocar por useAsyncData(listarEmpreendimentos) quando o back existir
-  const ufs = uniq(lista.map((e) => e.uf));
-  const cidades = uniq(lista.filter((e) => !f.uf || e.uf === f.uf).map((e) => e.cidade));
-  const bairros = uniq(lista.filter((e) => (!f.uf || e.uf === f.uf) && (!f.cidade || e.cidade === f.cidade)).map((e) => e.bairro));
-
-  const filtrados = useMemo(() => {
-    const q = norm(f.busca.trim());
-    return lista.filter(
-      (e) =>
-        (!f.uf || e.uf === f.uf) && (!f.cidade || e.cidade === f.cidade) && (!f.bairro || e.bairro === f.bairro) &&
-        !ocultos.includes(e.status) && (!q || norm(`${e.nome} ${e.bairro} ${e.cidade}`).includes(q)),
-    );
-  }, [lista, f, ocultos]);
-
-  const destaque = filtrados.find((e) => e.status === "lancamento") ?? filtrados[0];
-  const recentes = [...lista].sort((a, b) => b.atualizadoEm.localeCompare(a.atualizadoEm)).slice(0, 3);
+  const { data: empreendimentos } = useAsyncData(listarEmpreendimentos);
+  const lista = useMemo(() => empreendimentos ?? [], [empreendimentos]);
+  const agenda = useAsyncData(listarAgendamentos);
+  const leads = useAsyncData(listarMeusLeads);
+  const vendas = useAsyncData(listarVendas);
+  const acessos = useAsyncData(listarMeusAcessos);
+  const retornos = useAsyncData(listarRetornos);
+  const roleta = useAsyncData(minhaRoleta);
+  const resumo = useMemo(
+    () => resumirInicio({ leads: leads.data ?? [], agendamentos: agenda.data ?? [], vendas: vendas.data ?? [] }),
+    [leads.data, agenda.data, vendas.data],
+  );
+  const vistos = useMemo(() => ultimosAcessos(acessos.data ?? [], lista), [acessos.data, lista]);
+  const recentes = useMemo(
+    () => [...lista].sort((a, b) => (b.atualizado_em ?? "").localeCompare(a.atualizado_em ?? "")).slice(0, 3),
+    [lista],
+  );
 
   return (
-    <div className="space-y-4.5">
+    <div className="space-y-4">
       <header>
-        <h1 className="text-[28px] font-semibold">Olá, {nome}!</h1>
-        <p className="mt-1.5 max-w-lg text-[13px] text-ink-2">
-          Encontre os empreendimentos certos para cada cliente, com tudo o que você precisa em um só lugar.
-        </p>
+        <h1 className="text-[24px] font-semibold sm:text-[28px]">Olá, {user.name.split(" ")[0]}!</h1>
+        <p className="text-[13px] text-ink-3 first-letter:uppercase">{hojePorExtenso()}</p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {SHORTCUTS.map((s) => (
-          <Link
-            key={s.to}
-            to={s.to}
-            className="group relative flex flex-col gap-1.5 rounded-xl border border-line bg-card p-4 transition-colors hover:border-gold"
-          >
-            <span className="mb-1 grid size-11 place-items-center rounded-full bg-gold/15 text-gold">
-              <Icon name={s.icon} className="size-5.5" />
-            </span>
-            <h3 className="text-[15px] font-medium">{s.title}</h3>
-            <p className="pr-6 text-[12px] text-ink-3">{s.desc}</p>
-            <Icon name="arrowRight" className="absolute bottom-4 right-4 size-4.5 text-ink-3 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        ))}
-      </section>
+      <LeadsEsperando leads={leads.data ?? []} />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+      <AvisoNotificacoes />
+
+      <RoletaDeHoje minha={roleta.data} />
+
+      <RetornosDeHoje retornos={retornos.data} />
+
+      <AvisoDoDia agendamentos={agenda.data} />
+
+      <NumerosRapidos resumo={resumo} carregando={leads.loading || agenda.loading || vendas.loading} />
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-xl border border-line bg-card p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-[15px] font-medium">Mapa de Empreendimentos</h2>
-              <p className="mt-0.5 text-[12px] text-ink-3">Encontre o empreendimento ideal na região desejada.</p>
-            </div>
-            <button type="button" onClick={limpar} className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
-              Limpar filtros <Icon name="refresh" className="size-3.5" />
-            </button>
-          </div>
-
-          <label className="mt-3 flex h-9.5 items-center gap-2.5 rounded-lg border border-line bg-card-2 px-3.5 text-ink-3 focus-within:border-gold">
-            <Icon name="search" className="size-4.5" />
-            <input
-              value={f.busca}
-              onChange={(e) => set("busca", e.target.value)}
-              placeholder="Digite a cidade, bairro ou região..."
-              className="flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
-            />
-          </label>
-
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {[["Estado", "uf", ufs, "Todos"], ["Cidade", "cidade", cidades, "Todas"], ["Bairro", "bairro", bairros, "Todos"]].map(
-              ([rotulo, k, ops, todos]) => (
-                <label key={k} className="flex flex-col gap-0.5 rounded-lg border border-line bg-card-2 px-3 py-2 text-[11px] text-ink-3">
-                  {rotulo}
-                  <select
-                    value={f[k]}
-                    onChange={(e) => set(k, e.target.value)}
-                    className="cursor-pointer bg-transparent text-[13px] text-ink outline-none"
-                  >
-                    <option value="" className="bg-card">{todos}</option>
-                    {ops.map((o) => <option key={o} value={o} className="bg-card">{o}</option>)}
-                  </select>
-                </label>
-              ),
-            )}
-          </div>
-
-          <div className="my-3 flex flex-wrap gap-x-5 gap-y-2">
-            {Object.entries(STATUS).map(([k, s]) => (
-              <button
-                key={k}
-                type="button"
-                aria-pressed={!ocultos.includes(k)}
-                onClick={() => alternar(k)}
-                className={cn("inline-flex items-center gap-2 text-[12px] text-ink-2", ocultos.includes(k) && "opacity-40")}
-              >
-                <span className="size-3 rounded-full" style={{ background: s.color }} />
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative h-105 overflow-hidden rounded-lg border border-line">
-            <MapContainer center={[-8.05, -34.9]} zoom={11} scrollWheelZoom className="h-full w-full bg-card-2">
-              <TileLayer attribution="&copy; OpenStreetMap &copy; CARTO" url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-              <FitBounds pontos={filtrados} />
-              {filtrados.map((e) => (
-                <Marker key={e.id} position={[e.lat, e.lng]} icon={PIN_ICONS[e.status]}>
-                  <Popup>
-                    <b>{e.nome}</b><br />{local(e)}<br />
-                    <Link to={`/corretor/empreendimentos/${e.id}`}>Ver detalhes</Link>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-            <Link
-              to="/corretor/empreendimentos"
-              className="absolute bottom-3 left-3 z-[1000] inline-flex items-center gap-2 rounded-lg border border-line bg-card px-3.5 py-2 text-[12px]"
-            >
-              <Icon name="list" className="size-4" /> Ver lista de empreendimentos ({filtrados.length})
-            </Link>
-          </div>
+          <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium">
+            <Icon name="clock" className="size-4" /> Seus últimos acessos
+          </h2>
+          {vistos.length > 0 ? (
+            vistos.map((e) => <Row key={e.id} e={e} className="border-t border-line-soft" />)
+          ) : (
+            <p className="border-t border-line-soft pt-3 text-[12px] text-ink-3">
+              {acessos.loading ? "Carregando…" : "Os empreendimentos que você abrir aparecem aqui."}
+            </p>
+          )}
         </section>
 
-        <div className="flex flex-col gap-4">
-          {destaque && (
-            <section className="rounded-xl border border-line bg-card p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-[15px] font-medium">Destaque da região</h2>
-                <Link to={`/corretor/empreendimentos/${destaque.id}`} aria-label="Abrir destaque">
-                  <Icon name="arrowRight" className="size-4.5" />
-                </Link>
-              </div>
-              <Thumb e={destaque} tag className="h-48 w-full" />
-              <h3 className="mt-3 text-[17px] font-semibold">{destaque.nome}</h3>
-              <small className="text-[12px] text-ink-3">{local(destaque)}</small>
-              <div className="my-3 flex flex-wrap gap-x-3.5 gap-y-2 text-[12px] text-ink-2">
-                <span className="inline-flex items-center gap-1.5"><Icon name="bedDouble" className="size-4" />{destaque.quartos}</span>
-                <span className="inline-flex items-center gap-1.5"><Icon name="car" className="size-4" />{destaque.vagas}</span>
-                <span className="inline-flex items-center gap-1.5"><Icon name="building" className="size-4" />{destaque.lazer}</span>
-              </div>
-              <Link
-                to={`/corretor/empreendimentos/${destaque.id}`}
-                className="flex items-center justify-center gap-2 rounded-lg bg-gold-gradient py-3 text-[13px] font-medium text-[#1a1408]"
-              >
-                Ver detalhes <Icon name="arrowRight" className="size-4" />
-              </Link>
-            </section>
-          )}
-
-          <section className="rounded-xl border border-line bg-card p-4">
-            <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium">
-              <Icon name="clock" className="size-4" /> Seus últimos acessos
+        <section className="rounded-xl border border-line bg-card p-4">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-[15px] font-medium">
+              <Icon name="building" className="size-4" /> Atualizados recentemente
             </h2>
-            {lista.slice(0, 3).map((e) => <Row key={e.id} e={e} className="border-t border-line-soft" />)}
-          </section>
-        </div>
+            <Link to="/corretor/empreendimentos" className="text-[12px] text-gold hover:underline">Ver todos</Link>
+          </div>
+          {recentes.length > 0 ? (
+            recentes.map((e) => <Row key={e.id} e={e} mostrarFase className="border-t border-line-soft" />)
+          ) : (
+            <p className="border-t border-line-soft pt-3 text-[12px] text-ink-3">Nenhum empreendimento cadastrado ainda.</p>
+          )}
+        </section>
       </div>
-
-      <section className="rounded-xl border border-line bg-card p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-[15px] font-medium">
-            <Icon name="building" className="size-4" /> Últimos empreendimentos atualizados
-          </h2>
-          <Link to="/corretor/empreendimentos" className="text-[12px] text-gold hover:underline">Ver todos</Link>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {recentes.map((e) => <Row key={e.id} e={e} tag className="rounded-lg border border-line-soft px-2.5" />)}
-        </div>
-      </section>
     </div>
   );
 }

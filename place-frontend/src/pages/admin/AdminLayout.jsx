@@ -1,24 +1,35 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import "@/styles/adminEffects.css";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
-import { useAsyncData } from "@/hooks/useAsyncData";
-import { getCurrentUser } from "@/services/session";
+import { useUsuarioAtual } from "@/hooks/useUsuarioAtual";
+import { ROLE_HOME } from "@/lib/areas";
 
-const ADMIN_NAV_ITEMS = [
-  { label: "Início", href: "/admin", icon: "home", end: true },
-  { label: "Usuários", href: "/admin/usuarios", icon: "users" },
+const MENU = [
+  { label: "Visão Geral", href: "/admin/painel", icon: "home" },
+  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
+  { label: "Empreendimentos", href: "/admin/imoveis", icon: "building" },
+  { label: "Leads", href: "/admin/leads", icon: "users" },
+  { label: "Roleta do dia", href: "/admin/roleta", icon: "refresh" },
+  { label: "Clientes", href: "/admin/clientes", icon: "user" },
+  { label: "Agendamentos", href: "/admin/agendamentos", icon: "calendar" },
+  { label: "Vendas", href: "/admin/vendas", icon: "chart" },
+  { label: "Relatórios", href: "/admin/relatorios", icon: "chart" },
+  { label: "Equipe", href: "/admin/equipe", icon: "team" },
   { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
 ];
 
 export default function AdminLayout() {
-  const { data: user } = useAsyncData(getCurrentUser);
+  const { data: user, loading } = useUsuarioAtual();
 
-  if (!user) {
+  if (loading) {
     return <div className="grid min-h-screen place-items-center text-ink-2">Carregando…</div>;
   }
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.cargo !== "admin") return <Navigate to={ROLE_HOME[user.cargo] ?? "/acesso-negado"} replace />;
 
   return (
-    <AdminShell user={user} items={ADMIN_NAV_ITEMS} home="/admin" promo={null}>
+    <AdminShell user={user} items={MENU} home="/admin/painel" promo={null}>
       <Outlet context={{ user }} />
     </AdminShell>
   );
-}
+}

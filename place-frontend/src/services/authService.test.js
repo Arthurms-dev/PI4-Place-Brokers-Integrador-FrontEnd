@@ -112,10 +112,61 @@ describe("AuthService", () => {
 
   });
 
+  describe("esqueciSenha", () => {
+    it("manda o e-mail limpo para a API", async () => {
+      const fetchImpl = mockFetchOnce(200, { ok: true, message: "Se este e-mail estiver cadastrado..." });
+      const service = new AuthService({ fetchImpl, baseUrl: "http://api.test" });
+      const r = await service.esqueciSenha("  Maria@Exemplo.com ");
+      expect(r.ok).toBe(true);
+      const [url, opcoes] = fetchImpl.mock.calls[0];
+      expect(url).toBe("http://api.test/auth/esqueci-senha");
+      expect(JSON.parse(opcoes.body)).toEqual({ email: "maria@exemplo.com" });
+    });
+
+    it("e-mail inválido não chama a API", async () => {
+      const fetchImpl = vi.fn();
+      const service = new AuthService({ fetchImpl });
+      await expect(service.esqueciSenha("maria@")).rejects.toMatchObject({ code: "VALIDATION_ERROR", fieldErrors: { email: "E-mail inválido." } });
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it("limite de pedidos devolve a mensagem da API", async () => {
+      const fetchImpl = mockFetchOnce(429, { code: "TOO_MANY_REQUESTS", message: "Já enviamos alguns links para este e-mail." });
+      const service = new AuthService({ fetchImpl });
+      await expect(service.esqueciSenha("maria@exemplo.com")).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
+    });
+  });
+
+  describe("redefinirSenha", () => {
+    it("confere a senha antes de chamar a API", async () => {
+      const fetchImpl = vi.fn();
+      const service = new AuthService({ fetchImpl });
+      await expect(service.redefinirSenha({ token: "t", novaSenha: "curta", confirmarSenha: "outra" }))
+        .rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it("envia token e senha nova", async () => {
+      const fetchImpl = mockFetchOnce(200, { ok: true });
+      const service = new AuthService({ fetchImpl, baseUrl: "http://api.test" });
+      await service.redefinirSenha({ token: "abc", novaSenha: "senha-nova-1", confirmarSenha: "senha-nova-1" });
+      const [url, opcoes] = fetchImpl.mock.calls[0];
+      expect(url).toBe("http://api.test/auth/redefinir-senha");
+      expect(JSON.parse(opcoes.body)).toEqual({ token: "abc", novaSenha: "senha-nova-1", confirmarSenha: "senha-nova-1" });
+    });
+
+    it("link vencido vira TOKEN_INVALIDO", async () => {
+      const fetchImpl = mockFetchOnce(400, { code: "TOKEN_INVALIDO", message: "Este link expirou ou já foi usado." });
+      const service = new AuthService({ fetchImpl });
+      await expect(service.redefinirSenha({ token: "abc", novaSenha: "senha-nova-1", confirmarSenha: "senha-nova-1" }))
+        .rejects.toMatchObject({ code: "TOKEN_INVALIDO" });
+    });
+  });
+
   describe("register", () => {
     it.todo("caso de sucesso: cria a conta e retorna usuário e token");
     it.todo("dados inválidos: não chama a API e lança AuthError de validação");
     it.todo("e-mail já cadastrado: lança AuthError USER_ALREADY_EXISTS");
     it.todo("senhas não coincidem: fieldErrors.confirmPassword é preenchido");
   });
-});
+});

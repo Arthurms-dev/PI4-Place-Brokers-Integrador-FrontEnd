@@ -1,0 +1,44 @@
+:root {
+  --pb-brand-navy: #08152b;
+  --pb-brand-midnight: #102843;
+  --pb-brand-gold: #e9ad5a;
+  --pb-brand-surface: #eef3f8;
+  --pb-brand-ink: #0b203b;
+  --pb-motion-fast: 180ms;
+  --pb-motion-medium: 360ms;
+}
+
+/* Painel ADM — movimento curto, util e sem mudar as metricas. */
+@keyframes pb-panel-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pb-value-glow {
+  from { opacity: .7; }
+  to { opacity: 1; }
+}
+.pb-workspace .pb-painel-animado > * {
+  animation: pb-panel-enter 540ms cubic-bezier(.2,.7,.2,1) both;
+}
+.pb-workspace .pb-painel-animado > :nth-child(2) { animation-delay: 80ms; }
+.pb-workspace .pb-painel-animado > :nth-child(3) { animation-delay: 150ms; }
+.pb-workspace .pb-painel-animado > :nth-child(4) { animation-delay: 220ms; }
+.pb-workspace .pb-painel-animado a > .rounded-2xl,
+.pb-workspace .pb-painel-animado .rounded-xl.border {
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+.pb-workspace .pb-painel-animado a:hover > .rounded-2xl,
+.pb-workspace .pb-painel-animado a:hover.rounded-xl.border {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -24px rgba(0,0,0,.65);
+}
+.pb-workspace .pb-kpi-number { display: inline-block; animation: pb-value-glow 550ms ease-out both; }
+.pb-workspace .pb-painel-animado :is(button,a):active { transition-duration: 90ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-workspace .pb-painel-animado > *,
+  .pb-workspace .pb-kpi-number { animation: none !important; }
+  .pb-workspace .pb-painel-animado a:hover > .rounded-2xl,
+  .pb-workspace .pb-painel-animado a:hover.rounded-xl.border { transform: none; }
+
+}

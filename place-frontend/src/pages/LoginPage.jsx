@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
+import PasswordField from "@/components/auth/PasswordField";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { ROLE_HOME } from "@/lib/areas";
 import { authService, AuthError } from "@/services/authService";
-
-const ROLE_HOME = { ADMIN: "/admin/dashboard", CORRETOR: "/corretor" };
 
 export default function LoginPage() {
   usePageTitle("Entrar");
@@ -42,7 +42,7 @@ export default function LoginPage() {
   return (
     <Card>
       <h1 className="mb-1 text-xl font-medium">Área restrita</h1>
-      <p className="mb-6 text-sm text-ink-2">Acesso para administradores e corretores.</p>
+      <p className="mb-6 text-sm text-ink-2">Acesso para a equipe e parceiros da Place Brokers.</p>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="E-mail" error={fieldErrors.email}>
@@ -56,14 +56,17 @@ export default function LoginPage() {
         </FormField>
 
         <FormField label="Senha" error={fieldErrors.password}>
-          <input
-            type="password"
+          <PasswordField
             autoComplete="current-password"
             value={form.password}
             onChange={handleChange("password")}
-            className={fieldInputClass(fieldErrors.password)}
+            error={fieldErrors.password}
           />
         </FormField>
+
+        <Link to="/esqueci-senha" className="-mt-2 self-end text-xs text-ink-2 hover:text-gold hover:underline">
+          Esqueci minha senha
+        </Link>
 
         {formError && (
           <p role="alert" className="text-xs text-danger">
@@ -72,7 +75,7 @@ export default function LoginPage() {
         )}
 
         <Button type="submit" disabled={submitting} className="mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60">
-          {submitting ? "Entrando…" : "Entrar"}
+          {submitting ? "Entrando..." : "Entrar"}
         </Button>
       </form>
 
@@ -84,4 +87,4 @@ export default function LoginPage() {
       </p>
     </Card>
   );
-}
+}
