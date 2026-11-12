@@ -10,8 +10,9 @@ const SECOES = [
     "A Place Brokers Negócios Imobiliários (CRECI 18303-J), com escritório na R. Bruno Veloso, 333A, Boa Viagem, Recife/PE, é a controladora dos dados pessoais coletados neste site.",
   ]],
   ["Quais dados coletamos", [
-    "Quando você preenche um formulário: nome, telefone (WhatsApp), e-mail e o empreendimento de interesse.",
-    "Quando você navega: páginas e empreendimentos visitados, de forma agregada, para saber quais imóveis interessam mais. Não usamos cookies de publicidade.",
+    "Quando você preenche um formulário: nome, telefone (WhatsApp), e-mail, o empreendimento de interesse e a mensagem que escrever. No formulário de venda, também os dados do imóvel que você quer vender.",
+    "Quando você navega: quais empreendimentos foram abertos e quando, ligados a um código aleatório guardado no seu navegador (não é o seu nome). Usamos isso para saber quais imóveis interessam mais. Não usamos cookies de publicidade.",
+    "Se você faz parte da equipe da Place (corretor, gerente ou administrador): dados de cadastro, CRECI quando houver, acessos ao sistema, tentativas de login sem sucesso, os leads recebidos e o registro de cada distribuição de lead (quem recebeu, quando e por qual regra).",
   ]],
   ["Para que usamos", [
     "Para um corretor da Place falar com você sobre o empreendimento que você escolheu, tirar dúvidas e agendar visitas ou reuniões.",
@@ -23,9 +24,12 @@ const SECOES = [
     "Segurança do site e prevenção de fraudes (por exemplo, bloqueio de robôs): legítimo interesse da Place.",
   ]],
   ["Com quem compartilhamos", [
-    "Com o corretor e o gerente da Place responsáveis pelo seu atendimento.",
+    "Com o corretor e o gerente da Place responsáveis pelo seu atendimento. O corretor é escolhido pela ordem de chegada do dia e pelo empreendimento em que ele atua, e cada distribuição fica registrada.",
     "Com a construtora do empreendimento, só quando você avançar para proposta ou análise de crédito.",
-    "Com os serviços que hospedam o site e o banco de dados, que só guardam os dados para a Place. Não vendemos nem alugamos seus dados.",
+    "Com os serviços que hospedam o site e o banco de dados (Vercel, Render e Supabase), que só guardam os dados para a Place. Não vendemos nem alugamos seus dados.",
+  ]],
+  ["Transferência internacional", [
+    "O banco de dados fica em servidores nos Estados Unidos. A transferência segue o art. 33 da LGPD, com fornecedores que adotam medidas de segurança e confidencialidade.",
   ]],
   ["Por quanto tempo guardamos", [
     "Enquanto durar o atendimento e por até 2 anos depois do último contato, ou pelo prazo que a lei exigir em caso de compra.",
@@ -35,7 +39,7 @@ const SECOES = [
     "Também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).",
   ]],
   ["Segurança", [
-    "O acesso aos dados é restrito à equipe que precisa deles, com login, senha e registro de tentativas suspeitas. O site usa conexão segura (HTTPS).",
+    "O acesso aos dados é restrito à equipe que precisa deles, com login, senha e registro de tentativas suspeitas. O registro das distribuições de leads não pode ser alterado nem apagado. O site usa conexão segura (HTTPS).",
   ]],
 ];
 
@@ -57,7 +61,7 @@ export default function PrivacidadePage() {
         <section>
           <h2 className="text-lg font-semibold">Como falar com a gente</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
-            Para exercer seus direitos ou tirar dúvidas sobre seus dados, escreva para{" "}
+            Este é o canal do encarregado pelo tratamento de dados da Place. Para exercer seus direitos ou tirar dúvidas sobre seus dados, escreva para{" "}
             <a href={`mailto:${CONTATO.email}`} className="text-gold underline underline-offset-2">{CONTATO.email}</a>{" "}
             ou fale pelo <Link to="/contato" className="text-gold underline underline-offset-2">contato</Link>. Respondemos em até 15 dias.
           </p>

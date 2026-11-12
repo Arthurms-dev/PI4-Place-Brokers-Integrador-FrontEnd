@@ -11,7 +11,7 @@ describe("enviarLead (LGPD)", () => {
     await enviarLead({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", empreendimento: null, canal: "home - acesso exclusivo", consentimento: { novidades: true } });
     const corpo = JSON.parse(fetch.mock.calls[0][1].body);
     expect(corpo.mensagem).toContain("via home - acesso exclusivo");
-    expect(corpo.mensagem).toContain("Autorizou o contato (política de privacidade de 02/11/2026)");
+    expect(corpo.mensagem).toContain("Autorizou o contato (política de privacidade de 12/11/2026)");
     expect(corpo.mensagem).toContain("Quer receber avisos de lançamentos");
   });
 
