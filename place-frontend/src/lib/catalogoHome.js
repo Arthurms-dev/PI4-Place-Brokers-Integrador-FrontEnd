@@ -57,7 +57,7 @@ export const normalizarTexto = (texto = "") =>
 /** Faixas do filtro "até": parcelas para MCMV, valor total para os demais. */
 export function opcoesDeFaixa(segmento) {
   if (segmento === "mcmv") {
-    return [399, 499, 599, 699].map((v) => ({ valor: String(v), rotulo: `Parcela até ${brl(v)}` }));
+    return [399, 499, 599, 699, 799, 899].map((v) => ({ valor: String(v), rotulo: `Parcela até ${brl(v)}` }));
   }
   return [350_000, 500_000, 750_000, 1_000_000, 1_500_000].map((v) => ({
     valor: String(v),

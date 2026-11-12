@@ -66,7 +66,7 @@ describe("resumos", () => {
   });
 
   it("faixas e valores curtos", () => {
-    expect(opcoesDeFaixa("mcmv").map((o) => o.valor)).toEqual(["399", "499", "599", "699"]);
+    expect(opcoesDeFaixa("mcmv").map((o) => o.valor)).toEqual(["399", "499", "599", "699", "799", "899"]);
     expect(valorCurto(1_188_760)).toBe("R$ 1,2 mi");
   });
 });
