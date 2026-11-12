@@ -55,6 +55,12 @@ describe("resumos", () => {
     expect(alto.capa).toBeNull();
   });
 
+  it("parcela de MCMV pronto não entra no \"parcelas a partir de\"", () => {
+    const comPronto = [...itens, { id: "9", segmento: "mcmv", parcelaMin: 299, precoMin: 276000, tag: "Pronto" }];
+    expect(resumirSegmentos(comPronto)[0].chamadaPreco.valor.replace(/\s/g, " ")).toBe("R$ 399/mês");
+    expect(numerosDoCatalogo(comPronto).menorParcela).toBe(399);
+  });
+
   it("números do topo", () => {
     expect(numerosDoCatalogo(itens)).toEqual({ empreendimentos: 4, construtoras: 3, cidades: 2, menorParcela: 399, prontos: 1 });
   });
@@ -78,6 +84,15 @@ describe("ordenarCatalogo", () => {
       { id: "8", segmento: "medio_padrao", parcelaMin: null, precoMin: null },
     ];
     expect(ordenarCatalogo(lista, "menor").map((i) => i.id)).toEqual(["1", "7", "5", "4", "6", "2", "3", "8"]);
+  });
+  it("menor valor: MCMV pronto ou usado entra pelo preço cheio, não pela parcela", () => {
+    const lista = [
+      { id: "a", segmento: "mcmv", tag: "Em obras", parcelaMin: 899, precoMin: 269900 },
+      { id: "b", segmento: "mcmv", tag: "Pronto", parcelaMin: 399, precoMin: 276000 },
+      { id: "c", segmento: "mcmv", tag: "Usado", parcelaMin: 299, precoMin: 150000 },
+      { id: "d", segmento: "medio_padrao", tag: "Pronto", parcelaMin: null, precoMin: 320000 },
+    ];
+    expect(ordenarCatalogo(lista, "menor").map((i) => i.id)).toEqual(["a", "c", "b", "d"]);
   });
 });
 

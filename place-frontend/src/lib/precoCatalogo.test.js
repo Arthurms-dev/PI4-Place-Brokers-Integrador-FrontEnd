@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avisoDeSegmento, prazoDoEmpreendimento, precoDoEmpreendimento } from "./precoCatalogo";
+import { avisoDeSegmento, mostraPrecoCheio, prazoDoEmpreendimento, precoDoEmpreendimento } from "./precoCatalogo";
 
 const limpa = (s) => s.replace(/\s/g, " ");
 
@@ -20,6 +20,31 @@ describe("precoDoEmpreendimento", () => {
   it("MCMV sem parcela cai no valor total; sem nada vira sob consulta", () => {
     expect(precoDoEmpreendimento({ segmento: "mcmv", preco_min: 225000 }).rotulo).toBe("A partir de");
     expect(precoDoEmpreendimento({}).valor).toBe("Sob consulta");
+  });
+
+  it("pronto e usado mostram o preço cheio, mesmo no MCMV (entrada à vista)", () => {
+    const pronto = precoDoEmpreendimento({ segmento: "mcmv", status: "pronto", parcela_min: 899, preco_min: "276000.00" });
+    expect(pronto.rotulo).toBe("A partir de");
+    expect(limpa(pronto.valor)).toBe("R$ 276.000");
+    expect(pronto.sufixo).toBe("");
+    expect(precoDoEmpreendimento({ segmento: "mcmv", status: "usado", parcela_min: 399, preco_min: 180000 }).rotulo).toBe("A partir de");
+  });
+
+  it("MCMV em lançamento ou obras continua com a parcela", () => {
+    expect(precoDoEmpreendimento({ segmento: "mcmv", status: "obras", parcela_min: 899, preco_min: 269900 }).rotulo).toBe("Parcelas a partir de");
+    expect(precoDoEmpreendimento({ segmento: "mcmv", status: "lancamento", parcela_min: 799, preco_min: 279000 }).sufixo).toBe("/mês");
+  });
+
+  it("pronto sem preço cheio cadastrado ainda mostra a parcela", () => {
+    expect(precoDoEmpreendimento({ segmento: "mcmv", status: "pronto", parcela_min: 899 }).rotulo).toBe("Parcelas a partir de");
+  });
+
+  it("reconhece o status do banco e a etiqueta do card", () => {
+    expect(mostraPrecoCheio({ status: "pronto" })).toBe(true);
+    expect(mostraPrecoCheio({ tag: "Pronto" })).toBe(true);
+    expect(mostraPrecoCheio({ tag: "Usado" })).toBe(true);
+    expect(mostraPrecoCheio({ status: "obras" })).toBe(false);
+    expect(mostraPrecoCheio()).toBe(false);
   });
 });
 

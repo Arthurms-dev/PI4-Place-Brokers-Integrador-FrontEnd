@@ -1,5 +1,8 @@
 // Regras da vitrine pública (home): segmentos, filtros e resumos.
-// Mantém a mesma regra de preço do catálogo: MCMV mostra parcela; os demais, valor total.
+// Mantém a mesma regra de preço do catálogo: MCMV mostra parcela; os demais, valor total;
+// prontos e usados mostram o preço cheio (entrada à vista), mesmo no MCMV.
+
+import { mostraParcela } from "./precoCatalogo.js";
 
 export const SEGMENTOS_HOME = [
   { id: "mcmv", rotulo: "Minha Casa Minha Vida", curto: "MCMV", chamada: "Saia do aluguel com parcelas que cabem no bolso" },
@@ -89,7 +92,7 @@ export function filtrarCatalogo(itens, filtros = FILTROS_VAZIOS) {
 export function resumirSegmentos(itens) {
   return SEGMENTOS_HOME.map((segmento) => {
     const doSegmento = itens.filter((item) => item.segmento === segmento.id);
-    const parcelas = doSegmento.map((i) => i.parcelaMin).filter((v) => v != null);
+    const parcelas = doSegmento.filter(mostraParcela).map((i) => i.parcelaMin);
     const precos = doSegmento.map((i) => i.precoMin).filter((v) => v != null);
     const capa = doSegmento.find((i) => i.destaque && i.image) ?? doSegmento.find((i) => i.image) ?? null;
 
@@ -121,7 +124,7 @@ export function resumirProntos(itens) {
 export function numerosDoCatalogo(itens) {
   const construtoras = new Set(itens.map((i) => i.construtora).filter(Boolean));
   const cidades = new Set(itens.map((i) => i.cidade).filter(Boolean));
-  const parcelas = itens.map((i) => i.parcelaMin).filter((v) => v != null);
+  const parcelas = itens.filter(mostraParcela).map((i) => i.parcelaMin);
   return {
     empreendimentos: itens.length,
     construtoras: construtoras.size,
@@ -134,8 +137,9 @@ export function numerosDoCatalogo(itens) {
 export function ordenarCatalogo(lista, ordem) {
   const copia = [...lista];
   if (ordem === "menor") {
-    // Quem mostra parcela (MCMV) vem primeiro, da menor parcela para a maior; depois, os demais pelo valor total.
-    const parcela = (i) => (i.segmento === "mcmv" && i.parcelaMin != null ? i.parcelaMin : Infinity);
+    // Quem mostra parcela (MCMV em lançamento ou obras) vem primeiro, da menor parcela para a maior;
+    // depois, os que mostram o preço cheio (demais segmentos, prontos e usados) pelo valor total.
+    const parcela = (i) => (mostraParcela(i) ? i.parcelaMin : Infinity);
     const total = (i) => i.precoMin ?? Infinity;
     const comparar = (x, y) => (x === y ? 0 : x - y);
     copia.sort((a, b) => comparar(parcela(a), parcela(b)) || comparar(total(a), total(b)));

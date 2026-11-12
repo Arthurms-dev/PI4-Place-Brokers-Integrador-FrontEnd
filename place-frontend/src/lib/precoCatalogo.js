@@ -1,5 +1,6 @@
 // Regras de exibição de preço e prazo do catálogo (definidas pela Place):
-// - MCMV: "Parcelas a partir de" (R$ 399, 499, 599 ou 699, conforme localização e produto) -> campo parcela_min
+// - MCMV: "Parcelas a partir de" (conforme localização e produto) -> campo parcela_min
+// - Prontos e usados: sempre o preço cheio (preco_min), mesmo no MCMV, porque a entrada é à vista
 // - Médio padrão, alto padrão e litoral: "A partir de" = valor total da unidade mais barata -> preco_min
 // - Médio padrão é acima de R$ 300 mil (pela unidade mais barata); até esse valor, o segmento é MCMV
 // - Prazo: "Pronto para morar" quando status = pronto; senão "Entrega prevista: mês/ano" (previsao_entrega)
@@ -36,17 +37,34 @@ export function avisoDeSegmento({ segmento, precoMin } = {}) {
   return null;
 }
 
+/** Etapas em que a entrada é à vista: o catálogo mostra o preço cheio, mesmo no MCMV. */
+export const ETAPAS_PRECO_CHEIO = ["pronto", "usado"];
+
+/** Aceita o status do banco ("pronto") ou a etiqueta do card ("Pronto"). */
+export function mostraPrecoCheio({ status, tag } = {}) {
+  return ETAPAS_PRECO_CHEIO.includes(String(status ?? tag ?? "").toLowerCase());
+}
+
+/** Mostra "Parcelas a partir de"? Só MCMV com parcela cadastrada que não seja pronto nem usado. */
+export function mostraParcela(emp = {}) {
+  return emp.segmento === "mcmv" && numero(emp.parcela_min ?? emp.parcelaMin) != null && !mostraPrecoCheio(emp);
+}
+
 /**
- * @param {{ segmento?: string, parcela_min?: number|string, preco_min?: number|string }} emp
+ * @param {{ segmento?: string, status?: string, parcela_min?: number|string, preco_min?: number|string }} emp
  * @returns {{ rotulo: string, valor: string, sufixo: string, temValor: boolean }}
  */
 export function precoDoEmpreendimento(emp = {}) {
+  const total = numero(emp.preco_min);
+  if (mostraParcela(emp)) {
+    return { rotulo: "Parcelas a partir de", valor: brl(numero(emp.parcela_min)), sufixo: "/mês", temValor: true };
+  }
+  if (total != null) return { rotulo: "A partir de", valor: brl(total), sufixo: "", temValor: true };
+  // Pronto/usado sem preço cheio cadastrado: melhor a parcela do que "sob consulta".
   const parcela = numero(emp.parcela_min);
   if (emp.segmento === "mcmv" && parcela != null) {
     return { rotulo: "Parcelas a partir de", valor: brl(parcela), sufixo: "/mês", temValor: true };
   }
-  const total = numero(emp.preco_min);
-  if (total != null) return { rotulo: "A partir de", valor: brl(total), sufixo: "", temValor: true };
   return { rotulo: "Valores", valor: "Sob consulta", sufixo: "", temValor: false };
 }
 
