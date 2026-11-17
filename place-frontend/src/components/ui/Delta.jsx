@@ -2,6 +2,7 @@ import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
 
 export function Delta({ value, className }) {
+  if (value == null || !Number.isFinite(Number(value))) return null;
   if (value === 0) {
     return <span className={cn("text-xs font-medium text-ink-3", className)}>0%</span>;
   }

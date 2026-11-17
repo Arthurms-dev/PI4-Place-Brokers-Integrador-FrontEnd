@@ -11,8 +11,17 @@ const moeda = (valor) => Number.isFinite(Number(valor))
 const inteiro = (valor) => valor == null ? "—" : formatNumber(valor);
 const percentual = (valor) => valor == null || !Number.isFinite(Number(valor)) ? "—" : `${formatNumber(valor, 1)}%`;
 
+// Mesmo período padrão do Dashboard (90 dias), para os dois mostrarem os mesmos números.
+const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function dadosDe90Dias() {
+  const ate = new Date();
+  const de = new Date();
+  de.setDate(de.getDate() - 89);
+  return getDashboardData({ de: isoLocal(de), ate: isoLocal(ate) });
+}
+
 export function ResumoOperacional() {
-  const { data, loading, error } = useAsyncData(getDashboardData);
+  const { data, loading, error } = useAsyncData(dadosDe90Dias);
   const kpis = data?.kpis ?? [];
   const obter = (id) => kpis.find((item) => item.id === id)?.value;
   const periodo = data?.period?.start && data?.period?.end

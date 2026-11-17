@@ -66,7 +66,8 @@ function Esqueleto() {
 
 export default function DashboardPage() {
   usePageTitle("Dashboard");
-  const [dias, setDias] = useState(30);
+  // 90 dias por padrão: no ambiente de teste, 30 dias compara o histórico de demonstração com o uso real e mostra tudo caindo.
+  const [dias, setDias] = useState(90);
   const [dados, setDados] = useState(null);
   const [empreendimentos, setEmpreendimentos] = useState([]);
   const [erro, setErro] = useState("");
@@ -141,7 +142,7 @@ export default function DashboardPage() {
 
             <Painel titulo="Avaliações de clientes" subtitulo={dados.rating.total ? `${dados.rating.total} avaliações` : undefined} atraso={140}>
               {dados.rating.total === 0 ? (
-                <Vazio>Ainda não há avaliações. Elas aparecem aqui quando o fluxo de avaliação do cliente for criado.</Vazio>
+                <Vazio>Próxima etapa: o cliente avalia o atendimento depois da visita, e as notas aparecem aqui.</Vazio>
               ) : (
                 <div>
                   <div className="mb-4 flex items-end gap-2">

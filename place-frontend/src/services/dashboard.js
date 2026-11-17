@@ -22,7 +22,7 @@ export async function getDashboardData(filtros = {}) {
       { id: "visits", label: "Acessos no site", value: d.acessos.total, delta: d.acessos.variacao, footnote: NOTA },
       { id: "topProperties", label: "Imóveis mais procurados", value: d.imoveis.visualizacoes.total, delta: d.imoveis.visualizacoes.variacao, footnote: NOTA },
       { id: "bookings", label: "Agendamentos de visitas", value: d.agendamentos.total, delta: d.agendamentos.variacao, footnote: NOTA },
-      { id: "rating", label: "Avaliações de clientes", value: d.avaliacoes.media, delta: 0, footnote: `com base em ${d.avaliacoes.total} avaliações` },
+      { id: "rating", label: "Avaliações de clientes", value: d.avaliacoes.total ? d.avaliacoes.media : null, delta: d.avaliacoes.total ? 0 : null, footnote: d.avaliacoes.total ? `com base em ${d.avaliacoes.total} avaliações` : "entra na próxima etapa" },
     ],
     visits: d.acessos.porDia.map(({ dia, acessos }) => ({ date: dia, value: acessos })),
     topProperties: d.imoveis.maisProcurados.map((i) => ({
