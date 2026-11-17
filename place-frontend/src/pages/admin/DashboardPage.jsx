@@ -22,12 +22,11 @@ const STATUS_LEAD = {
 };
 const CAMPO_DATA = "h-10 rounded-lg border border-line bg-card-2 px-3 text-sm text-ink outline-none transition-colors scheme-dark focus:border-gold";
 
-/** 7/30/90 dias, um mês ou duas datas. Só avisa a página quando o período é válido. */
+/** Últimos 7/30/90 dias ou um mês fechado. Só avisa a página quando o período é válido. */
 function SeletorPeriodo({ filtro, onMudar }) {
   const hoje = isoLocal(new Date());
   const [modo, setModo] = useState(filtro.tipo);
   const [mes, setMes] = useState(hoje.slice(0, 7));
-  const [datas, setDatas] = useState({ de: "", ate: hoje });
   const [erro, setErro] = useState("");
 
   function aplicar(novo) {
@@ -47,7 +46,6 @@ function SeletorPeriodo({ filtro, onMudar }) {
           </button>
         ))}
         <button type="button" onClick={() => { setModo("mes"); aplicar({ tipo: "mes", mes }); }} aria-pressed={modo === "mes"} className={botao(modo === "mes")}>Mês</button>
-        <button type="button" onClick={() => { setModo("datas"); setErro(""); }} aria-pressed={modo === "datas"} className={botao(modo === "datas")}>Datas</button>
       </div>
       {modo === "mes" && (
         <label className="flex items-center gap-2 text-xs text-ink-2">
@@ -55,17 +53,6 @@ function SeletorPeriodo({ filtro, onMudar }) {
           <input type="month" value={mes} max={hoje.slice(0, 7)} aria-label="Mês do dashboard"
             onChange={(e) => { setMes(e.target.value); aplicar({ tipo: "mes", mes: e.target.value }); }} className={CAMPO_DATA} />
         </label>
-      )}
-      {modo === "datas" && (
-        <form className="flex flex-wrap items-center gap-2 text-xs text-ink-2" onSubmit={(e) => { e.preventDefault(); aplicar({ tipo: "datas", ...datas }); }}>
-          <label className="flex items-center gap-2">De
-            <input type="date" value={datas.de} max={hoje} aria-label="Data inicial" onChange={(e) => setDatas((s) => ({ ...s, de: e.target.value }))} className={CAMPO_DATA} />
-          </label>
-          <label className="flex items-center gap-2">até
-            <input type="date" value={datas.ate} max={hoje} aria-label="Data final" onChange={(e) => setDatas((s) => ({ ...s, ate: e.target.value }))} className={CAMPO_DATA} />
-          </label>
-          <button type="submit" className="h-10 rounded-lg bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] transition hover:brightness-110">Ver</button>
-        </form>
       )}
       {erro && <p role="alert" className="text-xs text-danger">{erro}</p>}
     </div>

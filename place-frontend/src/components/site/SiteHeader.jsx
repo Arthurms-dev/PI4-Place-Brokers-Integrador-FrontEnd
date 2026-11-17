@@ -13,6 +13,8 @@ const MENU = [
   { rotulo: "Cidades", secao: "cidades" },
   { rotulo: "Sobre nós", para: "/sobre" },
   { rotulo: "Contato", para: "/contato" },
+  // Em telas médias (1024–1279 px) não cabe: fica no menu do celular e no rodapé.
+  { rotulo: "Trabalhe conosco", para: "/trabalhe-conosco", soTelaGrande: true },
 ];
 
 export default function SiteHeader() {
@@ -67,7 +69,7 @@ export default function SiteHeader() {
   const compacto = rolou || menu;
 
   const linkDesktop = (item) =>
-    `relative rounded-lg px-3 py-2 text-[14px] font-medium transition-colors after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
+    `relative whitespace-nowrap rounded-lg px-3 py-2 text-[14px] font-medium transition-colors ${item.soTelaGrande ? "hidden xl:block" : ""} after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
       ativo(item) ? "text-ink after:scale-x-100" : "text-ink-2 after:scale-x-0"
     }`;
 
@@ -95,7 +97,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <Link to={destinoAreaRestrita} className="hidden items-center gap-1.5 rounded-lg px-2 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink xl:inline-flex">
+          <Link to={destinoAreaRestrita} className="hidden items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink xl:inline-flex">
             <Icon name="user" className="size-4" /> {textoAreaRestrita}
           </Link>
           <button
@@ -104,7 +106,7 @@ export default function SiteHeader() {
             className="inline-flex h-11 items-center gap-2 rounded-full bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] shadow-[0_8px_20px_-10px_rgba(201,165,76,0.8)] transition hover:-translate-y-0.5 hover:brightness-110 active:scale-95 sm:px-5 sm:text-[14px]"
           >
             <Icon name="messageCircle" className="size-4.5" />
-            <span className="hidden sm:inline">Fale com especialista</span>
+            <span className="hidden whitespace-nowrap sm:inline">Fale com especialista</span>
             <span className="sm:hidden">Especialista</span>
           </button>
           <button
