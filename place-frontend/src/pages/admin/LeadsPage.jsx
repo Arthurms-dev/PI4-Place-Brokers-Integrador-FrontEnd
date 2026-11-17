@@ -22,6 +22,7 @@ export default function LeadsPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [selectedId, setSelectedId] = useState(null);
   const [actionError, setActionError] = useState("");
+  const [assignNotice, setAssignNotice] = useState(null);
 
   useEffect(() => {
     if (data) setLeads(data[0]);
@@ -44,15 +45,22 @@ export default function LeadsPage() {
     setLeads((current) => current.map((l) => (l.id === id ? { ...l, ...patch } : l)));
     try {
       await request();
+      return true;
     } catch {
       setLeads(previous);
       setActionError("Não foi possível salvar a alteração. Tente novamente.");
+      return false;
     }
   }
 
   const handleStatusChange = (id, status) => mutate(id, { status }, () => updateLeadStatus(id, status));
-  const handleAssign = (id, corretorId) =>
-    mutate(id, { corretor: corretores.find((c) => c.id === corretorId) ?? null }, () => assignLead(id, corretorId));
+  // O seletor salva sozinho: o retorno só aparece depois que a API confirmou a atribuição.
+  const handleAssign = async (id, corretorId) => {
+    const corretor = corretores.find((c) => c.id === corretorId) ?? null;
+    setAssignNotice(null);
+    const saved = await mutate(id, { corretor }, () => assignLead(id, corretorId));
+    if (saved) setAssignNotice({ id, text: corretor ? `Lead enviado para ${corretor.nome}.` : "Lead ficou sem corretor." });
+  };
   const handleConvert = (id) => mutate(id, { status: "convertido" }, () => convertLeadToCliente(id));
 
   if (loading) return <p className="py-10 text-center text-sm text-ink-2">Carregando leads…</p>;
@@ -109,7 +117,11 @@ export default function LeadsPage() {
         <LeadDetailsDrawer
           lead={selected}
           corretores={corretores}
-          onClose={() => setSelectedId(null)}
+          assignNotice={assignNotice?.id === selected.id ? assignNotice.text : ""}
+          onClose={() => {
+            setSelectedId(null);
+            setAssignNotice(null);
+          }}
           onStatusChange={handleStatusChange}
           onAssign={handleAssign}
           onConvert={handleConvert}

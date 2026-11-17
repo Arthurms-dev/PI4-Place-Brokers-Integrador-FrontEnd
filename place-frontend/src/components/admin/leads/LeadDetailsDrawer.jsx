@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -23,8 +23,14 @@ function Section({ title, children }) {
   );
 }
 
-export function LeadDetailsDrawer({ lead, corretores, onClose, onStatusChange, onAssign, onConvert }) {
+export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose, onStatusChange, onAssign, onConvert }) {
   const closeRef = useRef(null);
+  // Converter tira o lead da aba "Ativos" do corretor: só vale depois de confirmar.
+  const [confirmingConvert, setConfirmingConvert] = useState(false);
+
+  useEffect(() => {
+    setConfirmingConvert(false);
+  }, [lead.id]);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -164,16 +170,45 @@ export function LeadDetailsDrawer({ lead, corretores, onClose, onStatusChange, o
                 <span className="mt-1 block text-[11px] text-ink-3">Nenhum corretor cadastrado ainda.</span>
               )}
             </label>
+            {assignNotice && (
+              <p role="status" className="flex items-center gap-2 rounded-lg border border-ok/40 bg-ok/10 px-3 py-2 text-xs text-ok">
+                <Icon name="arrowRight" className="size-3.5" /> {assignNotice}
+              </p>
+            )}
           </div>
         </Section>
 
-        <footer className="mt-auto flex flex-wrap gap-2.5 border-t border-line-soft px-5 py-4">
-          {lead.status !== "convertido" && (
-            <Button onClick={() => onConvert(lead.id)}>Converter em cliente</Button>
+        <footer className="mt-auto border-t border-line-soft px-5 py-4">
+          {confirmingConvert && lead.status !== "convertido" ? (
+            <div role="group" aria-label="Confirmar conversão">
+              <p className="text-xs leading-relaxed text-ink-2">
+                Converter <strong className="text-ink">{lead.nome}</strong> em cliente? O lead sai da aba Ativos do
+                corretor{lead.corretor ? ` ${lead.corretor.nome}` : ""}.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2.5">
+                <Button
+                  onClick={() => {
+                    setConfirmingConvert(false);
+                    onConvert(lead.id);
+                  }}
+                >
+                  Confirmar conversão
+                </Button>
+                <button type="button" onClick={() => setConfirmingConvert(false)} className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border border-line px-4 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2.5">
+              {lead.status !== "convertido" && (
+                <Button onClick={() => setConfirmingConvert(true)}>Converter em cliente</Button>
+              )}
+              <Link to={`/admin/agendamentos?lead=${lead.id}`} className={`${linkButton} h-8`}>
+                <Icon name="calendar" className="size-3.5" /> Agendar visita
+              </Link>
+            </div>
           )}
-          <Link to={`/admin/agendamentos?lead=${lead.id}`} className={`${linkButton} h-8`}>
-            <Icon name="calendar" className="size-3.5" /> Agendar visita
-          </Link>
         </footer>
       </aside>
     </>
