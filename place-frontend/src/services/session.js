@@ -3,6 +3,7 @@ import { api } from "@/lib/apiClient";
 
 const CARGO_LABEL = {
   admin: "Administrador", corretor: "Corretor", gerente: "Gerente", viabilizador: "Viabilizador",
+  rh: "RH", recepcao: "Recepção", diretor: "Diretor", cadastro: "Cadastro",
 };
 let consultaUsuario = null;
 let tokenConsulta = null;

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import AcessosInternosTab, { NOME_DO_CARGO } from "@/components/admin/equipe/AcessosInternosTab";
 import AprovacoesTab from "@/components/admin/equipe/AprovacoesTab";
 import CorretoresTab from "@/components/admin/equipe/CorretoresTab";
 import EquipesTab from "@/components/admin/equipe/EquipesTab";
-import { ModalDiretoria, ModalEquipe, ModalGerente } from "@/components/admin/equipe/modais";
+import { ModalDiretoria, ModalEquipe, ModalGerente, ModalUsuarioInterno } from "@/components/admin/equipe/modais";
 import { ehAutonomo } from "@/components/admin/equipe/ui";
 import * as api from "@/services/admin/equipe";
 import { listarConstrutoras } from "@/services/construtoras";
@@ -70,12 +71,14 @@ export default function EquipePage() {
   const aprovadosPlace = useMemo(() => corretores.filter((m) => m.status === "aprovado" && m.ativo && !ehAutonomo(m)), [corretores]);
   const gerentes = useMemo(() => membros.filter((m) => m.cargo === "gerente"), [membros]);
   const autonomos = useMemo(() => corretores.filter(ehAutonomo), [corretores]);
+  const internos = useMemo(() => membros.filter((m) => NOME_DO_CARGO[m.cargo]), [membros]);
 
   const abas = [
     ["aprovacoes", "Aprovações", pendentes.length],
     ["equipes", "Equipes da Place", times.length],
     ["autonomos", "Autônomos", autonomos.length],
     ["todos", "Todos os corretores", corretores.length],
+    ["internos", "Acessos internos", internos.length],
   ];
 
   if (carregando) {
@@ -93,7 +96,7 @@ export default function EquipePage() {
       <div className="animate-fade-up">
         <p className="pb-eyebrow">Gestão de pessoas</p>
         <h1 className="text-xl font-semibold">Equipe</h1>
-        <p className="text-[13px] text-ink-2">Aprove cadastros, monte equipes por sede e diretoria e acompanhe os corretores.</p>
+        <p className="text-[13px] text-ink-2">Aprove cadastros, monte equipes por sede e diretoria, acompanhe os corretores e crie os acessos internos.</p>
       </div>
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
@@ -119,6 +122,7 @@ export default function EquipePage() {
         )}
         {aba === "autonomos" && <CorretoresTab modo="autonomos" corretores={corretores} times={times} onMudar={mudar} />}
         {aba === "todos" && <CorretoresTab modo="todos" corretores={corretores} times={times} onMudar={mudar} />}
+        {aba === "internos" && <AcessosInternosTab membros={membros} diretorias={diretorias} onMudar={mudar} onNovo={() => setModal({ tipo: "interno" })} />}
       </div>
 
       {modal?.tipo === "equipe" && (
@@ -127,6 +131,9 @@ export default function EquipePage() {
       )}
       {modal?.tipo === "diretoria" && (
         <ModalDiretoria onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
+      )}
+      {modal?.tipo === "interno" && (
+        <ModalUsuarioInterno diretorias={diretorias} onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
       )}
       {modal?.tipo === "gerente" && (
         <ModalGerente onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />

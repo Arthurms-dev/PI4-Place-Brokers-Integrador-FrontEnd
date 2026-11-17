@@ -12,12 +12,14 @@ const SECOES = [
   ["Quais dados coletamos", [
     "Quando você preenche um formulário: nome, telefone (WhatsApp), e-mail, o empreendimento de interesse e a mensagem que escrever. No formulário de venda, também os dados do imóvel que você quer vender.",
     "Quando você navega: quais empreendimentos foram abertos e quando, ligados a um código aleatório guardado no seu navegador (não é o seu nome). Usamos isso para saber quais imóveis interessam mais. Não usamos cookies de publicidade.",
-    "Se você faz parte da equipe da Place (corretor, gerente ou administrador): dados de cadastro, CRECI quando houver, acessos ao sistema, tentativas de login sem sucesso, os leads recebidos e o registro de cada distribuição de lead (quem recebeu, quando e por qual regra).",
+    "Quando você se candidata pelo Trabalhe conosco: nome, telefone, e-mail, unidade e área de interesse, CRECI e LinkedIn se informar, a mensagem e o currículo em PDF.",
+    "Se você faz parte da equipe da Place (corretor, gerente, administrador ou outro cargo interno): dados de cadastro, CRECI quando houver, acessos ao sistema, tentativas de login sem sucesso, os leads recebidos e o registro de cada distribuição de lead (quem recebeu, quando e por qual regra).",
   ]],
   ["Para que usamos", [
     "Para um corretor da Place falar com você sobre o empreendimento que você escolheu, tirar dúvidas e agendar visitas ou reuniões.",
     "Para liberar o material completo dos empreendimentos (galeria, plantas e condições) depois do cadastro.",
     "Para mandar avisos de lançamentos com o seu perfil, só se você marcar essa opção. Você pode pedir para parar a qualquer momento.",
+    "Candidaturas: para o RH da Place avaliar o seu perfil e falar com você sobre vagas. Só o RH e a administração veem o currículo, que fica guardado sem acesso público.",
   ]],
   ["Base legal", [
     "Contato sobre o imóvel e avisos de lançamento: o seu consentimento, dado ao marcar a caixa do formulário.",
@@ -33,6 +35,7 @@ const SECOES = [
   ]],
   ["Por quanto tempo guardamos", [
     "Enquanto durar o atendimento e por até 2 anos depois do último contato, ou pelo prazo que a lei exigir em caso de compra.",
+    "Candidaturas: por até 1 ano depois do envio, para vagas futuras. Você pode pedir para apagar antes.",
   ]],
   ["Seus direitos", [
     "Você pode pedir a qualquer momento: confirmação de que tratamos seus dados, acesso, correção, anonimização ou exclusão, portabilidade, informação sobre com quem compartilhamos e a revogação do consentimento (art. 18 da LGPD).",

@@ -54,13 +54,17 @@ export const listarMeusLeads = async () => (await api.get("/leads/meus")).leads;
 
 | Área | Rotas |
 | --- | --- |
-| Público | `/`, `/imoveis/:id` (janela do empreendimento), `/sobre`, `/contato`, `/privacidade`, `/login`, `/register`, `/esqueci-senha`, `/redefinir-senha`, `/acesso-negado` |
+| Público | `/`, `/imoveis/:id` (janela do empreendimento), `/sobre`, `/contato`, `/trabalhe-conosco`, `/privacidade`, `/login`, `/register`, `/esqueci-senha`, `/redefinir-senha`, `/acesso-negado` |
 | Corretor `/corretor` | início, `empreendimentos`, `empreendimentos/:id`, `mapa`, `books`, `clientes/novo`, `leads`, `agenda`, `vendas`, `configuracoes` |
 | Gerente `/gerente` | início, `empreendimentos`, `books`, `equipe`, `leads`, `agendamentos`, `focos`, `vendas`, `configuracoes` |
-| Admin `/admin` | `painel`, `dashboard`, `imoveis`, `leads`, `clientes`, `agendamentos`, `vendas`, `relatorios`, `equipe`, `roleta`, `focos`, `configuracoes` |
+| Admin `/admin` | `painel`, `dashboard`, `imoveis`, `leads`, `clientes`, `agendamentos`, `vendas`, `relatorios`, `equipe`, `rh`, `roleta`, `focos`, `configuracoes` |
+| RH `/rh` | candidaturas (início), `vagas`, `configuracoes` |
+| Recepção `/recepcao` | roleta do dia (início), `configuracoes` |
+| Diretor `/diretor` | dashboard da diretoria (início), `vendas` (só leitura), `configuracoes` |
+| Cadastro `/cadastro` | empreendimentos (início), `configuracoes` |
 | Viabilizador | bloqueado no MVP (redireciona para `/acesso-negado`) |
 
-Os menus laterais de corretor, gerente e viabilizador ficam em `src/lib/areas.js`; o do admin em `src/pages/admin/AdminLayout.jsx`. Cada área usa o mesmo `AdminShell` e o `AreaLayout` confere se o cargo do usuário bate com a área.
+Os menus laterais de corretor, gerente, viabilizador, RH, recepção, diretor e cadastro ficam em `src/lib/areas.js`; o do admin em `src/pages/admin/AdminLayout.jsx`. Cada área usa o mesmo `AdminShell` e o `AreaLayout` confere se o cargo do usuário bate com a área.
 
 ## SEO, prévia de link e LGPD
 

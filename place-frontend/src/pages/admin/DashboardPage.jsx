@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import "@/styles/placeDashboardMotion.css";
 import { Delta } from "@/components/ui/Delta";
@@ -65,6 +66,8 @@ function Esqueleto() {
 }
 
 export default function DashboardPage() {
+  // Diretor: a API já devolve só a diretoria dele e sem os leads de clientes.
+  const ehDiretor = useOutletContext()?.user?.cargo === "diretor";
   usePageTitle("Dashboard");
   // 90 dias por padrão: no ambiente de teste, 30 dias compara o histórico de demonstração com o uso real e mostra tudo caindo.
   const [dias, setDias] = useState(90);
@@ -107,7 +110,7 @@ export default function DashboardPage() {
         <div>
           <p className="pb-eyebrow">Visão executiva</p>
           <h1 className="pb-page-title">Dashboard</h1>
-          <p className="mt-2 text-[13px] text-ink-2">Acompanhe a performance dos seus imóveis, contatos e agendamentos.</p>
+          <p className="mt-2 text-[13px] text-ink-2">{ehDiretor ? "VGV e vendas das equipes da sua diretoria; acessos e agendamentos são da Place toda." : "Acompanhe a performance dos seus imóveis, contatos e agendamentos."}</p>
         </div>
         <div className="pb-period-selector flex rounded-xl border border-line bg-card-2 p-1" role="group" aria-label="Período">
           {PERIODOS.map(([d, r]) => (
@@ -209,7 +212,7 @@ export default function DashboardPage() {
               <BarChart dados={dados.bookings} rotulo="agendamentos" />
             </Painel>
 
-            <Painel titulo="Leads recentes" atraso={300}>
+            {!ehDiretor && <Painel titulo="Leads recentes" atraso={300}>
               {dados.recentLeads.length === 0 ? (
                 <Vazio>Nenhum lead ainda.</Vazio>
               ) : (
@@ -228,7 +231,7 @@ export default function DashboardPage() {
                   })}
                 </ul>
               )}
-            </Painel>
+            </Painel>}
 
             <Painel titulo="Desempenho da plataforma" subtitulo="Comparado ao período anterior" atraso={340}>
               <ul className="divide-y divide-line-soft">

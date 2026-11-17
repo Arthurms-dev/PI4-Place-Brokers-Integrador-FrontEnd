@@ -3,6 +3,10 @@ export const ROLE_HOME = {
   gerente: "/gerente",
   corretor: "/corretor",
   viabilizador: "/viabilizador",
+  rh: "/rh",
+  recepcao: "/recepcao",
+  diretor: "/diretor",
+  cadastro: "/cadastro",
 };
 
 export const AREAS = {
@@ -42,6 +46,41 @@ export const AREAS = {
       { label: "Books e Tabelas", href: "/viabilizador/books", icon: "book" },
       { label: "Oportunidades", href: "/viabilizador/oportunidades", icon: "activity" },
       { label: "Configurações", href: "/viabilizador/configuracoes", icon: "settings" },
+    ],
+  },
+
+  // Cargos internos criados pelo admin (divisão de cargos de 17/11/2026).
+  rh: {
+    home: "/rh",
+    items: [
+      { label: "Candidaturas", href: "/rh", icon: "users", end: true },
+      { label: "Vagas", href: "/rh/vagas", icon: "list" },
+      { label: "Configurações", href: "/rh/configuracoes", icon: "settings" },
+    ],
+  },
+
+  recepcao: {
+    home: "/recepcao",
+    items: [
+      { label: "Roleta do dia", href: "/recepcao", icon: "refresh", end: true },
+      { label: "Configurações", href: "/recepcao/configuracoes", icon: "settings" },
+    ],
+  },
+
+  diretor: {
+    home: "/diretor",
+    items: [
+      { label: "Dashboard", href: "/diretor", icon: "dashboard", end: true },
+      { label: "Vendas", href: "/diretor/vendas", icon: "chart" },
+      { label: "Configurações", href: "/diretor/configuracoes", icon: "settings" },
+    ],
+  },
+
+  cadastro: {
+    home: "/cadastro",
+    items: [
+      { label: "Empreendimentos", href: "/cadastro", icon: "building", end: true },
+      { label: "Configurações", href: "/cadastro/configuracoes", icon: "settings" },
     ],
   },
 };

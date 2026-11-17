@@ -174,7 +174,8 @@ export default function VendasPage() {
   usePageTitle("Vendas");
   const { user } = useOutletContext();
   const ehCorretor = user.cargo === "corretor";
-  const decide = !ehCorretor;
+  // Diretor acompanha a própria diretoria, mas quem confirma é o gerente (ou o admin).
+  const decide = user.cargo === "admin" || user.cargo === "gerente";
   const [params, setParams] = useSearchParams();
   const clienteInicial = params.get("cliente") ?? "";
   const empreendimentoInicial = params.get("empreendimento") ?? "";
@@ -242,7 +243,7 @@ export default function VendasPage() {
           <p className="pb-eyebrow">Resultados comerciais</p>
           <h1 className="text-xl font-semibold">Vendas</h1>
           <p className="text-[13px] text-ink-2">
-            {ehCorretor ? "Lance suas vendas e acompanhe a confirmação." : user.cargo === "gerente" ? "Confirme as vendas da sua equipe." : "Confirme as vendas: só as confirmadas somam no VGV."}
+            {ehCorretor ? "Lance suas vendas e acompanhe a confirmação." : user.cargo === "gerente" ? "Confirme as vendas da sua equipe." : user.cargo === "diretor" ? "Vendas das equipes da sua diretoria. Quem confirma é o gerente." : "Confirme as vendas: só as confirmadas somam no VGV."}
           </p>
         </div>
         {ehCorretor && (

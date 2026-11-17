@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { criarDiretoria, criarGerente, criarTime, atualizarTime } from "@/services/admin/equipe";
+import { criarDiretoria, criarGerente, criarTime, atualizarTime, criarUsuarioInterno } from "@/services/admin/equipe";
+import { CARGOS_INTERNOS } from "./AcessosInternosTab";
 import { CAMPO, Campo, Folha, SEDES } from "./ui";
 import PasswordField from "@/components/auth/PasswordField";
 
@@ -95,6 +96,41 @@ export function ModalGerente({ onClose, onSalvo }) {
         <Campo rotulo="Senha temporária" erro={erros.password}><PasswordField value={f.password} onChange={set("password")} autoComplete="new-password" inputClassName={`${CAMPO} ${borda(erros, "password")} pr-12`} /></Campo>
         <Erro texto={erroGeral && !Object.keys(erros).length ? erroGeral : ""} />
         <Botao enviando={enviando}>Criar gerente</Botao>
+      </form>
+    </Folha>
+  );
+}
+export function ModalUsuarioInterno({ diretorias, cargoInicial = "rh", onClose, onSalvo }) {
+  const [f, setF] = useState({ cargo: cargoInicial, nome: "", email: "", password: "", diretoriaId: "" });
+  const set = (c) => (e) => setF((s) => ({ ...s, [c]: e.target.value }));
+  const { erros, erroGeral, enviando, enviar } = useEnvio(
+    () => criarUsuarioInterno({ ...f, diretoriaId: f.cargo === "diretor" ? f.diretoriaId : undefined }),
+    onSalvo,
+  );
+  const descricao = CARGOS_INTERNOS.find(([v]) => v === f.cargo)?.[2];
+  return (
+    <Folha titulo="Novo acesso interno" onClose={onClose}>
+      <form onSubmit={enviar} noValidate className="space-y-3.5">
+        <Campo rotulo="Cargo" erro={erros.cargo}>
+          <select value={f.cargo} onChange={set("cargo")} className={`${CAMPO} ${borda(erros, "cargo")}`}>
+            {CARGOS_INTERNOS.map(([v, rotulo]) => <option key={v} value={v}>{rotulo}</option>)}
+          </select>
+        </Campo>
+        {descricao && <p className="text-[12px] text-ink-3">{descricao}</p>}
+        {f.cargo === "diretor" && (
+          <Campo rotulo="Diretoria" erro={erros.diretoriaId}>
+            <select value={f.diretoriaId} onChange={set("diretoriaId")} className={`${CAMPO} ${borda(erros, "diretoriaId")}`}>
+              <option value="">Escolha a diretoria</option>
+              {diretorias.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
+            </select>
+          </Campo>
+        )}
+        <Campo rotulo="Nome" erro={erros.nome}><input value={f.nome} onChange={set("nome")} autoComplete="off" className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
+        <Campo rotulo="E-mail" erro={erros.email}><input type="email" value={f.email} onChange={set("email")} autoComplete="off" className={`${CAMPO} ${borda(erros, "email")}`} /></Campo>
+        <Campo rotulo="Senha temporária" erro={erros.password}><PasswordField value={f.password} onChange={set("password")} autoComplete="new-password" inputClassName={`${CAMPO} ${borda(erros, "password")} pr-12`} /></Campo>
+        <p className="text-[12px] text-ink-3">Já entra aprovado. Combine a senha temporária por fora e peça para trocar em Configurações.</p>
+        <Erro texto={erroGeral && !Object.keys(erros).length ? erroGeral : ""} />
+        <Botao enviando={enviando}>Criar acesso</Botao>
       </form>
     </Folha>
   );

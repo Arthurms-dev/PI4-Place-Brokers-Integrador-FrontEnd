@@ -15,6 +15,7 @@ const MENU = [
   { label: "Vendas", href: "/admin/vendas", icon: "chart" },
   { label: "Relatórios", href: "/admin/relatorios", icon: "chart" },
   { label: "Equipe", href: "/admin/equipe", icon: "team" },
+  { label: "Trabalhe conosco", href: "/admin/rh", icon: "userPlus" },
   { label: "Configurações", href: "/admin/configuracoes", icon: "settings" },
 ];
 
@@ -32,4 +33,4 @@ export default function AdminLayout() {
       <Outlet context={{ user }} />
     </AdminShell>
   );
-}
+}

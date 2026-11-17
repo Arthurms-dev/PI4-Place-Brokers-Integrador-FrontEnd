@@ -4,7 +4,7 @@ import { Icon } from "@/components/ui/Icon";
 import { useEmpreendimentosPublicos } from "@/data/empreendimentosPublicos";
 import FormularioContato from "./FormularioContato";
 
-const ROTAS_PRIVADAS = /^\/(admin|corretor|gerente|viabilizador|login|register|acesso-negado)/;
+const ROTAS_PRIVADAS = /^\/(admin|corretor|gerente|viabilizador|rh|recepcao|diretor|cadastro|login|register|acesso-negado)/;
 
 const ContatoContext = createContext({
   abrirContato: () => console.error("ContatoProvider ausente: envolva a página com <ContatoProvider>."),
@@ -62,7 +62,8 @@ export function ContatoProvider({ children }) {
   }, []);
   const fechar = useCallback(() => setAberto(false), []);
   const valor = useMemo(() => ({ abrirContato }), [abrirContato]);
-  const mostrarBotao = !ROTAS_PRIVADAS.test(pathname) && !pathname.startsWith("/imoveis/") && !aberto;
+  // No Trabalhe conosco o visitante é candidato, não comprador: o botão de especialista só confundiria.
+  const mostrarBotao = !ROTAS_PRIVADAS.test(pathname) && !pathname.startsWith("/imoveis/") && pathname !== "/trabalhe-conosco" && !aberto;
 
   return (
     <ContatoContext.Provider value={valor}>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -74,6 +74,8 @@ function LinhaChegada({ c, ocupado, onApto, onRemover }) {
 
 /** Tela da recepção: marca quem chegou, fecha a lista e acompanha a distribuição. */
 export default function RoletaPage() {
+  // A recepção usa esta mesma tela, mas Leads e Focos são do admin.
+  const ehAdmin = useOutletContext()?.user?.cargo === "admin";
   usePageTitle("Roleta do dia");
   const [painel, setPainel] = useState(null);
   const [erro, setErro] = useState("");
@@ -212,7 +214,7 @@ export default function RoletaPage() {
         <CardHeader
           title={`Leads aguardando corretor (${painel.aguardando.length})`}
           description={painel.aguardando.length ? motivoAguardando(painel) : "Nenhum lead parado. Quem chega pelo site entra na roleta na hora."}
-          action={<Link to="/admin/leads" className="text-[12px] text-gold hover:underline">Abrir Leads</Link>}
+          action={ehAdmin ? <Link to="/admin/leads" className="text-[12px] text-gold hover:underline">Abrir Leads</Link> : null}
         />
         {painel.aguardando.length > 0 && (
           <ul className="divide-y divide-line-soft">
@@ -231,7 +233,7 @@ export default function RoletaPage() {
 
       <p className="text-[12px] text-ink-3">
         Os leads vão para o próximo apto da lista com foco no empreendimento; no fim da lista, recomeça do topo.
-        Os focos são definidos pelos gerentes em <Link to="/admin/focos" className="text-gold hover:underline">Focos dos corretores</Link>.
+        Os focos são definidos pelos gerentes{ehAdmin ? <> em <Link to="/admin/focos" className="text-gold hover:underline">Focos dos corretores</Link></> : null}.
       </p>
     </div>
   );

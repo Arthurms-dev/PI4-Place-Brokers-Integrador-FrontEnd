@@ -51,6 +51,7 @@ export default function SiteFooter() {
         <div>
           <h3 className={titulo}>Para a equipe</h3>
           <Link to="/login" className={item}>Área restrita</Link>
+          <Link to="/trabalhe-conosco" className={item}>Trabalhe conosco</Link>
           <Link to="/register" className={item}>Seja um corretor parceiro</Link>
         </div>
 

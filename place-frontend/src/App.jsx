@@ -11,6 +11,8 @@ const SobrePage = lazy(() => import("@/pages/SobrePage"));
 const ProntosPage = lazy(() => import("@/pages/ProntosPage"));
 const PrivacidadePage = lazy(() => import("@/pages/PrivacidadePage"));
 const ContatoPage = lazy(() => import("@/pages/ContatoPage"));
+const TrabalheConoscoPage = lazy(() => import("@/pages/TrabalheConoscoPage"));
+const RhPage = lazy(() => import("@/pages/rh/RhPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const AcessoNegadoPage = lazy(() => import("@/pages/AcessoNegadoPage"));
 const PerfilPage = lazy(() => import("@/pages/PerfilPage"));
@@ -57,6 +59,7 @@ export default function App() {
         <Route path="/prontos" element={<ProntosPage />} />
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
+        <Route path="/trabalhe-conosco" element={<TrabalheConoscoPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
       </Route>
 
@@ -104,6 +107,37 @@ export default function App() {
 
       <Route path="/viabilizador/*" element={<Navigate to="/acesso-negado" replace />} />
 
+      {/* Cargos internos criados pelo admin: cada um vê só a sua parte. */}
+      <Route path="/rh" element={<AreaLayout cargo="rh" />}>
+        <Route index element={<RhPage aba="candidaturas" />} />
+        <Route path="vagas" element={<RhPage aba="vagas" />} />
+        <Route path="configuracoes" element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<Navigate to="/rh" replace />} />
+      </Route>
+
+      <Route path="/recepcao" element={<AreaLayout cargo="recepcao" />}>
+        <Route index element={<RoletaPage />} />
+        <Route path="configuracoes" element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<Navigate to="/recepcao" replace />} />
+      </Route>
+
+      <Route path="/diretor" element={<AreaLayout cargo="diretor" />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="vendas" element={<VendasPage />} />
+        <Route path="configuracoes" element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<Navigate to="/diretor" replace />} />
+      </Route>
+
+      <Route path="/cadastro" element={<AreaLayout cargo="cadastro" />}>
+        <Route index element={<EmpreendimentosPage />} />
+        <Route path="configuracoes" element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<Navigate to="/cadastro" replace />} />
+      </Route>
+
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Navigate to="painel" replace />} />
         <Route path="painel" element={<PainelAdmPage />} />
@@ -115,6 +149,7 @@ export default function App() {
         <Route path="vendas" element={<VendasPage />} />
         <Route path="relatorios" element={<RelatoriosPage />} />
         <Route path="equipe" element={<EquipePage />} />
+        <Route path="rh" element={<RhPage comAbas />} />
         <Route path="roleta" element={<RoletaPage />} />
         <Route path="focos" element={<FocosEquipePage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
