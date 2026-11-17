@@ -9,6 +9,7 @@ import { AreaChart, BarChart, Meter } from "@/components/admin/dashboard/charts"
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatNumber } from "@/lib/format";
 import { getDashboardData } from "@/services/dashboard";
+import { intervaloDoFiltro, isoLocal, rotuloDoIntervalo } from "@/lib/periodoDashboard";
 import { listarEmpreendimentos } from "@/services/empreendimentos";
 
 const DashMapa = lazy(() => import("@/components/admin/dashboard/DashMapa"));
@@ -19,13 +20,56 @@ const STATUS_LEAD = {
   atendimento: { label: "Em atendimento", cls: "bg-sky-500/15 text-sky-300" },
   convertido: { label: "Convertido", cls: "bg-emerald-500/15 text-emerald-300" },
 };
-const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const CAMPO_DATA = "h-10 rounded-lg border border-line bg-card-2 px-3 text-sm text-ink outline-none transition-colors scheme-dark focus:border-gold";
 
-function periodo(dias) {
-  const ate = new Date();
-  const de = new Date();
-  de.setDate(de.getDate() - (dias - 1));
-  return { de: isoLocal(de), ate: isoLocal(ate) };
+/** 7/30/90 dias, um mês ou duas datas. Só avisa a página quando o período é válido. */
+function SeletorPeriodo({ filtro, onMudar }) {
+  const hoje = isoLocal(new Date());
+  const [modo, setModo] = useState(filtro.tipo);
+  const [mes, setMes] = useState(hoje.slice(0, 7));
+  const [datas, setDatas] = useState({ de: "", ate: hoje });
+  const [erro, setErro] = useState("");
+
+  function aplicar(novo) {
+    const r = intervaloDoFiltro(novo);
+    setErro(r.ok ? "" : r.erro);
+    if (r.ok) onMudar(novo);
+  }
+  const botao = (ativo) => `h-10 rounded-lg px-3.5 text-sm font-medium transition-colors sm:px-4 ${ativo ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`;
+
+  return (
+    <div className="flex flex-col items-start gap-2 sm:items-end">
+      <div className="pb-period-selector flex flex-wrap rounded-xl border border-line bg-card-2 p-1" role="group" aria-label="Período">
+        {PERIODOS.map(([d, r]) => (
+          <button key={d} type="button" onClick={() => { setModo("dias"); aplicar({ tipo: "dias", dias: d }); }}
+            aria-pressed={modo === "dias" && filtro.dias === d} className={botao(modo === "dias" && filtro.dias === d)}>
+            {r}
+          </button>
+        ))}
+        <button type="button" onClick={() => { setModo("mes"); aplicar({ tipo: "mes", mes }); }} aria-pressed={modo === "mes"} className={botao(modo === "mes")}>Mês</button>
+        <button type="button" onClick={() => { setModo("datas"); setErro(""); }} aria-pressed={modo === "datas"} className={botao(modo === "datas")}>Datas</button>
+      </div>
+      {modo === "mes" && (
+        <label className="flex items-center gap-2 text-xs text-ink-2">
+          Mês
+          <input type="month" value={mes} max={hoje.slice(0, 7)} aria-label="Mês do dashboard"
+            onChange={(e) => { setMes(e.target.value); aplicar({ tipo: "mes", mes: e.target.value }); }} className={CAMPO_DATA} />
+        </label>
+      )}
+      {modo === "datas" && (
+        <form className="flex flex-wrap items-center gap-2 text-xs text-ink-2" onSubmit={(e) => { e.preventDefault(); aplicar({ tipo: "datas", ...datas }); }}>
+          <label className="flex items-center gap-2">De
+            <input type="date" value={datas.de} max={hoje} aria-label="Data inicial" onChange={(e) => setDatas((s) => ({ ...s, de: e.target.value }))} className={CAMPO_DATA} />
+          </label>
+          <label className="flex items-center gap-2">até
+            <input type="date" value={datas.ate} max={hoje} aria-label="Data final" onChange={(e) => setDatas((s) => ({ ...s, ate: e.target.value }))} className={CAMPO_DATA} />
+          </label>
+          <button type="submit" className="h-10 rounded-lg bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] transition hover:brightness-110">Ver</button>
+        </form>
+      )}
+      {erro && <p role="alert" className="text-xs text-danger">{erro}</p>}
+    </div>
+  );
 }
 
 function quando(iso) {
@@ -70,7 +114,11 @@ export default function DashboardPage() {
   const ehDiretor = useOutletContext()?.user?.cargo === "diretor";
   usePageTitle("Dashboard");
   // 90 dias por padrão: no ambiente de teste, 30 dias compara o histórico de demonstração com o uso real e mostra tudo caindo.
-  const [dias, setDias] = useState(90);
+  const [filtro, setFiltro] = useState({ tipo: "dias", dias: 90 });
+  const intervalo = useMemo(() => {
+    const r = intervaloDoFiltro(filtro);
+    return { de: r.de, ate: r.ate };
+  }, [filtro]);
   const [dados, setDados] = useState(null);
   const [empreendimentos, setEmpreendimentos] = useState([]);
   const [erro, setErro] = useState("");
@@ -80,13 +128,13 @@ export default function DashboardPage() {
     setCarregando(true);
     setErro("");
     try {
-      setDados(await getDashboardData(periodo(dias)));
+      setDados(await getDashboardData(intervalo));
     } catch (e) {
       setErro(e.message ?? "Falha ao carregar o dashboard");
     } finally {
       setCarregando(false);
     }
-  }, [dias]);
+  }, [intervalo]);
 
   useEffect(() => {
     carregar();
@@ -110,16 +158,10 @@ export default function DashboardPage() {
         <div>
           <p className="pb-eyebrow">Visão executiva</p>
           <h1 className="pb-page-title">Dashboard</h1>
+          <p className="mt-1 text-[12px] text-ink-3">Período: {rotuloDoIntervalo(intervalo)}</p>
           <p className="mt-2 text-[13px] text-ink-2">{ehDiretor ? "VGV e vendas das equipes da sua diretoria; acessos e agendamentos são da Place toda." : "Acompanhe a performance dos seus imóveis, contatos e agendamentos."}</p>
         </div>
-        <div className="pb-period-selector flex rounded-xl border border-line bg-card-2 p-1" role="group" aria-label="Período">
-          {PERIODOS.map(([d, r]) => (
-            <button key={d} type="button" onClick={() => setDias(d)} aria-pressed={dias === d}
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-colors ${dias === d ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`}>
-              {r}
-            </button>
-          ))}
-        </div>
+        <SeletorPeriodo filtro={filtro} onMudar={setFiltro} />
       </div>
 
       {erro && (
@@ -135,7 +177,7 @@ export default function DashboardPage() {
       {carregando && !dados && <Esqueleto />}
 
       {dados && (
-        <div key={dias} className={`space-y-4 transition-opacity duration-300 ${carregando ? "opacity-60" : "opacity-100"}`}>
+        <div key={`${intervalo.de}-${intervalo.ate}`} className={`space-y-4 transition-opacity duration-300 ${carregando ? "opacity-60" : "opacity-100"}`}>
           <KpiCards kpis={dados.kpis} />
 
           <div className="grid gap-4 lg:grid-cols-3">

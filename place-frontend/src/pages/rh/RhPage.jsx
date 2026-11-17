@@ -79,7 +79,7 @@ function Candidatura({ c, onAtualizada, onApagada }) {
 
       <div className="mt-3 flex flex-wrap gap-2">
         <select value={c.status} disabled={salvando} onChange={(e) => salvar({ status: e.target.value })} aria-label="Status"
-          className={`${CAMPO} h-10 w-auto border-line pr-8 focus:border-gold`}>
+          className="h-10 rounded-xl border border-line bg-card-2 px-3 text-[13px] text-ink outline-none transition-colors scheme-dark focus:border-gold">
           {STATUS_CANDIDATURA.map(([v, rotulo]) => <option key={v} value={v}>{rotulo}</option>)}
         </select>
         <a href={whatsappDoCandidato(c)} target="_blank" rel="noreferrer"
