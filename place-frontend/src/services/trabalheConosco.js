@@ -6,7 +6,6 @@ export const AREAS = [
   ["captacao", "Captação de imóveis"],
   ["administrativo", "Administrativo"],
   ["marketing", "Marketing"],
-  ["tecnologia", "Tecnologia"],
   ["outra", "Outra área"],
 ];
 export const NOME_DA_AREA = Object.fromEntries(AREAS);
