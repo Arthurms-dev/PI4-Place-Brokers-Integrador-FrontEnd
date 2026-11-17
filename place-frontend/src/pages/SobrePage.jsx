@@ -34,7 +34,7 @@ export default function SobrePage() {
       <div className="mt-12 grid items-center gap-8 md:grid-cols-[1.15fr_1fr]">
         <Reveal>
           <figure className="relative w-full">
-            <div className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-gold/15 blur-3xl" aria-hidden="true" />
+            <div className="pointer-events-none absolute -inset-4 -z-10 rounded-full bg-gold/15 blur-3xl sm:-inset-8" aria-hidden="true" />
             <a href={PERFIL_INSTAGRAM.url} target="_blank" rel="noreferrer" aria-label="Ver o time no Instagram da Place" className="group block overflow-hidden rounded-3xl border border-line transition duration-500 hover:-translate-y-1 hover:border-gold/60 hover:shadow-2xl">
               <img src={fotoDoTime} alt="Time da Place Brokers reunido em treinamento no escritório" width="1024" height="768" loading="lazy" decoding="async" className="animate-kenburns aspect-4/3 w-full object-cover" />
             </a>

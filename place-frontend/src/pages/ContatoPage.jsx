@@ -21,14 +21,14 @@ export default function ContatoPage() {
       </Reveal>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           {canais.map(([icone, rotulo, valor, link], i) => {
             const miolo = (
               <>
                 <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold"><Icon name={icone} className="size-6" /></span>
                 <span className="min-w-0">
                   <span className="block text-[12px] uppercase tracking-wide text-ink-3">{rotulo}</span>
-                  <span className="block truncate text-[15px] font-medium">{valor}</span>
+                  <span className="block text-[15px] font-medium leading-snug break-words">{valor}</span>
                 </span>
               </>
             );
@@ -44,7 +44,7 @@ export default function ContatoPage() {
           })}
         </div>
 
-        <Reveal atraso={120}>
+        <Reveal atraso={120} className="min-w-0">
           <div className="rounded-3xl border border-gold/40 bg-card p-6 shadow-xl shadow-black/30 sm:p-8">
             <h2 className="text-xl font-semibold">Deixe seus dados</h2>
             <p className="mb-5 mt-1 text-[13px] text-ink-2">Um especialista entra em contato para ajudar você a escolher.</p>

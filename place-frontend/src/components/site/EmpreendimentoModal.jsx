@@ -41,7 +41,7 @@ function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
 }
 
 const MiniMapa = lazy(() => import("./MiniMapa"));
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function EmpreendimentoModal({ item, onClose }) {
   const { abrirContato } = useContato();
