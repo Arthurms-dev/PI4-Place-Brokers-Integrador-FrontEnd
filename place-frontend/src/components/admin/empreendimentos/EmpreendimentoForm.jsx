@@ -115,6 +115,11 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     (Array.isArray(emp?.andamento_obra) ? emp.andamento_obra : []).map((m) => ({ modulo: m.modulo ?? "", percentual: m.percentual != null ? String(m.percentual) : "" }))
   );
   const mudarModulo = (i, campo) => (e) => setModulos((l) => l.map((m, k) => (k === i ? { ...m, [campo]: e.target.value } : m)));
+  // Fatos da região: só com fonte (quem publicou), link e mês. Até 3.
+  const [fatos, setFatos] = useState(() =>
+    (Array.isArray(emp?.fatos_mercado) ? emp.fatos_mercado : []).map((f) => ({ texto: f.texto ?? "", fonte: f.fonte ?? "", url: f.url ?? "", mes: f.mes ?? "" }))
+  );
+  const mudarFato = (i, campo) => (e) => setFatos((l) => l.map((f, k) => (k === i ? { ...f, [campo]: e.target.value } : f)));
   const [tipologias, setTipologias] = useState(() =>
     Array.isArray(emp?.tipologias) ? emp.tipologias : []
   );
@@ -190,6 +195,13 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     else if (preenchidos.some((m) => !(num(String(m.percentual).replace(",", ".")) >= 0 && num(String(m.percentual).replace(",", ".")) <= 100))) e.andamentoObra = "O percentual vai de 0 a 100.";
     if (preenchidos.length && !f.andamentoReferencia) e.andamentoReferencia = "Informe o mês da medição.";
     if (f.andamentoReferencia && f.andamentoReferencia > new Date().toISOString().slice(0, 7)) e.andamentoReferencia = "O mês da medição não pode ser no futuro.";
+    const fatosPreenchidos = fatos.filter((x) => x.texto.trim() || x.fonte.trim() || x.url.trim() || x.mes);
+    for (const x of fatosPreenchidos) {
+      if (x.texto.trim().length < 10) { e.fatosMercado = "Escreva o fato (pelo menos 10 letras)."; break; }
+      if (!x.fonte.trim()) { e.fatosMercado = "Informe quem publicou (a fonte)."; break; }
+      if (!/^https:\/\/\S+$/.test(x.url.trim())) { e.fatosMercado = "Cole o link https da fonte."; break; }
+      if (!x.mes || x.mes > new Date().toISOString().slice(0, 7)) { e.fatosMercado = "Informe o mês da publicação."; break; }
+    }
     if (f.andamentoFonteUrl.trim() && !/^https:\/\/\S+$/.test(f.andamentoFonteUrl.trim())) e.andamentoFonteUrl = "Use o link https da página da construtora.";
     return e;
   }
@@ -227,6 +239,11 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             .map((m) => ({ modulo: m.modulo.trim(), percentual: num(String(m.percentual).replace(",", ".")) })),
           andamentoReferencia: f.andamentoReferencia ? `${f.andamentoReferencia}-01` : null,
           andamentoFonteUrl: f.andamentoFonteUrl.trim() || null,
+        } : {}),
+        ...(fatos.length || emp?.fatos_mercado?.length ? {
+          fatosMercado: fatos
+            .filter((x) => x.texto.trim())
+            .map((x) => ({ texto: x.texto.trim(), fonte: x.fonte.trim(), url: x.url.trim(), mes: x.mes })),
         } : {}),
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
@@ -401,6 +418,31 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             </Secao>
           );
         })()}
+        <Secao titulo="Fatos da região (com fonte)">
+          <p className="text-xs leading-5 text-ink-3">
+            Só fato publicado por alguém, com o link para conferir: governo, IBGE, FipeZap, jornal, a construtora. Nada de "vai valorizar".
+            Aparece para o cliente no material exclusivo e para os corretores. Some sozinho depois de 18 meses.
+          </p>
+          {fatos.map((x, i) => (
+            <div key={i} className="space-y-2 rounded-xl border border-line p-3">
+              <textarea aria-label={`Fato ${i + 1}`} value={x.texto} onChange={mudarFato(i, "texto")} maxLength={200} rows={2}
+                placeholder="Ex.: Porto de Galinhas recebeu X mil turistas no verão de 2026, alta de Y% sobre 2025."
+                className={`w-full rounded-xl border bg-card-2 px-3.5 py-2.5 text-sm outline-none scheme-dark ${borda(erros, "fatosMercado")}`} />
+              <div className="grid gap-2 sm:grid-cols-[1fr_1.4fr_9rem_auto]">
+                <input aria-label={`Fonte do fato ${i + 1}`} value={x.fonte} onChange={mudarFato(i, "fonte")} placeholder="Quem publicou" maxLength={80} className={`${CAMPO} ${borda(erros, "fatosMercado")}`} />
+                <input aria-label={`Link do fato ${i + 1}`} value={x.url} onChange={mudarFato(i, "url")} placeholder="https://..." inputMode="url" className={`${CAMPO} ${borda(erros, "fatosMercado")}`} />
+                <input aria-label={`Mês do fato ${i + 1}`} type="month" value={x.mes} onChange={mudarFato(i, "mes")} max={new Date().toISOString().slice(0, 7)} className={`${CAMPO} ${borda(erros, "fatosMercado")}`} />
+                <button type="button" onClick={() => setFatos((l) => l.filter((_, k) => k !== i))} aria-label={`Tirar o fato ${i + 1}`} className="grid size-12 place-items-center rounded-xl border border-line hover:border-danger"><Icon name="x" className="size-4" /></button>
+              </div>
+            </div>
+          ))}
+          {erros.fatosMercado && <p className="text-[11px] text-danger">{erros.fatosMercado}</p>}
+          {fatos.length < 3 && (
+            <button type="button" onClick={() => setFatos((l) => [...l, { texto: "", fonte: "", url: "", mes: "" }])} className="h-10 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
+              + Fato com fonte
+            </button>
+          )}
+        </Secao>
         {emp && (
           <TipologiasForm
             empreendimentoId={emp.id}

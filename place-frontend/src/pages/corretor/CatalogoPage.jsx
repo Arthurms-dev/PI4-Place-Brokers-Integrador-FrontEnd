@@ -7,7 +7,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS, buscarEmpreendimentoPorId, formatarFaixa, listarEmpreendimentos, listarDocumentosComerciais, urlDoDocumento, urlDoDocumentoPorId } from "@/services/empreendimentos";
 import { SEGMENTOS, prazoDoEmpreendimento, precoDoEmpreendimento } from "@/lib/precoCatalogo";
 import { lerAndamento } from "@/lib/andamentoObra";
-import AndamentoObra from "@/components/site/AndamentoObra";
+import DadosParaDecidir from "@/components/site/DadosParaDecidir";
+import { fatosVisiveis } from "@/lib/fatosMercado";
 import { registrarEvento } from "@/services/eventos";
 import { AbasCatalogo } from "@/components/catalogo/AbasCatalogo";
 import { cn } from "@/lib/cn";
@@ -197,7 +198,7 @@ function Detalhe({ resumo, onClose }) {
             ))}
           </dl>
         )}
-        {emp.status !== "pronto" && <AndamentoObra andamento={lerAndamento(emp)} interno />}
+        <DadosParaDecidir interno andamento={emp.status !== "pronto" ? lerAndamento(emp) : null} evolucao={emp.evolucao_preco ?? null} fatos={fatosVisiveis(emp)} />
         {emp.descricao && <p className="text-sm leading-relaxed text-ink-2">{emp.descricao}</p>}
         {emp.lazer?.length > 0 && <div className="flex flex-wrap gap-2">{emp.lazer.map((l) => <span key={l} className="rounded-full border border-line px-3 py-1 text-[12px] text-ink-2">{l}</span>)}</div>}
 

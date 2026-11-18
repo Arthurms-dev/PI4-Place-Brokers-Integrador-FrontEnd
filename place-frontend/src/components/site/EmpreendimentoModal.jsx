@@ -13,14 +13,17 @@ import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
 import { FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
 import { AVISO_APROXIMADA, linkGoogleMaps } from "@/lib/localizacao";
 import { andamentoParaCliente } from "@/lib/andamentoObra";
+import { fatosVisiveis } from "@/lib/fatosMercado";
+import { mostraParcela } from "@/lib/precoCatalogo";
 import { buscarProcura, registrarEvento } from "@/services/eventos";
 import DadosParaDecidir from "./DadosParaDecidir";
 
-function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, onLiberar }) {
+function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, temFatos, onLiberar }) {
   const itens = [
     fotosOcultas > 0 && `+${fotosOcultas} fotos exclusivas`,
     plantas > 0 ? `${plantas} ${plantas === 1 ? "planta" : "plantas"} e implantação` : "Plantas e implantação",
     temAndamento && "Andamento da obra",
+    temFatos && "Fatos da região com fonte",
     "Valores e condições do mês",
   ].filter(Boolean);
   return (
@@ -105,6 +108,9 @@ export default function EmpreendimentoModal({ item, onClose }) {
   const sobre = { id: item.id, title: item.title, segmento: item.segmento, tag: item.tag };
   // Material exclusivo para quem decide sozinho: andamento recente e procura real (só depois do cadastro).
   const andamento = andamentoParaCliente(det);
+  const fatos = fatosVisiveis(det);
+  // Evolução do "a partir de": só onde o site mostra o preço cheio (no MCMV o que aparece é a parcela).
+  const evolucao = det && !mostraParcela(det) ? det.evolucao_preco ?? null : null;
   const [procura, setProcura] = useState(null);
   useEffect(() => {
     if (!liberado || item.origem !== "api" || !UUID.test(item.id)) return undefined;
@@ -154,8 +160,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
                 {liberado
-                  ? <><TipologiasPublicas tipologias={plantas} /><DadosParaDecidir andamento={andamento} procura={procura} /></>
-                  : <ConteudoExclusivo fotosOcultas={fotosOcultas} plantas={plantas.length} temAndamento={Boolean(andamento)} onLiberar={() => abrirContato(sobre, "material exclusivo do empreendimento")} />}
+                  ? <><TipologiasPublicas tipologias={plantas} /><DadosParaDecidir andamento={andamento} procura={procura} evolucao={evolucao} fatos={fatos} /></>
+                  : <ConteudoExclusivo fotosOcultas={fotosOcultas} plantas={plantas.length} temAndamento={Boolean(andamento)} temFatos={fatos.length > 0} onLiberar={() => abrirContato(sobre, "material exclusivo do empreendimento")} />}
                 {lazer?.length > 0 && (
                   <div>
                     <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gold">Lazer e diferenciais</h2>

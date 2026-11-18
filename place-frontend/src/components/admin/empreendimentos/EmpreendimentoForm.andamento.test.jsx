@@ -45,4 +45,23 @@ describe("EmpreendimentoForm — andamento da obra", () => {
     await waitFor(() => expect(atualizarEmpreendimento).toHaveBeenCalled());
     expect(atualizarEmpreendimento.mock.calls[0][1]).not.toHaveProperty("andamentoObra");
   });
+
+  it("fato da região sem link da fonte não salva; com link salva", async () => {
+    atualizarEmpreendimento.mockClear();
+    render(<EmpreendimentoForm empreendimento={{ ...EMP, andamento_obra: undefined }} construtoras={[]} onClose={() => {}} onSalvo={() => {}} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "+ Fato com fonte" }));
+    await user.type(screen.getByLabelText("Fato 1"), "Porto de Galinhas recebeu mais turistas em 2025.");
+    await user.type(screen.getByLabelText("Fonte do fato 1"), "Governo de PE");
+    await user.type(screen.getByLabelText("Mês do fato 1"), "2026-02");
+    await user.click(screen.getByRole("button", { name: /Salvar/ }));
+    expect(await screen.findByText("Cole o link https da fonte.")).toBeInTheDocument();
+    expect(atualizarEmpreendimento).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText("Link do fato 1"), "https://www.pe.gov.br/noticia");
+    await user.click(screen.getByRole("button", { name: /Salvar/ }));
+    await waitFor(() => expect(atualizarEmpreendimento).toHaveBeenCalled());
+    expect(atualizarEmpreendimento.mock.calls[0][1].fatosMercado).toEqual([
+      { texto: "Porto de Galinhas recebeu mais turistas em 2025.", fonte: "Governo de PE", url: "https://www.pe.gov.br/noticia", mes: "2026-02" },
+    ]);
+  });
 });
