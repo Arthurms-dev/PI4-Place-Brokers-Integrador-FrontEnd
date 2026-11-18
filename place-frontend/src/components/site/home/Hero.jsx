@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import LogoHero from "./LogoHero";
 import pinoPlace from "@/assets/logo-pino.svg";
-import { ETAPAS_HOME, PRAZOS_HOME, SEGMENTOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
+import { ETAPAS_HOME, PRAZOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 
 const campo =
   "h-12 w-full min-w-0 rounded-xl border border-[#d5dce6] bg-[#fff] px-3.5 text-[13px] text-[#102843] shadow-sm outline-none transition-[border-color,box-shadow] focus:border-[#c99041] focus:shadow-[0_0_0_3px_rgba(233,173,90,.15)]";
@@ -17,10 +17,10 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
   const indiceAtual = indice % Math.max(fotos.length, 1);
   const destaque = fotos[indiceAtual];
   const numeros = useMemo(() => numerosDoCatalogo(itens), [itens]);
-  const segmentosComItens = useMemo(
-    () => SEGMENTOS_HOME.filter((s) => itens.some((item) => item.segmento === s.id)),
-    [itens]
-  );
+  // No celular, Situação/Prazo/Valor/Quartos ficam atrás de "Filtros avançados" (no desktop, sempre à vista).
+  const [avancados, setAvancados] = useState(false);
+  const filtrosAtivos = ["tag", "prazo", "faixa", "quartos"].filter((chave) => filtros[chave]).length;
+  const avancado = `${avancados ? "block" : "hidden"} min-w-0 lg:block`;
   const faixas = opcoesDeFaixa(filtros.segmento);
   const destaqueTemValor = destaque && (destaque.precoMin != null || destaque.parcelaMin != null);
 
@@ -159,27 +159,8 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
           aria-label="Encontrar empreendimentos"
           className="pb-c-search mt-7 rounded-[22px] border border-[#d8e1e9] bg-white p-4 shadow-[0_15px_55px_-30px_rgba(13,37,62,.28)] sm:p-5 lg:mt-0 lg:-translate-y-5"
         >
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-[15px] font-bold text-[#102843]">Encontre o imóvel certo</h2>
-            <div role="group" aria-label="Perfil do imóvel" className="pb-c-perfis flex max-w-full gap-1 overflow-x-auto rounded-full bg-[#eef3f8] p-1">
-              {[{ id: "", curto: "Todos" }, ...segmentosComItens].map((segmento) => {
-                const ativo = filtros.segmento === segmento.id;
-                return (
-                  <button
-                    key={segmento.id || "todos"}
-                    type="button"
-                    aria-pressed={ativo}
-                    onClick={() => onFiltros({ ...filtros, segmento: segmento.id, faixa: "" })}
-                    className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-colors ${
-                      ativo ? "bg-[#0c2846] text-white shadow" : "text-[#40566f] hover:text-[#0c2846]"
-                    }`}
-                  >
-                    {segmento.rotulo ?? segmento.curto}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* O perfil (MCMV, médio, alto, litoral) já está na vitrine de segmentos e na barra fixa da lista. */}
+          <h2 className="mb-3 text-[15px] font-bold text-[#102843]">Encontre o imóvel certo</h2>
 
           <div className="grid grid-cols-2 items-end gap-3 lg:grid-cols-[1.5fr_.9fr_.9fr_1fr_.75fr_auto]">
             <label className="col-span-2 block min-w-0 lg:col-span-1">
@@ -198,7 +179,19 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               </datalist>
             </label>
 
-            <label className="block min-w-0">
+            <button
+              type="button"
+              onClick={() => setAvancados((v) => !v)}
+              aria-expanded={avancados}
+              aria-controls="pb-c-filtros-avancados"
+              className="col-span-2 inline-flex h-10 items-center justify-between rounded-xl border border-[#d5dce6] px-3.5 text-[13px] font-semibold text-[#102843] lg:hidden"
+            >
+              <span>Filtros avançados{filtrosAtivos > 0 ? ` (${filtrosAtivos})` : ""}</span>
+              <Icon name="chevronDown" className={`size-4 transition-transform ${avancados ? "rotate-180" : ""}`} />
+            </button>
+
+            <div id="pb-c-filtros-avancados" className="contents">
+            <label className={avancado}>
               <span className={rotulo}>Situação</span>
               <select value={filtros.tag} onChange={atualizar("tag")} className={campo}>
                 <option value="">Todas</option>
@@ -208,7 +201,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               </select>
             </label>
 
-            <label className="block min-w-0">
+            <label className={avancado}>
               <span className={rotulo}>Prazo</span>
               <select value={filtros.prazo} onChange={atualizar("prazo")} className={campo}>
                 <option value="">Qualquer</option>
@@ -216,7 +209,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               </select>
             </label>
 
-            <label className="block min-w-0">
+            <label className={avancado}>
               <span className={rotulo}>{filtros.segmento === "mcmv" ? "Parcela" : "Valor"}</span>
               <select value={filtros.faixa} onChange={atualizar("faixa")} className={campo}>
                 <option value="">Sem limite</option>
@@ -224,7 +217,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               </select>
             </label>
 
-            <label className="block min-w-0">
+            <label className={avancado}>
               <span className={rotulo}>Quartos</span>
               <select value={filtros.quartos} onChange={atualizar("quartos")} className={campo}>
                 <option value="">Qualquer</option>
@@ -233,6 +226,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                 <option value="3">3+</option>
               </select>
             </label>
+            </div>
 
             <button
               type="submit"

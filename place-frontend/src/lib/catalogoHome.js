@@ -177,6 +177,39 @@ export function liberarAcesso() {
   window.dispatchEvent(new Event("pb-acesso-liberado"));
 }
 
+// ---- Dados de quem já se cadastrou neste navegador (pedido em 1 clique) ----
+// Fica só no aparelho do visitante; "Usar outros dados" apaga.
+const CHAVE_VISITANTE = "pb_visitante";
+
+/** @param {{ nome: string, email: string, telefone: string, novidades?: boolean }} dados */
+export function salvarVisitante({ nome, email, telefone, novidades = false }) {
+  try {
+    window.localStorage.setItem(CHAVE_VISITANTE, JSON.stringify({ nome, email, telefone, novidades: Boolean(novidades) }));
+  } catch {
+    /* sem armazenamento: o visitante preenche de novo na próxima vez */
+  }
+}
+
+/** @returns {{ nome: string, email: string, telefone: string, novidades: boolean } | null} */
+export function dadosDoVisitante() {
+  try {
+    const d = JSON.parse(window.localStorage.getItem(CHAVE_VISITANTE) ?? "null");
+    if (!d || typeof d !== "object") return null;
+    const ok = [d.nome, d.email, d.telefone].every((v) => typeof v === "string" && v.trim());
+    return ok ? { nome: d.nome, email: d.email, telefone: d.telefone, novidades: d.novidades === true } : null;
+  } catch {
+    return null;
+  }
+}
+
+export function esquecerVisitante() {
+  try {
+    window.localStorage.removeItem(CHAVE_VISITANTE);
+  } catch {
+    /* nada a apagar */
+  }
+}
+
 /**
  * "Receber os valores e resolver online" só aparece onde faz sentido fechar a distância:
  * alto padrão, litoral, imóvel pronto e o pedido de usado/pronto. Minha Casa Minha Vida e médio

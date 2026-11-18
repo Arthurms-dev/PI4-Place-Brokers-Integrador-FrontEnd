@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { registrarEvento } from "@/services/eventos";
 import { enviarLead } from "@/services/leadsPublico";
-import { aceitaResolverOnline, liberarAcesso } from "@/lib/catalogoHome";
+import { aceitaResolverOnline, liberarAcesso, salvarVisitante } from "@/lib/catalogoHome";
 import { normalizarTelefone } from "@/lib/telefone";
 import { LIMITE_DETALHES } from "@/lib/prontosEUsados";
 
@@ -88,6 +88,8 @@ export default function FormularioContato({ empreendimento = null, opcoes = [], 
         detalhes: pedirDetalhes ? f.detalhes : "",
       });
       registrarEvento({ tipo: "contato" });
+      // Guarda neste navegador para o próximo pedido sair em 1 clique (no modal do empreendimento).
+      salvarVisitante({ nome: f.nome.trim(), email: f.email.trim(), telefone: fone.digitos, novidades: f.novidades });
       liberarAcesso();
       setEnviado(true);
       aoEnviar?.();

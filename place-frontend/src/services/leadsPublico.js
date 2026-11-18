@@ -1,11 +1,14 @@
 import { api } from "@/lib/apiClient";
 import { textoDoConsentimento } from "@/lib/consentimento";
 import { linhaDoPedido } from "@/lib/prontosEUsados";
+import { linhaDeOrigem, utmsDaSessao } from "@/lib/utm";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** @param {{ nome: string, email: string, telefone: string, empreendimento?: { id: string|number, title: string } | null }} dados */
 export async function enviarLead({ nome, email, telefone, empreendimento, website = "", canal = "", consentimento = null, preferencia = "", detalhes = "", imovel = "" }) {
   const pedido = linhaDoPedido(detalhes);
+  // Campanha de onde o visitante veio (utm_* da URL de entrada), se houver.
+  const origem = linhaDeOrigem(utmsDaSessao());
   const corpo = {
     nome, email, telefone, website,
     mensagem: (empreendimento ? `Interesse em: ${empreendimento.title}` : "Interesse geral (ainda não escolheu um empreendimento)")
@@ -16,7 +19,8 @@ export async function enviarLead({ nome, email, telefone, empreendimento, websit
       + (imovel ? `\n${imovel}` : "")
       // O corretor sabe se o cliente quer reunião ou fechar online (aí manda valores e tabela direto).
       + (preferencia === "online" ? "\nPrefere receber os valores e resolver online" : preferencia === "conversar" ? "\nPrefere conversar com um especialista" : "")
-      + (consentimento ? `\n${textoDoConsentimento(consentimento)}` : ""),
+      + (consentimento ? `\n${textoDoConsentimento(consentimento)}` : "")
+      + (origem ? `\n${origem}` : ""),
   };
   if (empreendimento && UUID.test(String(empreendimento.id))) corpo.empreendimentoId = empreendimento.id;
   return (await api.post("/leads", corpo, { auth: false })).lead;

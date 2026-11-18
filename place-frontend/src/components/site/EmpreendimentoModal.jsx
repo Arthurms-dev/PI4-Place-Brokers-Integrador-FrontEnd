@@ -3,19 +3,20 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { buscarEmpreendimentoPorId, formatarFaixa } from "@/services/empreendimentos";
 import { BotaoFavorito } from "./favoritos";
-import FormularioContato from "./FormularioContato";
+import FormularioContato, { mascarar } from "./FormularioContato";
 import GaleriaImovelPremium from "./GaleriaImovelPremium";
 import { prepararImagensPublicas } from "@/lib/imagensPublicas";
 import { useContato } from "./ContatoProvider";
 import { Etiquetas } from "./home/pecas";
 import TipologiasPublicas from "./TipologiasPublicas";
 import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
-import { FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
+import { dadosDoVisitante, esquecerVisitante, FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
 import { AVISO_APROXIMADA, linkGoogleMaps } from "@/lib/localizacao";
 import { andamentoParaCliente } from "@/lib/andamentoObra";
 import { fatosVisiveis } from "@/lib/fatosMercado";
 import { mostraParcela } from "@/lib/precoCatalogo";
 import { buscarProcura, registrarEvento } from "@/services/eventos";
+import { enviarLead } from "@/services/leadsPublico";
 import DadosParaDecidir from "./DadosParaDecidir";
 import FichaTecnica from "./FichaTecnica";
 
@@ -44,6 +45,62 @@ function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, temFatos, onLi
       </button>
       <p className="mt-2 text-[11.5px] text-ink-3">Cadastro rápido. Um especialista te apresenta os valores do mês do jeito que você preferir: numa conversa ou tudo online.</p>
     </div>
+  );
+}
+
+/**
+ * Quem já se cadastrou neste navegador pede as condições do imóvel em 1 clique,
+ * com os dados salvos no cadastro (e o mesmo consentimento que deu lá).
+ */
+function usePedidoRapido(sobre) {
+  const [visitante, setVisitante] = useState(dadosDoVisitante);
+  const [estado, setEstado] = useState("pronto"); // pronto | enviando | enviado
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    const atualizar = () => setVisitante(dadosDoVisitante());
+    window.addEventListener("pb-acesso-liberado", atualizar);
+    return () => window.removeEventListener("pb-acesso-liberado", atualizar);
+  }, []);
+
+  async function solicitar() {
+    if (!visitante || estado !== "pronto") return;
+    setEstado("enviando");
+    setErro("");
+    try {
+      await enviarLead({
+        nome: visitante.nome,
+        email: visitante.email,
+        telefone: visitante.telefone,
+        empreendimento: { id: sobre.id, title: sobre.title },
+        canal: "detalhe do empreendimento (pedido em 1 clique)",
+        consentimento: { novidades: visitante.novidades },
+        preferencia: "conversar",
+      });
+      registrarEvento({ tipo: "contato" });
+      setEstado("enviado");
+    } catch (e) {
+      setErro(e.message || "Não foi possível enviar agora. Tente de novo.");
+      setEstado("pronto");
+    }
+  }
+
+  function usarOutrosDados() {
+    esquecerVisitante();
+    setVisitante(null);
+    setEstado("pronto");
+    setErro("");
+  }
+
+  return { visitante, estado, erro, solicitar, usarOutrosDados };
+}
+
+function ConfirmacaoPedido({ nome, compacta = false }) {
+  return (
+    <p role="status" className={`flex items-start gap-2 text-ink-2 ${compacta ? "text-[12.5px]" : "text-sm"}`}>
+      <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-emerald-500/15 text-emerald-300" aria-hidden="true">✓</span>
+      <span>Pedido enviado{nome ? `, ${nome.split(" ")[0]}` : ""}. <strong className="text-ink">Um especialista vai te chamar</strong> com as condições deste imóvel.</span>
+    </p>
   );
 }
 
@@ -107,6 +164,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
     ["Prazo", prazoCurto(item)],
   ].filter(([, valor]) => valor);
   const sobre = { id: item.id, title: item.title, segmento: item.segmento, tag: item.tag };
+  const pedido = usePedidoRapido(sobre);
+  const umClique = liberado && Boolean(pedido.visitante);
   // Material exclusivo para quem decide sozinho: andamento recente e procura real (só depois do cadastro).
   const andamento = andamentoParaCliente(det);
   const fatos = fatosVisiveis(det);
@@ -197,8 +256,29 @@ export default function EmpreendimentoModal({ item, onClose }) {
                   {prazoCurto(item) && <p className="mt-1 text-[13px] text-ink-2">Prazo: <strong className="text-ink">{prazoCurto(item)}</strong></p>}
                 </div>
                 <div className="hairline-gold" />
-                <h2 className="text-lg font-semibold">Fale com um especialista</h2>
-                <FormularioContato empreendimento={sobre} canal="detalhe do empreendimento" />
+                {umClique ? (
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-semibold">Quer as condições deste imóvel?</h2>
+                    {pedido.estado === "enviado" ? <ConfirmacaoPedido nome={pedido.visitante.nome} /> : (
+                      <>
+                        <button type="button" onClick={pedido.solicitar} disabled={pedido.estado === "enviando"}
+                          className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">
+                          {pedido.estado === "enviando" ? "Enviando..." : "Solicitar condições deste imóvel"}
+                        </button>
+                        {pedido.erro && <p role="alert" className="text-xs text-danger">{pedido.erro}</p>}
+                        <p className="text-[12px] leading-relaxed text-ink-3">
+                          Vamos usar os dados do seu cadastro: {pedido.visitante.nome} · {mascarar(pedido.visitante.telefone)}.{" "}
+                          <button type="button" onClick={pedido.usarOutrosDados} className="text-gold underline underline-offset-2">Usar outros dados</button>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-semibold">Fale com um especialista</h2>
+                    <FormularioContato empreendimento={sobre} canal="detalhe do empreendimento" />
+                  </>
+                )}
               </div>
             </aside>
           </div>
@@ -209,7 +289,22 @@ export default function EmpreendimentoModal({ item, onClose }) {
             <p className="text-[11px] uppercase tracking-wide text-ink-3">{item.precoRotulo}</p>
             <p className="truncate text-lg font-semibold text-gold">{item.precoValor}</p>
           </div>
-          <button type="button" onClick={() => abrirContato(sobre, "detalhe do empreendimento")} className="min-h-12 min-w-0 shrink-0 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] sm:px-6"><span className="sm:hidden">Falar agora</span><span className="hidden sm:inline">Falar com especialista</span></button>
+          {umClique && pedido.estado === "enviado" ? (
+            <div className="min-w-0 max-w-[60%] shrink-0"><ConfirmacaoPedido compacta /></div>
+          ) : umClique ? (
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <button type="button" onClick={pedido.solicitar} disabled={pedido.estado === "enviando"}
+                className="min-h-12 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] disabled:opacity-60 sm:px-6">
+                {pedido.estado === "enviando" ? "Enviando..." : <><span className="sm:hidden">Solicitar condições</span><span className="hidden sm:inline">Solicitar condições deste imóvel</span></>}
+              </button>
+              {pedido.erro && <span role="alert" className="max-w-[220px] text-right text-[11px] text-danger">{pedido.erro}</span>}
+              <button type="button" onClick={() => { pedido.usarOutrosDados(); abrirContato(sobre, "detalhe do empreendimento"); }} className="text-[11px] text-ink-3 underline underline-offset-2">
+                Usar outros dados
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => abrirContato(sobre, "detalhe do empreendimento")} className="min-h-12 min-w-0 shrink-0 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] sm:px-6"><span className="sm:hidden">Falar agora</span><span className="hidden sm:inline">Falar com especialista</span></button>
+          )}
         </div>
       </div>
     </div>

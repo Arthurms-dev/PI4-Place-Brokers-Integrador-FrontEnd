@@ -108,3 +108,24 @@ describe("resolver online", () => {
     expect(aceitaResolverOnline(null)).toBe(false);
   });
 });
+
+describe("dados do visitante (pedido em 1 clique)", () => {
+  it("salva, lê e apaga os dados do cadastro neste navegador", async () => {
+    const { salvarVisitante, dadosDoVisitante, esquecerVisitante } = await import("./catalogoHome");
+    window.localStorage.clear();
+    expect(dadosDoVisitante()).toBeNull();
+    salvarVisitante({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", novidades: true });
+    expect(dadosDoVisitante()).toEqual({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", novidades: true });
+    esquecerVisitante();
+    expect(dadosDoVisitante()).toBeNull();
+  });
+
+  it("ignora dado salvo incompleto ou corrompido", async () => {
+    const { dadosDoVisitante } = await import("./catalogoHome");
+    window.localStorage.setItem("pb_visitante", JSON.stringify({ nome: "Ana", email: "", telefone: "81999998888" }));
+    expect(dadosDoVisitante()).toBeNull();
+    window.localStorage.setItem("pb_visitante", "{quebrado");
+    expect(dadosDoVisitante()).toBeNull();
+    window.localStorage.clear();
+  });
+});

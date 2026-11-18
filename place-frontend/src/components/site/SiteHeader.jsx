@@ -10,7 +10,10 @@ import { useContato } from "./ContatoProvider";
 const MENU = [
   { rotulo: "Lançamentos", secao: "lista" },
   { rotulo: "Prontos e seminovos", para: "/prontos" },
-  { rotulo: "Cidades", secao: "cidades" },
+  // Captação: o proprietário vai direto para o formulário de venda.
+  { rotulo: "Anuncie seu imóvel", para: "/prontos#vender" },
+  // Em telas médias (1024–1279 px) não cabe com "Anuncie seu imóvel": fica no menu do celular.
+  { rotulo: "Cidades", secao: "cidades", soTelaGrande: true },
   { rotulo: "Sobre nós", para: "/sobre" },
   { rotulo: "Contato", para: "/contato" },
   // Em telas médias (1024–1279 px) não cabe: fica no menu do celular e no rodapé.
@@ -19,7 +22,7 @@ const MENU = [
 
 export default function SiteHeader() {
   const { abrirContato } = useContato();
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
   const [rolou, setRolou] = useState(false);
@@ -65,7 +68,23 @@ export default function SiteHeader() {
     else navigate("/", { state: { rolar: id } });
   }
 
-  const ativo = (item) => Boolean(item.para) && pathname.startsWith(item.para);
+  // "/prontos#vender" acende só na seção de venda; "/prontos" acende no resto da página.
+  const ativo = (item) => {
+    if (!item.para) return false;
+    const [caminho, ancora] = item.para.split("#");
+    if (!pathname.startsWith(caminho)) return false;
+    if (ancora) return hash === `#${ancora}`;
+    return !MENU.some((m) => m.para === `${caminho}${hash}`);
+  };
+  // Já está na página: o Link só troca o hash, então a rolagem é feita aqui (suave).
+  const aoClicarLink = (item) => (evento) => {
+    const [caminho, ancora] = item.para.split("#");
+    if (!ancora || pathname !== caminho) return;
+    evento.preventDefault();
+    setMenu(false);
+    navigate(item.para, { replace: hash === `#${ancora}` });
+    document.getElementById(ancora)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const compacto = rolou || menu;
 
   const linkDesktop = (item) =>
@@ -89,7 +108,7 @@ export default function SiteHeader() {
         <nav aria-label="Principal" className="hidden items-center gap-0.5 lg:flex">
           {MENU.map((item) =>
             item.para ? (
-              <Link key={item.rotulo} to={item.para} aria-current={ativo(item) ? "page" : undefined} className={linkDesktop(item)}>{item.rotulo}</Link>
+              <Link key={item.rotulo} to={item.para} onClick={aoClicarLink(item)} aria-current={ativo(item) ? "page" : undefined} className={linkDesktop(item)}>{item.rotulo}</Link>
             ) : (
               <button key={item.rotulo} type="button" onClick={() => irPara(item.secao)} className={linkDesktop(item)}>{item.rotulo}</button>
             )
@@ -130,7 +149,7 @@ export default function SiteHeader() {
             const classe = `flex h-12 w-full items-center justify-between rounded-xl px-3 text-left text-[16px] transition-colors hover:bg-card ${ativo(item) ? "bg-card text-gold" : "text-ink"}`;
             const seta = <Icon name="chevronRight" className="size-4 text-ink-3" />;
             return item.para ? (
-              <Link key={item.rotulo} to={item.para} aria-current={ativo(item) ? "page" : undefined} className={classe}>{item.rotulo}{seta}</Link>
+              <Link key={item.rotulo} to={item.para} onClick={aoClicarLink(item)} aria-current={ativo(item) ? "page" : undefined} className={classe}>{item.rotulo}{seta}</Link>
             ) : (
               <button key={item.rotulo} type="button" onClick={() => irPara(item.secao)} className={classe}>{item.rotulo}{seta}</button>
             );

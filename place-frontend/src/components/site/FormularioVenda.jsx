@@ -77,9 +77,10 @@ export default function FormularioVenda({ canal = CANAL_VENDA }) {
     <form onSubmit={enviar} noValidate className="space-y-3.5">
       <div className="grid gap-3.5 sm:grid-cols-2">
         <Campo rotulo="Tipo do imóvel" erro={erros.tipo}>
-          <select value={f.tipo} onChange={set("tipo")} className={`${CAMPO} ${borda(erros.tipo)}`}>
+          {/* Cinza enquanto nada foi escolhido (como um placeholder); a cor normal volta ao escolher. */}
+          <select value={f.tipo} onChange={set("tipo")} className={`${CAMPO.replace(" text-ink ", " ")} ${borda(erros.tipo)} ${f.tipo ? "text-ink" : "text-ink-3"}`}>
             <option value="" disabled>Escolha...</option>
-            {TIPOS_IMOVEL.map((t) => <option key={t} value={t}>{t}</option>)}
+            {TIPOS_IMOVEL.map((t) => <option key={t} value={t} className="text-ink">{t}</option>)}
           </select>
         </Campo>
         <Campo rotulo="Bairro e cidade" erro={erros.local}>
@@ -88,10 +89,10 @@ export default function FormularioVenda({ canal = CANAL_VENDA }) {
       </div>
       <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
         <Campo rotulo="Quartos">
-          <input value={f.quartos} onChange={set("quartos")} inputMode="numeric" maxLength={2} placeholder="3" className={`${CAMPO} ${borda()}`} />
+          <input value={f.quartos} onChange={set("quartos")} inputMode="numeric" maxLength={2} placeholder="Ex.: 3" className={`${CAMPO} ${borda()}`} />
         </Campo>
         <Campo rotulo="Área (m²)">
-          <input value={f.area} onChange={set("area")} inputMode="decimal" maxLength={6} placeholder="90" className={`${CAMPO} ${borda()}`} />
+          <input value={f.area} onChange={set("area")} inputMode="decimal" maxLength={6} placeholder="Ex.: 90" className={`${CAMPO} ${borda()}`} />
         </Campo>
         <Campo rotulo="Situação">
           <select value={f.situacao} onChange={set("situacao")} className={`${CAMPO} ${borda()} col-span-2 sm:col-span-1`}>

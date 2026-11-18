@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { useContato } from "@/components/site/ContatoProvider";
 import FormularioVenda from "@/components/site/FormularioVenda";
 import Reveal from "@/components/site/Reveal";
@@ -27,7 +28,7 @@ export default function ProntosPage() {
     const base = window.location.origin;
     aplicarMeta({
       titulo: `Imóveis prontos e seminovos | ${NOME_SITE}`,
-      descricao: "Imóveis prontos para morar e seminovos com a Place Brokers. Quer vender o seu? Cadastre e um corretor faz a avaliação sem compromisso.",
+      descricao: "Imóveis prontos para morar e seminovos com a Place Brokers, sem esperar obra. Proprietário? Anuncie o seu e um corretor faz a avaliação sem compromisso.",
       imagem: `${base}/icone-512.png`,
       url: `${base}/prontos`,
     });
@@ -37,6 +38,15 @@ export default function ProntosPage() {
   const pedirBusca = () => abrirContato(BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS);
   const irParaVenda = () => document.getElementById("vender")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  // Chegou por "/prontos#vender" (menu "Anuncie seu imóvel" vindo de outra página): desce até o formulário.
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return undefined;
+    const id = hash.slice(1);
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    return () => window.clearTimeout(t);
+  }, [hash]);
+
   return (
     <main>
       <section className="mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pt-20">
@@ -45,12 +55,12 @@ export default function ProntosPage() {
         </Reveal>
         <Reveal atraso={90}>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
-            Mude agora ou <span className="pb-texto-ouro">venda o seu</span> com a Place
+            Imóveis prontos para você <span className="pb-texto-ouro">mudar agora</span>
           </h1>
         </Reveal>
         <Reveal atraso={180}>
           <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">
-            Imóveis prontos para morar, sem esperar obra, e seminovos selecionados pelo nosso time. Tem um imóvel para vender? Cadastre aqui e um corretor faz a avaliação.
+            Prontos para morar, sem esperar obra, e seminovos selecionados pelo nosso time, com um corretor da Place do primeiro contato até as chaves.
           </p>
         </Reveal>
         <Reveal atraso={260}>
@@ -58,10 +68,14 @@ export default function ProntosPage() {
             <a href="#portfolio" className="inline-flex h-13 items-center gap-2 rounded-full bg-gold-gradient px-6 text-[15px] font-semibold text-[#1a1408] transition hover:-translate-y-0.5 hover:brightness-110">
               <Icon name="building" className="size-5" /> Ver imóveis prontos
             </a>
-            <button type="button" onClick={irParaVenda} className="inline-flex h-13 items-center gap-2 rounded-full border border-gold/60 px-6 text-[15px] font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/10">
-              <Icon name="home" className="size-5" /> Quero vender meu imóvel
+            <button type="button" onClick={pedirBusca} className="inline-flex h-13 items-center gap-2 rounded-full border border-gold/60 px-6 text-[15px] font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/10">
+              <Icon name="search" className="size-5" /> Pedir uma busca
             </button>
           </div>
+          <p className="mt-4 text-[13px] text-ink-3">
+            É proprietário?{" "}
+            <button type="button" onClick={irParaVenda} className="font-semibold text-gold underline underline-offset-4">Anuncie seu imóvel com a Place</button>
+          </p>
         </Reveal>
       </section>
 

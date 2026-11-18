@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import App from "./App";
+import { capturarUtms } from "./lib/utm";
 import "./index.css";
 
 Sentry.init({
@@ -10,6 +11,9 @@ Sentry.init({
   environment: import.meta.env.MODE,
   tracesSampleRate: 0.1,
 });
+
+// Guarda os utm_* da URL de entrada (anúncios, links de campanha) para irem junto com o lead.
+capturarUtms(window.location.search);
 
 // Depois de um deploy, quem estava com o site aberto ainda tem a versão antiga e os arquivos
 // dela não existem mais: em vez de tela branca, recarrega uma vez para pegar a versão nova.

@@ -26,6 +26,13 @@ describe("enviarLead (LGPD)", () => {
     expect(corpo.empreendimentoId).toBeUndefined();
   });
 
+  it("leva a origem da campanha (utm) quando o visitante chegou por um anúncio", async () => {
+    window.sessionStorage.setItem("pb_utm", JSON.stringify({ utm_source: "instagram", utm_campaign: "lanc-nov" }));
+    await enviarLead({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", consentimento: { novidades: false } });
+    expect(JSON.parse(fetch.mock.calls[0][1].body).mensagem).toContain("Origem: utm_source=instagram, utm_campaign=lanc-nov");
+    window.sessionStorage.clear();
+  });
+
   it("sem marcar avisos, deixa claro que não quer", async () => {
     await enviarLead({ nome: "Ana", email: "ana@x.com", telefone: "81999998888", consentimento: { novidades: false } });
     expect(JSON.parse(fetch.mock.calls[0][1].body).mensagem).toContain("Não quer avisos de lançamentos");
