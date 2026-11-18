@@ -25,6 +25,12 @@ export function lerCoords(texto = "") {
   return { lat, lng };
 }
 
+const COLUNA_FICHA = {
+  torres: "torres", andares: "andares", aptosPorAndar: "aptos_por_andar", unidadesTotal: "unidades_total",
+  elevadoresPorTorre: "elevadores_por_torre", areaTerrenoM2: "area_terreno_m2",
+  registroIncorporacao: "registro_incorporacao", registroCartorio: "registro_cartorio", registroData: "registro_data",
+};
+
 function Secao({ titulo, children }) {
   return (
     <fieldset className="space-y-3.5 border-t border-line-soft pt-4">
@@ -108,6 +114,11 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     disponivel: emp?.disponivel ?? true,
     destaque: emp?.destaque ?? false,
     andamentoReferencia: emp?.andamento_referencia ? String(emp.andamento_referencia).slice(0, 7) : "",
+    torres: emp?.torres ?? "", andares: emp?.andares ?? "", aptosPorAndar: emp?.aptos_por_andar ?? "",
+    unidadesTotal: emp?.unidades_total ?? "", elevadoresPorTorre: emp?.elevadores_por_torre ?? "",
+    areaTerrenoM2: emp?.area_terreno_m2 != null ? String(Number(emp.area_terreno_m2)) : "",
+    registroIncorporacao: emp?.registro_incorporacao ?? "", registroCartorio: emp?.registro_cartorio ?? "",
+    registroData: emp?.registro_data ? String(emp.registro_data).slice(0, 10) : "",
     andamentoFonteUrl: emp?.andamento_fonte_url ?? "",
   }));
   // Andamento da obra: uma linha por módulo/torre, como a construtora publica.
@@ -175,6 +186,14 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         e[campo] = "Informe um número inteiro válido.";
       }
     }
+    for (const [campo, minimo, maximo] of [["torres", 1, 100], ["andares", 1, 200], ["aptosPorAndar", 1, 100], ["unidadesTotal", 1, 50000], ["elevadoresPorTorre", 0, 50]]) {
+      if (f[campo] !== "" && (!Number.isInteger(num(f[campo])) || num(f[campo]) < minimo || num(f[campo]) > maximo)) {
+        e[campo] = `Use um número inteiro de ${minimo} a ${maximo}.`;
+      }
+    }
+    if (f.areaTerrenoM2 !== "" && !(num(String(f.areaTerrenoM2).replace(",", ".")) > 0)) e.areaTerrenoM2 = "Informe a área do terreno em m².";
+    if (f.registroIncorporacao.trim() && f.registroIncorporacao.trim().length < 2) e.registroIncorporacao = "Informe o número do registro.";
+    if (f.registroData && f.registroData > new Date().toISOString().slice(0, 10)) e.registroData = "A data do registro não pode ser no futuro.";
     for (const campo of ["areaMin", "areaMax", "precoMin", "precoMax"]) {
       if (f[campo] !== "" && (!Number.isFinite(num(f[campo])) || num(f[campo]) < 0)) {
         e[campo] = "Informe um valor válido.";
@@ -245,6 +264,16 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             .filter((x) => x.texto.trim())
             .map((x) => ({ texto: x.texto.trim(), fonte: x.fonte.trim(), url: x.url.trim(), mes: x.mes })),
         } : {}),
+        // Ficha técnica e registro da incorporação: só vão quando preenchidos ou quando já existiam (para poder limpar).
+        ...Object.fromEntries(
+          [
+            ["torres", num(f.torres)], ["andares", num(f.andares)], ["aptosPorAndar", num(f.aptosPorAndar)],
+            ["unidadesTotal", num(f.unidadesTotal)], ["elevadoresPorTorre", num(f.elevadoresPorTorre)],
+            ["areaTerrenoM2", f.areaTerrenoM2 === "" ? null : num(String(f.areaTerrenoM2).replace(",", "."))],
+            ["registroIncorporacao", f.registroIncorporacao.trim() || null], ["registroCartorio", f.registroCartorio.trim() || null],
+            ["registroData", f.registroData || null],
+          ].filter(([campo, valor]) => valor != null || (emp && emp[COLUNA_FICHA[campo]] != null))
+        ),
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
         disponivel: f.disponivel,
@@ -360,6 +389,28 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             </p>
           )}
           <Campo rotulo="Lazer e diferenciais (separe por vírgula)"><input value={f.lazer} onChange={set("lazer")} placeholder="Piscina, Academia, Playground" className={`${CAMPO} border-line focus:border-gold`} /></Campo>
+        </Secao>
+        <Secao titulo="Ficha técnica e registro da incorporação (opcional)">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <CampoNumero campo="torres" rotulo="Torres" valor={f.torres} onChange={set("torres")} erro={erros.torres} step="1" />
+            <CampoNumero campo="andares" rotulo="Andares por torre" valor={f.andares} onChange={set("andares")} erro={erros.andares} step="1" />
+            <CampoNumero campo="aptosPorAndar" rotulo="Aptos por andar" valor={f.aptosPorAndar} onChange={set("aptosPorAndar")} erro={erros.aptosPorAndar} step="1" />
+            <CampoNumero campo="unidadesTotal" rotulo="Total de unidades" valor={f.unidadesTotal} onChange={set("unidadesTotal")} erro={erros.unidadesTotal} step="1" />
+            <CampoNumero campo="elevadoresPorTorre" rotulo="Elevadores por torre" valor={f.elevadoresPorTorre} onChange={set("elevadoresPorTorre")} erro={erros.elevadoresPorTorre} step="1" />
+            <CampoNumero campo="areaTerrenoM2" rotulo="Área do terreno (m²)" valor={f.areaTerrenoM2} onChange={set("areaTerrenoM2")} erro={erros.areaTerrenoM2} step="0.01" inputMode="decimal" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Campo rotulo="Registro da incorporação" erro={erros.registroIncorporacao}>
+              <input value={f.registroIncorporacao} onChange={set("registroIncorporacao")} placeholder="R-5 da matrícula 12.345" maxLength={120} className={`${CAMPO} ${borda(erros, "registroIncorporacao")}`} />
+            </Campo>
+            <Campo rotulo="Cartório" erro={erros.registroCartorio}>
+              <input value={f.registroCartorio} onChange={set("registroCartorio")} placeholder="1º Registro de Imóveis do Recife" maxLength={120} className={`${CAMPO} ${borda(erros, "registroCartorio")}`} />
+            </Campo>
+            <Campo rotulo="Data do registro" erro={erros.registroData}>
+              <input type="date" value={f.registroData} onChange={set("registroData")} max={new Date().toISOString().slice(0, 10)} className={`${CAMPO} ${borda(erros, "registroData")}`} />
+            </Campo>
+          </div>
+          <p className="text-xs leading-5 text-ink-3">O número do registro aparece na página do empreendimento. Está no memorial ou na tabela da construtora.</p>
         </Secao>
         {emp && avisosTipologias.length > 0 && (
           <div

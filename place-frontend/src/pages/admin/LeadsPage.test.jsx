@@ -59,6 +59,19 @@ describe("atribuição pelo seletor do admin", () => {
   });
 });
 
+describe("repasse barrado por venda pendente", () => {
+  it("mostra o motivo que a API deu e não troca o corretor", async () => {
+    const msg = "Este cliente tem uma venda pendente com Bruno. Confirme ou recuse a venda antes de repassar o lead.";
+    assignLead.mockRejectedValue(Object.assign(new Error(msg), { status: 409, code: "CONFLICT" }));
+    const usuario = await abrirLead();
+
+    await usuario.selectOptions(screen.getByLabelText(/Corretor responsável/), "c2");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(msg);
+    expect(screen.getByLabelText(/Corretor responsável/)).toHaveValue("");
+  });
+});
+
 describe("converter em cliente pede confirmação", () => {
   it("o primeiro clique só pergunta; cancelar não converte", async () => {
     const usuario = await abrirLead();

@@ -46,9 +46,10 @@ export default function LeadsPage() {
     try {
       await request();
       return true;
-    } catch {
+    } catch (err) {
       setLeads(previous);
-      setActionError("Não foi possível salvar a alteração. Tente novamente.");
+      // 409: a regra de negócio barrou (ex.: venda pendente antes do repasse); a API diz o que fazer.
+      setActionError(err?.status === 409 && err.message ? err.message : "Não foi possível salvar a alteração. Tente novamente.");
       return false;
     }
   }
@@ -129,4 +130,4 @@ export default function LeadsPage() {
       )}
     </>
   );
-}
+}

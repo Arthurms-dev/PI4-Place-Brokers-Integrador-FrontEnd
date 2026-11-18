@@ -17,6 +17,7 @@ import { fatosVisiveis } from "@/lib/fatosMercado";
 import { mostraParcela } from "@/lib/precoCatalogo";
 import { buscarProcura, registrarEvento } from "@/services/eventos";
 import DadosParaDecidir from "./DadosParaDecidir";
+import FichaTecnica from "./FichaTecnica";
 
 function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, temFatos, onLiberar }) {
   const itens = [
@@ -168,6 +169,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
                     <div className="flex flex-wrap gap-2">{lazer.map((l) => <span key={l} className="rounded-full border border-line px-3 py-1.5 text-[13px] text-ink-2">{l}</span>)}</div>
                   </div>
                 )}
+
+                <FichaTecnica empreendimento={det} />
 
                 {lat != null && lng != null && (
                   <div className="space-y-3">
