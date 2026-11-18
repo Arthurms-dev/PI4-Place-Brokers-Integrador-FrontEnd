@@ -24,3 +24,7 @@ export function registrarEvento({ tipo, empreendimentoId } = {}) {
 }
 /** Últimos empreendimentos que o usuário logado abriu. */
 export const listarMeusAcessos = async () => (await api.get("/metricas/meus-acessos")).acessos ?? [];
+
+/** Quantas pessoas viram o empreendimento (o back só devolve a partir de um mínimo; senão null). */
+export const buscarProcura = async (empreendimentoId) =>
+  (await api.get(`/metricas/procura/${empreendimentoId}`, { auth: false })).procura ?? null;

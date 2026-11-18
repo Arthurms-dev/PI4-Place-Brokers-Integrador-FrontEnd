@@ -31,7 +31,7 @@ export function criarEmpreendimento(dados) {
   const arquivos = ["capa", "galeria", "book", "tabela"];
   for (const [chave, valor] of Object.entries(dados)) {
     if (arquivos.includes(chave) || valor == null) continue;
-    form.append(chave, chave === "lazer" ? JSON.stringify(valor) : String(valor));
+    form.append(chave, chave === "lazer" || chave === "andamentoObra" ? JSON.stringify(valor) : String(valor));
   }
   if (dados.capa) form.append("capa", dados.capa);
   if (dados.book) form.append("book", dados.book);

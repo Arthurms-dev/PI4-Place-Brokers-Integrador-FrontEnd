@@ -8,6 +8,7 @@ import DocumentosComerciaisForm from "./DocumentosComerciaisForm";
 import ImagensEmpreendimentoForm from "./ImagensEmpreendimentoForm";
 import { auditarTipologias } from "@/lib/auditoriaTipologias";
 import { avisoDeSegmento } from "@/lib/precoCatalogo";
+import { DIAS_PARA_DESATUALIZAR, lerAndamento } from "@/lib/andamentoObra";
 
 const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const MAX_ARQUIVO = 15 * 1024 * 1024;
@@ -106,7 +107,14 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
     publicado: emp?.publicado ?? false,
     disponivel: emp?.disponivel ?? true,
     destaque: emp?.destaque ?? false,
+    andamentoReferencia: emp?.andamento_referencia ? String(emp.andamento_referencia).slice(0, 7) : "",
+    andamentoFonteUrl: emp?.andamento_fonte_url ?? "",
   }));
+  // Andamento da obra: uma linha por módulo/torre, como a construtora publica.
+  const [modulos, setModulos] = useState(() =>
+    (Array.isArray(emp?.andamento_obra) ? emp.andamento_obra : []).map((m) => ({ modulo: m.modulo ?? "", percentual: m.percentual != null ? String(m.percentual) : "" }))
+  );
+  const mudarModulo = (i, campo) => (e) => setModulos((l) => l.map((m, k) => (k === i ? { ...m, [campo]: e.target.value } : m)));
   const [tipologias, setTipologias] = useState(() =>
     Array.isArray(emp?.tipologias) ? emp.tipologias : []
   );
@@ -177,6 +185,12 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         e[maximo] = "Máximo menor que o mínimo.";
       }
     }
+    const preenchidos = modulos.filter((m) => m.modulo.trim() || m.percentual !== "");
+    if (preenchidos.some((m) => !m.modulo.trim())) e.andamentoObra = "Dê um nome a cada módulo (ex.: Módulo 01, Torre A).";
+    else if (preenchidos.some((m) => !(num(String(m.percentual).replace(",", ".")) >= 0 && num(String(m.percentual).replace(",", ".")) <= 100))) e.andamentoObra = "O percentual vai de 0 a 100.";
+    if (preenchidos.length && !f.andamentoReferencia) e.andamentoReferencia = "Informe o mês da medição.";
+    if (f.andamentoReferencia && f.andamentoReferencia > new Date().toISOString().slice(0, 7)) e.andamentoReferencia = "O mês da medição não pode ser no futuro.";
+    if (f.andamentoFonteUrl.trim() && !/^https:\/\/\S+$/.test(f.andamentoFonteUrl.trim())) e.andamentoFonteUrl = "Use o link https da página da construtora.";
     return e;
   }
 
@@ -206,6 +220,14 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
         segmento: f.segmento || null,
         parcelaMin: f.segmento === "mcmv" ? num(f.parcelaMin) : null,
         previsaoEntrega: f.previsaoEntrega ? `${f.previsaoEntrega}-01` : null,
+        // Só manda o andamento quando existe (assim o resto do formulário funciona mesmo antes da migration rodar).
+        ...(modulos.length || f.andamentoReferencia || f.andamentoFonteUrl.trim() || emp?.andamento_obra?.length ? {
+          andamentoObra: modulos
+            .filter((m) => m.modulo.trim())
+            .map((m) => ({ modulo: m.modulo.trim(), percentual: num(String(m.percentual).replace(",", ".")) })),
+          andamentoReferencia: f.andamentoReferencia ? `${f.andamentoReferencia}-01` : null,
+          andamentoFonteUrl: f.andamentoFonteUrl.trim() || null,
+        } : {}),
         lazer: f.lazer.split(",").map((s) => s.trim()).filter(Boolean),
         publicado: f.publicado,
         disponivel: f.disponivel,
@@ -341,6 +363,44 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             </p>
           </div>
         )}
+        {f.status !== "pronto" && (() => {
+          const situacao = lerAndamento({ andamento_obra: modulos.map((m) => ({ ...m, percentual: String(m.percentual).replace(",", ".") })), andamento_referencia: f.andamentoReferencia ? `${f.andamentoReferencia}-01` : null });
+          return (
+            <Secao titulo="Andamento da obra">
+              <p className="text-xs leading-5 text-ink-3">
+                Copie da página da construtora uma vez por mês, junto com a tabela. Por enquanto só os corretores veem. Com mais de {DIAS_PARA_DESATUALIZAR} dias, aparece para eles como desatualizado.
+              </p>
+              {situacao?.desatualizado && f.andamentoReferencia && (
+                <p role="status" className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-300">
+                  Medição de {situacao.mes}: desatualizada há {situacao.dias} dias. Os corretores veem o aviso até ser atualizada.
+                </p>
+              )}
+              <div className="space-y-2">
+                {modulos.map((m, i) => (
+                  <div key={i} className="grid grid-cols-[1fr_7rem_auto] gap-2">
+                    <input aria-label={`Nome do módulo ${i + 1}`} value={m.modulo} onChange={mudarModulo(i, "modulo")} placeholder="Módulo 01" maxLength={60} className={`${CAMPO} ${borda(erros, "andamentoObra")}`} />
+                    <input aria-label={`Percentual do módulo ${i + 1}`} value={m.percentual} onChange={mudarModulo(i, "percentual")} placeholder="86,29" inputMode="decimal" className={`${CAMPO} ${borda(erros, "andamentoObra")}`} />
+                    <button type="button" onClick={() => setModulos((l) => l.filter((_, k) => k !== i))} aria-label={`Tirar o módulo ${i + 1}`} className="grid size-12 place-items-center rounded-xl border border-line hover:border-danger"><Icon name="x" className="size-4" /></button>
+                  </div>
+                ))}
+                {erros.andamentoObra && <p className="text-[11px] text-danger">{erros.andamentoObra}</p>}
+                {modulos.length < 10 && (
+                  <button type="button" onClick={() => setModulos((l) => [...l, { modulo: `Módulo ${String(l.length + 1).padStart(2, "0")}`, percentual: "" }])} className="h-10 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
+                    + Módulo / torre
+                  </button>
+                )}
+              </div>
+              <div className="grid gap-3.5 sm:grid-cols-[12rem_1fr]">
+                <Campo rotulo="Mês da medição" erro={erros.andamentoReferencia}>
+                  <input type="month" value={f.andamentoReferencia} onChange={set("andamentoReferencia")} max={new Date().toISOString().slice(0, 7)} className={`${CAMPO} ${borda(erros, "andamentoReferencia")}`} />
+                </Campo>
+                <Campo rotulo="Link da página da construtora (opcional)" erro={erros.andamentoFonteUrl}>
+                  <input value={f.andamentoFonteUrl} onChange={set("andamentoFonteUrl")} placeholder="https://..." inputMode="url" className={`${CAMPO} ${borda(erros, "andamentoFonteUrl")}`} />
+                </Campo>
+              </div>
+            </Secao>
+          );
+        })()}
         {emp && (
           <TipologiasForm
             empreendimentoId={emp.id}

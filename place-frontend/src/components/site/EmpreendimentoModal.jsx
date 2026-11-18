@@ -2,7 +2,6 @@ import "@/styles/empreendimentoDetalhe.css";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { buscarEmpreendimentoPorId, formatarFaixa } from "@/services/empreendimentos";
-import { registrarEvento } from "@/services/eventos";
 import { BotaoFavorito } from "./favoritos";
 import FormularioContato from "./FormularioContato";
 import GaleriaImovelPremium from "./GaleriaImovelPremium";
@@ -13,11 +12,15 @@ import TipologiasPublicas from "./TipologiasPublicas";
 import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
 import { FOTOS_LIVRES, prazoCurto } from "@/lib/catalogoHome";
 import { AVISO_APROXIMADA, linkGoogleMaps } from "@/lib/localizacao";
+import { andamentoParaCliente } from "@/lib/andamentoObra";
+import { buscarProcura, registrarEvento } from "@/services/eventos";
+import DadosParaDecidir from "./DadosParaDecidir";
 
-function ConteudoExclusivo({ fotosOcultas, plantas, onLiberar }) {
+function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, onLiberar }) {
   const itens = [
     fotosOcultas > 0 && `+${fotosOcultas} fotos exclusivas`,
     plantas > 0 ? `${plantas} ${plantas === 1 ? "planta" : "plantas"} e implantação` : "Plantas e implantação",
+    temAndamento && "Andamento da obra",
     "Valores e condições do mês",
   ].filter(Boolean);
   return (
@@ -100,6 +103,15 @@ export default function EmpreendimentoModal({ item, onClose }) {
     ["Prazo", prazoCurto(item)],
   ].filter(([, valor]) => valor);
   const sobre = { id: item.id, title: item.title, segmento: item.segmento, tag: item.tag };
+  // Material exclusivo para quem decide sozinho: andamento recente e procura real (só depois do cadastro).
+  const andamento = andamentoParaCliente(det);
+  const [procura, setProcura] = useState(null);
+  useEffect(() => {
+    if (!liberado || item.origem !== "api" || !UUID.test(item.id)) return undefined;
+    let ativo = true;
+    buscarProcura(item.id).then((p) => { if (ativo) setProcura(p); }).catch(() => {});
+    return () => { ativo = false; };
+  }, [liberado, item]);
 
   return (
     <div className="animate-fade-in fixed inset-0 z-[55] overflow-x-hidden bg-black/75 sm:flex sm:items-center sm:justify-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -142,8 +154,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
                 {descricao && <p className="text-[15px] leading-relaxed text-ink-2">{descricao}</p>}
                 {liberado
-                  ? <TipologiasPublicas tipologias={plantas} />
-                  : <ConteudoExclusivo fotosOcultas={fotosOcultas} plantas={plantas.length} onLiberar={() => abrirContato(sobre, "material exclusivo do empreendimento")} />}
+                  ? <><TipologiasPublicas tipologias={plantas} /><DadosParaDecidir andamento={andamento} procura={procura} /></>
+                  : <ConteudoExclusivo fotosOcultas={fotosOcultas} plantas={plantas.length} temAndamento={Boolean(andamento)} onLiberar={() => abrirContato(sobre, "material exclusivo do empreendimento")} />}
                 {lazer?.length > 0 && (
                   <div>
                     <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gold">Lazer e diferenciais</h2>
