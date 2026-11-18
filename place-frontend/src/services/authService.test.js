@@ -169,4 +169,4 @@ describe("AuthService", () => {
     it.todo("e-mail já cadastrado: lança AuthError USER_ALREADY_EXISTS");
     it.todo("senhas não coincidem: fieldErrors.confirmPassword é preenchido");
   });
-});
+});
