@@ -71,7 +71,15 @@ export function Sidebar({
               >
                 <Icon name={item.icon} className="size-[18px] shrink-0" />
                 <span>{item.label}</span>
-                {active && <span className="ml-auto size-1.5 rounded-full bg-gold" aria-hidden="true" />}
+                {item.badge > 0 && (
+                  <span
+                    aria-label={`${item.badge} ${item.badge === 1 ? "nova" : "novas"}`}
+                    className="ml-auto min-w-5 rounded-full bg-gold px-1.5 text-center text-[11px] font-bold leading-5 text-[#1a1408]"
+                  >
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+                {active && <span className={cn("size-1.5 rounded-full bg-gold", item.badge > 0 ? "ml-1.5" : "ml-auto")} aria-hidden="true" />}
               </Link>
             );
           })}

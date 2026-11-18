@@ -39,8 +39,21 @@ export async function listarCandidaturas(filtros = {}) {
   const q = new URLSearchParams(Object.entries(filtros).filter(([, v]) => v)).toString();
   return (await api.get(`/rh/candidaturas${q ? `?${q}` : ""}`)).candidaturas;
 }
-export const atualizarCandidatura = async (id, dados) => (await api.patch(`/rh/candidaturas/${encodeURIComponent(id)}`, dados)).candidatura;
-export const apagarCandidatura = (id) => api.delete(`/rh/candidaturas/${encodeURIComponent(id)}`);
+// Avisa o menu para recontar as candidaturas novas depois de mudar ou apagar uma.
+export const CANDIDATURAS_MUDARAM = "placebrokers:candidaturas";
+const avisarMudanca = () => window.dispatchEvent(new Event(CANDIDATURAS_MUDARAM));
+
+/** @returns {Promise<number>} candidaturas com status "novo" */
+export const contarCandidaturasNovas = async () => Number((await api.get("/rh/candidaturas/resumo")).novas) || 0;
+export async function atualizarCandidatura(id, dados) {
+  const { candidatura } = await api.patch(`/rh/candidaturas/${encodeURIComponent(id)}`, dados);
+  avisarMudanca();
+  return candidatura;
+}
+export async function apagarCandidatura(id) {
+  await api.delete(`/rh/candidaturas/${encodeURIComponent(id)}`);
+  avisarMudanca();
+}
 export const linkDoCurriculo = async (id) => (await api.get(`/rh/candidaturas/${encodeURIComponent(id)}/curriculo`)).url;
 export const listarVagas = async () => (await api.get("/rh/vagas")).vagas;
 export const criarVaga = async (dados) => (await api.post("/rh/vagas", dados)).vaga;

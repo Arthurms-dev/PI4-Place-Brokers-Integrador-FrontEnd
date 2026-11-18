@@ -3,6 +3,7 @@ import "@/styles/adminEffects.css";
 import { AdminShell } from "@/components/admin/layout/AdminShell";
 import { useUsuarioAtual } from "@/hooks/useUsuarioAtual";
 import { ROLE_HOME } from "@/lib/areas";
+import { comContador, useCandidaturasNovas } from "@/hooks/useCandidaturasNovas";
 
 const MENU = [
   { label: "Visão Geral", href: "/admin/painel", icon: "home" },
@@ -21,6 +22,7 @@ const MENU = [
 
 export default function AdminLayout() {
   const { data: user, loading } = useUsuarioAtual();
+  const novas = useCandidaturasNovas(user?.cargo === "admin");
 
   if (loading) {
     return <div className="grid min-h-screen place-items-center text-ink-2">Carregando…</div>;
@@ -29,7 +31,7 @@ export default function AdminLayout() {
   if (user.cargo !== "admin") return <Navigate to={ROLE_HOME[user.cargo] ?? "/acesso-negado"} replace />;
 
   return (
-    <AdminShell user={user} items={MENU} home="/admin/painel" promo={null}>
+    <AdminShell user={user} items={comContador(MENU, "/admin/rh", novas)} home="/admin/painel" promo={null}>
       <Outlet context={{ user }} />
     </AdminShell>
   );

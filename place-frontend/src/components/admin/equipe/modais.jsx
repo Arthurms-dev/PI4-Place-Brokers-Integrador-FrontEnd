@@ -90,7 +90,7 @@ export function ModalGerente({ onClose, onSalvo }) {
   return (
     <Folha titulo="Novo gerente" onClose={onClose}>
       <form onSubmit={enviar} noValidate className="space-y-3.5">
-        <p className="text-[13px] text-ink-2">O gerente já entra aprovado e só faz login. Combine a senha temporária com ele por fora.</p>
+        <p className="text-[13px] text-ink-2">O gerente já entra aprovado. Combine a senha temporária com ele por fora: no primeiro login o site pede para ele criar a própria senha.</p>
         <Campo rotulo="Nome" erro={erros.nome}><input value={f.nome} onChange={set("nome")} autoComplete="off" className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
         <Campo rotulo="E-mail" erro={erros.email}><input type="email" value={f.email} onChange={set("email")} autoComplete="off" className={`${CAMPO} ${borda(erros, "email")}`} /></Campo>
         <Campo rotulo="Senha temporária" erro={erros.password}><PasswordField value={f.password} onChange={set("password")} autoComplete="new-password" inputClassName={`${CAMPO} ${borda(erros, "password")} pr-12`} /></Campo>
@@ -128,7 +128,7 @@ export function ModalUsuarioInterno({ diretorias, cargoInicial = "rh", onClose, 
         <Campo rotulo="Nome" erro={erros.nome}><input value={f.nome} onChange={set("nome")} autoComplete="off" className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
         <Campo rotulo="E-mail" erro={erros.email}><input type="email" value={f.email} onChange={set("email")} autoComplete="off" className={`${CAMPO} ${borda(erros, "email")}`} /></Campo>
         <Campo rotulo="Senha temporária" erro={erros.password}><PasswordField value={f.password} onChange={set("password")} autoComplete="new-password" inputClassName={`${CAMPO} ${borda(erros, "password")} pr-12`} /></Campo>
-        <p className="text-[12px] text-ink-3">Já entra aprovado. Combine a senha temporária por fora e peça para trocar em Configurações.</p>
+        <p className="text-[12px] text-ink-3">Já entra aprovado. Combine a senha temporária por fora: no primeiro login o site pede para a pessoa criar a própria senha.</p>
         <Erro texto={erroGeral && !Object.keys(erros).length ? erroGeral : ""} />
         <Botao enviando={enviando}>Criar acesso</Botao>
       </form>

@@ -22,6 +22,7 @@ export async function getCurrentUser() {
         name: user.nome, email: user.email, role: CARGO_LABEL[user.role] ?? user.role,
         cargo: user.role, avatarUrl: user.avatarUrl ?? null, unreadNotifications: 0,
         avisoLeadEmail: Boolean(user.avisoLeadEmail),
+        trocarSenha: user.trocarSenha === true,
       };
     } catch (erro) {
       if (erro?.status === 401 && getToken() === token) clearToken();
