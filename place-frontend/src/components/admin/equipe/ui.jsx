@@ -14,8 +14,9 @@ export function ufDe(m) {
 }
 export const dataCurta = (iso) => (iso ? new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—");
 
-export function Avatar({ nome }) {
+export function Avatar({ nome, src }) {
   const ini = (nome ?? "?").trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+  if (src) return <img src={src} alt="" loading="lazy" className="size-10 shrink-0 rounded-full object-cover" />;
   return <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gold/15 text-sm font-semibold text-gold">{ini}</span>;
 }
 

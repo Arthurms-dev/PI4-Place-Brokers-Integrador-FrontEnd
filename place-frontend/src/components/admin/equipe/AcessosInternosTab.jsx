@@ -26,7 +26,7 @@ function Linha({ m, diretorias, onMudar }) {
   return (
     <li className="space-y-3 rounded-2xl border border-line bg-card p-4">
       <div className="flex items-center gap-3">
-        <Avatar nome={m.nome} />
+        <Avatar nome={m.nome} src={m.avatar_url} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{m.nome}</p>
           <p className="truncate text-[12px] text-ink-3">{m.email}</p>

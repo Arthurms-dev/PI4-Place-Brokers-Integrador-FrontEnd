@@ -33,7 +33,7 @@ function Linha({ m, times, onMudar, mostrarEquipe }) {
 
   return (
     <li className="flex items-center gap-3 py-3">
-      <Avatar nome={autonomo ? nomeReservado(m.nome) : m.nome} />
+      <Avatar nome={autonomo ? nomeReservado(m.nome) : m.nome} src={autonomo ? null : m.avatar_url} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="truncate text-sm font-medium">{autonomo ? nomeReservado(m.nome) : m.nome}</span>

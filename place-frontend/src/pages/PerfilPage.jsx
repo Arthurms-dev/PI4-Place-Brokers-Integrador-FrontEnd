@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Meter } from "@/components/admin/dashboard/charts";
 import { authService } from "@/services/authService";
-import { alterarSenha, atualizarPerfil } from "@/services/session";
+import { TAMANHO_MAXIMO_FOTO, TIPOS_DE_FOTO, alterarSenha, atualizarPerfil, removerFotoPerfil, trocarFotoPerfil } from "@/services/session";
 
 const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3";
 const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold");
@@ -60,6 +60,41 @@ export default function PerfilPage() {
   const set = (c) => (v) => setSenha((s) => ({ ...s, [c]: v }));
   const pontos = forca(senha.novaSenha);
 
+  const [foto, setFoto] = useState(user.avatarUrl ?? null);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [erroFoto, setErroFoto] = useState("");
+  const seletorFoto = useRef(null);
+
+  async function escolherFoto(e) {
+    const arquivo = e.target.files?.[0];
+    e.target.value = "";
+    if (!arquivo) return;
+    if (!TIPOS_DE_FOTO.includes(arquivo.type)) return setErroFoto("Use uma foto JPG, PNG ou WebP.");
+    if (arquivo.size > TAMANHO_MAXIMO_FOTO) return setErroFoto("A foto passa de 5 MB.");
+    setEnviandoFoto(true);
+    setErroFoto("");
+    try {
+      setFoto(await trocarFotoPerfil(arquivo));
+    } catch (err) {
+      setErroFoto(err.fieldErrors?.foto ?? err.message);
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
+
+  async function tirarFoto() {
+    setEnviandoFoto(true);
+    setErroFoto("");
+    try {
+      await removerFotoPerfil();
+      setFoto(null);
+    } catch (err) {
+      setErroFoto(err.message);
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
+
   async function salvar(e) {
     e.preventDefault();
     setSalvando(true);
@@ -103,11 +138,29 @@ export default function PerfilPage() {
   return (
     <div className="mx-auto max-w-xl space-y-5">
       <header className="animate-fade-up flex items-center gap-4">
-        <span className="grid size-16 shrink-0 place-items-center rounded-full bg-gold-gradient text-xl font-semibold text-[#1a1408]">{iniciais}</span>
+        <button type="button" onClick={() => seletorFoto.current?.click()} disabled={enviandoFoto} aria-label="Trocar foto de perfil"
+          className="group relative size-20 shrink-0 overflow-hidden rounded-full outline-none ring-gold/60 focus-visible:ring-2 disabled:opacity-70">
+          {foto ? (
+            <img src={foto} alt="" className="size-full object-cover" />
+          ) : (
+            <span className="grid size-full place-items-center bg-gold-gradient text-2xl font-semibold text-[#1a1408]">{iniciais}</span>
+          )}
+          <span className="absolute inset-0 grid place-items-center bg-black/55 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            {enviandoFoto ? "Enviando..." : "Trocar"}
+          </span>
+        </button>
         <div className="min-w-0">
           <h1 className="truncate text-2xl font-semibold">{user.name}</h1>
           <p className="text-[13px] text-ink-2">{user.role}</p>
+          <div className="mt-1.5 flex flex-wrap gap-x-3 text-[12px]">
+            <button type="button" onClick={() => seletorFoto.current?.click()} disabled={enviandoFoto} className="text-gold hover:underline disabled:opacity-60">
+              {enviandoFoto ? "Enviando..." : foto ? "Trocar foto" : "Adicionar foto"}
+            </button>
+            {foto && !enviandoFoto && <button type="button" onClick={tirarFoto} className="text-ink-3 hover:text-danger">Remover</button>}
+          </div>
+          {erroFoto && <p role="alert" className="mt-1 text-[12px] text-danger">{erroFoto}</p>}
         </div>
+        <input ref={seletorFoto} type="file" accept="image/jpeg,image/png,image/webp" onChange={escolherFoto} className="hidden" aria-hidden="true" tabIndex={-1} />
       </header>
 
       <form onSubmit={salvar} style={{ animationDelay: "70ms" }} className="animate-fade-up space-y-4 rounded-2xl border border-line bg-card p-5">

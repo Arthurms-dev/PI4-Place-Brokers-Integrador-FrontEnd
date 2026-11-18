@@ -15,7 +15,7 @@ function Membro({ m, times, onMudar }) {
   }
   return (
     <li className="flex items-center gap-3 py-2.5">
-      <Avatar nome={m.nome} />
+      <Avatar nome={m.nome} src={m.avatar_url} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{m.nome}</div>
         <div className="truncate text-[11px] text-ink-3">{m.email}</div>

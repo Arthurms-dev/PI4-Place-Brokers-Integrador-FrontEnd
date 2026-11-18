@@ -23,7 +23,7 @@ export default function AprovacoesTab({ pendentes, onMudar }) {
       {pendentes.map((m, i) => (
         <li key={m.id} style={{ animationDelay: `${Math.min(i, 5) * 60}ms` }} className="animate-fade-up space-y-3 rounded-2xl border border-line bg-card p-4">
           <div className="flex items-start gap-3">
-            <Avatar nome={m.nome} />
+            <Avatar nome={m.nome} src={m.avatar_url} />
             <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold">{m.nome}</h3>
               <p className="truncate text-[13px] text-ink-2">{m.email}{m.telefone ? ` · ${m.telefone}` : ""}</p>

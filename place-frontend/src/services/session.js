@@ -1,4 +1,4 @@
-import { getToken, clearToken } from "@/lib/authToken";
+import { AUTH_CHANGE_EVENT, getToken, clearToken } from "@/lib/authToken";
 import { api } from "@/lib/apiClient";
 
 const CARGO_LABEL = {
@@ -20,7 +20,7 @@ export async function getCurrentUser() {
       if (getToken() !== token) return null;
       return {
         name: user.nome, email: user.email, role: CARGO_LABEL[user.role] ?? user.role,
-        cargo: user.role, avatarUrl: null, unreadNotifications: 0,
+        cargo: user.role, avatarUrl: user.avatarUrl ?? null, unreadNotifications: 0,
         avisoLeadEmail: Boolean(user.avisoLeadEmail),
       };
     } catch (erro) {
@@ -45,4 +45,23 @@ export const atualizarPerfil = async (dados) => (await api.patch("/auth/me", dad
 export async function alterarSenha({ senhaAtual, novaSenha, confirmarSenha }) {
   await api.patch("/auth/senha", { senhaAtual, novaSenha, confirmarSenha });
   return true;
+}
+
+export const TAMANHO_MAXIMO_FOTO = 5 * 1024 * 1024;
+export const TIPOS_DE_FOTO = ["image/jpeg", "image/png", "image/webp"];
+// Avisa o painel para buscar o usuário de novo: a foto do topo troca na hora.
+const avisarTroca = () => window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+
+/** @param {File} arquivo @returns {Promise<string>} URL da foto nova */
+export async function trocarFotoPerfil(arquivo) {
+  const corpo = new FormData();
+  corpo.append("foto", arquivo);
+  const { avatarUrl } = await api.put("/auth/me/foto", corpo);
+  avisarTroca();
+  return avatarUrl;
+}
+
+export async function removerFotoPerfil() {
+  await api.delete("/auth/me/foto");
+  avisarTroca();
 }
