@@ -46,7 +46,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
                       <b className="font-extrabold text-[#9a6a2c]">{segmento.chamadaPreco.valor}</b>
                     </span>
                   )}
-                  <span className="mt-0.5 block text-[11px] text-[#5b6e86]">
+                  <span className="mt-0.5 block text-[12px] text-[#5b6e86]">
                     {segmento.quantidade} {segmento.quantidade === 1 ? "imóvel" : "imóveis"}
                   </span>
                 </span>
@@ -73,7 +73,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
                 <span className="min-w-0 flex-1">
                   <strong className="block text-[16px] leading-tight">Pronto para morar</strong>
                   <span className="mt-1 block text-[12.5px] text-white/70">Mude já, sem esperar obra. {prontos.chamadaPreco && <>{prontos.chamadaPreco.rotulo} <b className="text-[#f3c47a]">{prontos.chamadaPreco.valor}</b></>}</span>
-                  <span className="mt-0.5 block text-[11px] text-white/55">{prontos.quantidade} {prontos.quantidade === 1 ? "imóvel" : "imóveis"}</span>
+                  <span className="mt-0.5 block text-[12px] text-white/55">{prontos.quantidade} {prontos.quantidade === 1 ? "imóvel" : "imóveis"}</span>
                 </span>
                 <Icon name="arrowRight" className="size-4 shrink-0 text-[#f3c47a] transition-transform group-hover:translate-x-1" />
               </button>

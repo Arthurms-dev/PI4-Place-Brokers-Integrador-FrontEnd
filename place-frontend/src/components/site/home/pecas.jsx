@@ -46,18 +46,18 @@ const SEGMENTO_CURTO = {
   litoral: "Litoral",
 };
 
-export function Etiquetas({ p, comSegmento = false }) {
+export function Etiquetas({ p, comSegmento = false, tamanho = "text-[11px]" }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      <span className={`rounded-full px-3 py-1 text-[11px] font-bold shadow-sm ${COR_ETAPA[p.tag] ?? "bg-[#08152b]/80 text-[#f3c47a]"}`}>
+      <span className={`rounded-full px-3 py-1 ${tamanho} font-bold shadow-sm ${COR_ETAPA[p.tag] ?? "bg-[#08152b]/80 text-[#f3c47a]"}`}>
         {p.tag === "Pronto" ? "Pronto para morar" : p.tag}
       </span>
       {comSegmento && p.segmento && (
-        <span className="rounded-full bg-[#08152b]/75 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
+        <span className={`rounded-full bg-[#08152b]/75 px-3 py-1 ${tamanho} font-semibold text-white backdrop-blur`}>
           {SEGMENTO_CURTO[p.segmento]}
         </span>
       )}
-      {!p.disponivel && <span className="rounded-full bg-danger/90 px-3 py-1 text-[11px] font-medium text-white">Esgotado</span>}
+      {!p.disponivel && <span className={`rounded-full bg-danger/90 px-3 py-1 ${tamanho} font-medium text-white`}>Esgotado</span>}
     </div>
   );
 }

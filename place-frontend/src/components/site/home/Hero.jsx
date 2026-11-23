@@ -7,7 +7,7 @@ import { ETAPAS_HOME, PRAZOS_HOME, numerosDoCatalogo, opcoesDeFaixa } from "@/li
 
 const campo =
   "h-12 w-full min-w-0 rounded-xl border border-[#d5dce6] bg-[#fff] px-3.5 text-[13px] text-[#102843] shadow-sm outline-none transition-[border-color,box-shadow] focus:border-[#c99041] focus:shadow-[0_0_0_3px_rgba(233,173,90,.15)]";
-const rotulo = "mb-1 block text-[11px] font-semibold text-[#51657d]";
+const rotulo = "mb-1 block text-[12px] font-semibold text-[#51657d]";
 
 export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, onBuscar }) {
   const [comErro, setComErro] = useState([]);
@@ -17,10 +17,10 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
   const indiceAtual = indice % Math.max(fotos.length, 1);
   const destaque = fotos[indiceAtual];
   const numeros = useMemo(() => numerosDoCatalogo(itens), [itens]);
-  // No celular, Situação/Prazo/Valor/Quartos ficam atrás de "Filtros avançados" (no desktop, sempre à vista).
+  // No celular, Situação/Prazo/Valor/Quartos ficam atrás de "Mais filtros" (no desktop, sempre à vista).
   const [avancados, setAvancados] = useState(false);
   const filtrosAtivos = ["tag", "prazo", "faixa", "quartos"].filter((chave) => filtros[chave]).length;
-  const avancado = `${avancados ? "block" : "hidden"} min-w-0 lg:block`;
+  const avancado = `${avancados ? "block" : "hidden"} min-w-0 max-lg:order-2 lg:block`;
   const faixas = opcoesDeFaixa(filtros.segmento);
   const destaqueTemValor = destaque && (destaque.precoMin != null || destaque.parcelaMin != null);
 
@@ -37,7 +37,8 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
       <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:pb-14 lg:pt-6">
         <div className="grid items-center gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-12">
           <div className="pb-c-hero-copy relative z-10 py-4 lg:py-6">
-            <LogoHero className="max-w-[300px] sm:max-w-[400px] lg:max-w-[440px]" />
+            {/* No celular o logo fica menor (o header já mostra o logo ao rolar) para a busca e o destaque caberem na primeira tela. */}
+            <LogoHero className="max-w-[168px] sm:max-w-[400px] lg:max-w-[440px]" />
 
             <h1
               id="pb-home-hero-title"
@@ -66,7 +67,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               >
                 Explorar imóveis <Icon name="arrowRight" className="size-4" />
               </button>
-              <a href="#acesso-exclusivo" className="text-[13px] font-semibold text-[#9a6a2c] underline-offset-4 hover:underline">
+              <a href="#acesso-exclusivo" className="inline-flex min-h-11 items-center text-[13px] font-semibold text-[#9a6a2c] underline-offset-4 hover:underline">
                 Ver plantas e tabelas
               </a>
             </div>
@@ -94,7 +95,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                     </span>
                   </span>
                   <div className="absolute inset-x-6 bottom-6 sm:inset-x-8 sm:bottom-8">
-                    <p className="text-[10px] font-bold uppercase tracking-[.19em] text-[#eec37e]">Place Brokers</p>
+                    <p className="text-[12px] font-bold uppercase tracking-[.19em] text-[#eec37e]">Place Brokers</p>
                     <p className="mt-1 text-lg font-extrabold text-white sm:text-xl">Separando os melhores destaques</p>
                     <span className="pb-hero-fundo-barra mt-3 block h-1 w-40 overflow-hidden rounded-full bg-white/15" />
                   </div>
@@ -106,7 +107,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               {destaque && (
                 <div className="absolute bottom-5 left-5 right-5 flex flex-wrap items-end justify-between gap-3 text-white sm:bottom-7 sm:left-7 sm:right-7">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[.19em] text-[#eec37e]">EM DESTAQUE</p>
+                    <p className="text-[12px] font-bold uppercase tracking-[.19em] text-[#eec37e]">EM DESTAQUE</p>
                     <h2 className="mt-1 text-lg font-extrabold sm:text-xl">{destaque.title}</h2>
                     <p className="mt-1 text-xs text-white/80">
                       {[destaque.bairro, destaque.city].filter(Boolean).join(" · ")}
@@ -114,7 +115,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                   </div>
                   <div className="flex items-center gap-4">
                     {destaqueTemValor && (
-                      <p className="hidden text-right text-[11px] leading-tight text-white/75 sm:block">
+                      <p className="hidden text-right text-[12px] leading-tight text-white/75 sm:block">
                         {destaque.precoRotulo}
                         <strong className="block text-[17px] font-extrabold text-white">{destaque.precoValor}</strong>
                       </p>
@@ -131,7 +132,9 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
             </div>
 
             {fotos.length > 1 && (
-              <div className="absolute right-4 top-4 flex rounded-full bg-[#08152b]/70 px-1 backdrop-blur">
+              <div className="absolute right-2 top-2 flex px-1">
+                {/* Cada bolinha tem área de toque de 44 px; o fundo escuro fica com a altura de antes. */}
+                <span aria-hidden="true" className="absolute inset-x-0 top-1/2 h-6 -translate-y-1/2 rounded-full bg-[#08152b]/70 backdrop-blur" />
                 {fotos.map((foto, posicao) => (
                   <button
                     key={foto.id}
@@ -139,7 +142,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
                     aria-label={`Mostrar ${foto.title}`}
                     aria-current={posicao === indiceAtual ? "true" : undefined}
                     onClick={() => setIndice(posicao)}
-                    className={`group grid h-6 place-items-center transition-[width] duration-300 ${posicao === indiceAtual ? "w-9" : "w-6"}`}
+                    className="group relative grid size-11 place-items-center"
                   >
                     <span aria-hidden="true" className={`h-1.5 rounded-full transition-[width,background] duration-300 ${
                       posicao === indiceAtual ? "w-6 bg-[#e9ad5a]" : "w-1.5 bg-white/55 group-hover:bg-white"
@@ -184,9 +187,9 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
               onClick={() => setAvancados((v) => !v)}
               aria-expanded={avancados}
               aria-controls="pb-c-filtros-avancados"
-              className="col-span-2 inline-flex h-10 items-center justify-between rounded-xl border border-[#d5dce6] px-3.5 text-[13px] font-semibold text-[#102843] lg:hidden"
+              className="inline-flex h-12 min-w-0 items-center justify-between gap-2 rounded-xl border border-[#d5dce6] px-3.5 text-[13px] font-semibold text-[#102843] lg:hidden"
             >
-              <span>Filtros avançados{filtrosAtivos > 0 ? ` (${filtrosAtivos})` : ""}</span>
+              <span className="truncate">Mais filtros{filtrosAtivos > 0 ? ` (${filtrosAtivos})` : ""}</span>
               <Icon name="chevronDown" className={`size-4 transition-transform ${avancados ? "rotate-180" : ""}`} />
             </button>
 
@@ -230,7 +233,7 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
 
             <button
               type="submit"
-              className="pb-c-primary col-span-2 inline-flex h-12 min-w-28 items-center lg:col-span-1 justify-center gap-2 rounded-xl bg-[#e9ad5a] px-5 text-sm font-bold text-[#08152b] transition-colors hover:bg-[#f3c47a]"
+              className="pb-c-primary inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-xl bg-[#e9ad5a] px-5 text-sm font-bold text-[#08152b] transition-colors hover:bg-[#f3c47a] lg:min-w-28"
             >
               <Icon name="search" className="size-4" /> Buscar
             </button>
@@ -239,13 +242,13 @@ export default function Hero({ itens, filtros, onFiltros, sugestoes, cidades, on
 
         {cidades.length > 0 && (
           <div className="pb-c-cities mt-1 flex flex-wrap items-center gap-2 text-[#536881]">
-            <span className="text-xs">Populares:</span>
+            <span className="text-[12px]">Populares:</span>
             {cidades.slice(0, 5).map((cidade) => (
               <button
                 key={cidade}
                 type="button"
                 onClick={() => onBuscar({ ...filtros, texto: cidade })}
-                className="rounded-full border border-[#cdd8e3] bg-white/80 px-3 py-1.5 text-[12px] hover:border-[#be8b43] hover:text-[#986827]"
+                className="inline-flex min-h-11 items-center rounded-full border border-[#cdd8e3] bg-white/80 px-3.5 text-[13px] hover:border-[#be8b43] hover:text-[#986827]"
               >
                 {cidade}
               </button>

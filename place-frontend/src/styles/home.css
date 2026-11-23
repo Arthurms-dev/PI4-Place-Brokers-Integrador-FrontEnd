@@ -189,7 +189,7 @@
 .pb-c-perfis::-webkit-scrollbar { display: none; }
 .pb-d-overline {
   display: flex; align-items: center; gap: .7rem;
-  color: #f3c47a; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: #f3c47a; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
 }
 .pb-d-pilulas {
   background: rgba(238, 243, 248, .92);
@@ -264,3 +264,28 @@
 }
 @keyframes pb-barra-carrega { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
 @media (prefers-reduced-motion: reduce) { .pb-hero-fundo-pino, .pb-hero-fundo-barra::after { animation: none; } }
+
+/* Home no celular (nov/2026): busca e destaque na primeira tela, textos com 12 px ou mais e áreas de toque de 44 px.
+   Só a home: o modal do empreendimento fica fora de .pb-home-clara e .pb-c-hero e não muda. */
+.pb-home-clara .pb-site-eyebrow { font-size: 12px; }
+@media (max-width: 639px) {
+  /* Ordem no celular: logo pequeno, título, busca, destaque; o texto, os números e os botões vêm depois da foto. */
+  .pb-site .pb-c-hero > .mx-auto { display: flex; flex-direction: column; padding-top: 1rem; }
+  .pb-site .pb-c-hero > .mx-auto > .grid,
+  .pb-site .pb-c-hero .pb-c-hero-copy { display: contents; }
+  .pb-site .pb-c-hero .pb-c-hero-copy > .pb-logo-hero { order: 1; margin-top: 0; }
+  .pb-c-hero #pb-home-hero-title { order: 2; }
+  .pb-site .pb-c-hero-copy h1 { margin-top: .75rem; }
+  .pb-c-hero .pb-c-search { order: 3; }
+  .pb-c-hero .pb-c-hero-visual { order: 4; margin-top: 1rem; }
+  .pb-c-hero .pb-c-hero-copy > p { order: 5; margin-top: 1.25rem; }
+  .pb-c-hero .pb-c-numeros { order: 6; }
+  .pb-c-hero .pb-c-hero-copy > div:last-child { order: 7; }
+  .pb-c-hero .pb-c-cities { order: 8; margin-top: 1rem; }
+  .pb-site .pb-c-hero .pb-c-search h2 { margin-bottom: .5rem; }
+
+  /* Formulário do "Acesso exclusivo" (componente compartilhado): ajustes só aqui na home. */
+  .pb-home-clara #acesso-exclusivo form label:has(input[type="checkbox"]) { min-height: 44px; align-items: center; }
+}
+/* Textos de 11 px do formulário compartilhado ("Você pode pedir para apagar...", erros): 12 px na home. */
+.pb-home-clara #acesso-exclusivo form .text-\[11px\] { font-size: 12px; }

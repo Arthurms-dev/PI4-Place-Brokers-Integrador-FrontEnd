@@ -24,7 +24,7 @@ function InstagramIcon({ className }) {
 }
 
 const titulo = "mb-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-gold";
-const item = "block py-1.5 text-[13px] text-ink-2 transition-colors hover:text-ink";
+const item = "block py-[13px] text-[13px] text-ink-2 transition-colors hover:text-ink sm:py-1.5";
 
 export default function SiteFooter() {
   const { abrirContato } = useContato();

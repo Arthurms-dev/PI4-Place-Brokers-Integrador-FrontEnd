@@ -28,11 +28,11 @@ export function CartaoImovel({ p, i, onFalar }) {
           </Link>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
           <div className="absolute left-3 top-3">
-            <Etiquetas p={p} comSegmento />
+            <Etiquetas p={p} comSegmento tamanho="text-[12px]" />
           </div>
-          <BotaoFavorito id={p.id} titulo={p.title} className="absolute right-3 top-3" />
+          <BotaoFavorito id={p.id} titulo={p.title} className="absolute right-2 top-2 size-11!" />
           {fotos > 1 && (
-            <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-[#08152b]/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+            <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-[#08152b]/75 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">
               {fotos} fotos
             </span>
           )}
@@ -40,13 +40,14 @@ export function CartaoImovel({ p, i, onFalar }) {
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           {p.construtora && (
-            <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#8f6129]">{p.construtora}</p>
+            <p className="text-[12px] font-bold uppercase tracking-[.12em] text-[#8f6129]">{p.construtora}</p>
           )}
+          {/* Área de toque de 44 px sem mudar o espaço do título (padding compensado pela margem negativa). */}
           <Link
             to={destino}
-            className="mt-1 line-clamp-2 text-[19px] font-extrabold leading-snug tracking-tight text-[#102843] transition-colors hover:text-[#a27032]"
+            className="-mb-2.5 mt-[-6px] block py-2.5 text-[19px] font-extrabold leading-snug tracking-tight text-[#102843] transition-colors hover:text-[#a27032]"
           >
-            {p.title}
+            <span className="line-clamp-2">{p.title}</span>
           </Link>
           <p className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-[#61748b]">
             <Icon name="mapPin" className="size-3.5 shrink-0" />
@@ -57,7 +58,7 @@ export function CartaoImovel({ p, i, onFalar }) {
           <div className="h-4 shrink-0" aria-hidden="true" />
           <div className="mt-auto flex items-end justify-between gap-3 border-t border-[#e6ebf1] pt-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-[#5b6e86]">{temValor ? p.precoRotulo : "Valores"}</p>
+              <p className="text-[12px] font-semibold text-[#5b6e86]">{temValor ? p.precoRotulo : "Valores"}</p>
               <p className="mt-0.5 truncate text-[22px] font-extrabold tracking-tight text-[#102843]">
                 {temValor ? (
                   ehParcela ? (
@@ -72,7 +73,7 @@ export function CartaoImovel({ p, i, onFalar }) {
             <button
               type="button"
               onClick={() => onFalar(p)}
-              className="shrink-0 rounded-xl bg-[#0c2846] px-3.5 py-2.5 text-[12px] font-bold text-white transition-colors hover:bg-[#163c61]"
+              className="inline-flex min-h-11 shrink-0 items-center rounded-xl bg-[#0c2846] px-3.5 text-[12px] font-bold text-white transition-colors hover:bg-[#163c61]"
             >
               Quero saber mais
             </button>
@@ -155,7 +156,7 @@ export default function ListaEmpreendimentos({
               type="button"
               onClick={() => onSegmento(opcao.id)}
               aria-pressed={ativo}
-              className={`min-h-10 shrink-0 rounded-full border px-4 text-[12.5px] font-bold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-[12.5px] font-bold transition-colors ${
                 ativo ? "border-[#0c2846] bg-[#0c2846] text-white" : "border-[#d5dee8] bg-white text-[#2b4058] hover:border-[#c89650]"
               }`}
             >
@@ -172,12 +173,12 @@ export default function ListaEmpreendimentos({
               key={campo}
               type="button"
               onClick={() => onRemoverChip(campo)}
-              className="inline-flex min-h-9 items-center gap-1 rounded-full border border-[#dabd92] bg-[#fff5e6] px-3 text-xs font-semibold text-[#77511d]"
+              className="inline-flex min-h-11 items-center gap-1 rounded-full border border-[#dabd92] bg-[#fff5e6] px-3 text-xs font-semibold text-[#77511d]"
             >
               {texto} <Icon name="x" className="size-3.5" />
             </button>
           ))}
-          <button type="button" onClick={onLimpar} className="min-h-9 px-2 text-xs font-medium text-ink-2 underline-offset-2 hover:underline">
+          <button type="button" onClick={onLimpar} className="min-h-11 px-2 text-xs font-medium text-ink-2 underline-offset-2 hover:underline">
             Limpar filtros
           </button>
         </div>
