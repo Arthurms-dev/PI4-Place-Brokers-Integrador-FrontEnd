@@ -289,3 +289,5 @@
 }
 /* Textos de 11 px do formulário compartilhado ("Você pode pedir para apagar...", erros): 12 px na home. */
 .pb-home-clara #acesso-exclusivo form .text-\[11px\] { font-size: 12px; }
+/* A home termina em fundo claro: sem a margem do rodapé, que aparecia como uma faixa escura vazia. */
+.pb-site main:has(> .pb-home-clara:last-child) + footer { margin-top: 0; }

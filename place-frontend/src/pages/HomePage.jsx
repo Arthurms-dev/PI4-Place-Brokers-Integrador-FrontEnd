@@ -17,11 +17,11 @@ import { aplicarMeta, metaPadrao, NOME_SITE } from "@/lib/seo";
 import { FILTROS_VAZIOS, PRAZOS_HOME, SEGMENTOS_HOME, filtrarCatalogo, opcoesDeFaixa } from "@/lib/catalogoHome";
 import { BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS } from "@/lib/prontosEUsados";
 import { registrarEvento } from "@/services/eventos";
+import { rolarAteSecao } from "@/lib/rolagem";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const irPara = (id) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+const irPara = (id) => rolarAteSecao(id);
 
 export default function HomePage() {
   const { id } = useParams();
@@ -64,12 +64,14 @@ export default function HomePage() {
     if (id && !carregando && !erro && !aberto) navigate("/", { replace: true });
   }, [id, carregando, erro, aberto, navigate]);
 
+  // Veio de outra página pelo menu ("Lançamentos", "Cidades"): rola só depois que o catálogo carregou,
+  // senão a seção ainda muda de lugar quando os imóveis aparecem.
   useEffect(() => {
     const alvo = location.state?.rolar;
-    if (!alvo) return undefined;
-    const temporizador = window.setTimeout(() => irPara(alvo), 120);
+    if (!alvo || carregando) return undefined;
+    const temporizador = window.setTimeout(() => irPara(alvo), 60);
     return () => window.clearTimeout(temporizador);
-  }, [location.state]);
+  }, [location.state, carregando]);
 
   const fechar = useCallback(() => navigate("/"), [navigate]);
   const falar = useCallback(

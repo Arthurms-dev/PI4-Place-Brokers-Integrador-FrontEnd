@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
+import { rolarAteSecao } from "@/lib/rolagem";
 import { useContato } from "./ContatoProvider";
 
 // Ordem do menu: o que o cliente procura primeiro (comprar na planta, pronto), depois quem somos.
@@ -64,7 +65,8 @@ export default function SiteHeader() {
 
   function irPara(id) {
     setMenu(false);
-    if (naHome) document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // rolarAteSecao espera o menu do celular fechar antes de medir (senão para centenas de px depois da seção).
+    if (naHome) rolarAteSecao(id);
     else navigate("/", { state: { rolar: id } });
   }
 
@@ -83,12 +85,12 @@ export default function SiteHeader() {
     evento.preventDefault();
     setMenu(false);
     navigate(item.para, { replace: hash === `#${ancora}` });
-    document.getElementById(ancora)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    rolarAteSecao(ancora);
   };
   const compacto = rolou || menu;
 
   const linkDesktop = (item) =>
-    `relative whitespace-nowrap rounded-lg px-3 py-2 text-[14px] font-medium transition-colors ${item.soTelaGrande ? "hidden xl:block" : ""} after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
+    `relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors ${item.soTelaGrande ? "hidden xl:block" : ""} after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
       ativo(item) ? "text-ink after:scale-x-100" : "text-ink-2 after:scale-x-0"
     }`;
 
@@ -116,8 +118,9 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <Link to={destinoAreaRestrita} className="hidden items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink xl:inline-flex">
-            <Icon name="user" className="size-4" /> {textoAreaRestrita}
+          {/* Só o ícone: com o texto, o header passava da tela de 1024 a 1440 px. O texto continua no rodapé e no menu do celular. */}
+          <Link to={destinoAreaRestrita} aria-label={textoAreaRestrita} title={textoAreaRestrita} className="hidden size-11 place-items-center rounded-full text-ink-3 transition-colors hover:text-ink xl:grid">
+            <Icon name="user" className="size-5" />
           </Link>
           <button
             type="button"

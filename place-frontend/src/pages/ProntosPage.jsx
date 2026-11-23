@@ -9,6 +9,7 @@ import { useEmpreendimentosPublicos } from "@/data/empreendimentosPublicos";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { aplicarMeta, metaPadrao, NOME_SITE } from "@/lib/seo";
 import { BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS } from "@/lib/prontosEUsados";
+import { rolarAteSecao } from "@/lib/rolagem";
 import "@/styles/home.css";
 
 const PASSOS_VENDA = [
@@ -36,14 +37,14 @@ export default function ProntosPage() {
   }, []);
 
   const pedirBusca = () => abrirContato(BUSCA_PRONTOS_E_USADOS, CANAL_PRONTOS_E_USADOS);
-  const irParaVenda = () => document.getElementById("vender")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const irParaVenda = () => rolarAteSecao("vender");
 
   // Chegou por "/prontos#vender" (menu "Anuncie seu imóvel" vindo de outra página): desce até o formulário.
   const { hash } = useLocation();
   useEffect(() => {
     if (!hash) return undefined;
     const id = hash.slice(1);
-    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    const t = window.setTimeout(() => rolarAteSecao(id), 80);
     return () => window.clearTimeout(t);
   }, [hash]);
 
