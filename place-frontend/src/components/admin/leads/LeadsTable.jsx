@@ -9,7 +9,7 @@ import { formatLocation, needsAttention } from "@/lib/leads";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 
 const PAGE_SIZE = 10;
-const HEAD = "border-b border-line px-3 py-3.5 text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-3";
+const HEAD = "border-b border-line px-3 py-3.5 text-xs font-semibold uppercase tracking-[0.09em] text-ink-3";
 
 export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
   const [page, setPage] = useState(1);
@@ -23,16 +23,38 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-208 border-collapse text-left">
+      {/* Celular: cartões (a tabela só mostrava Nome e Contato). */}
+      <ul className="divide-y divide-line-soft md:hidden">
+        {rows.map((lead) => (
+          <li key={lead.id}>
+            <button type="button" onClick={() => onSelect(lead.id)} aria-label={`Ver detalhes de ${lead.nome}`}
+              className={cn("flex w-full flex-col gap-1.5 px-4 py-3.5 text-left text-[13px] text-ink-2 hover:bg-white/4", selectedId === lead.id && "bg-white/6")}>
+              <span className="flex w-full items-center justify-between gap-3">
+                <span className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                  <span className="truncate">{lead.nome}</span>
+                  {needsAttention(lead) && <span title="Novo e sem corretor" className="size-1.5 shrink-0 rounded-full bg-gold" />}
+                </span>
+                <LeadStatusBadge status={lead.status} />
+              </span>
+              <span className="truncate">{lead.empreendimento?.nome ?? "Sem empreendimento"} · {formatDateTime(lead.criadoEm)}</span>
+              <span className="truncate text-xs text-ink-3">
+                {formatPhone(lead.telefone) || "Sem telefone"} · {lead.corretor ? lead.corretor.nome : <span className="text-gold">Sem corretor</span>}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full border-collapse text-left">
           <thead>
             <tr className="bg-card-2/80">
               <th className={cn(HEAD, "pl-5")}>Nome</th>
+              <th className={HEAD}>Status</th>
               <th className={HEAD}>Contato</th>
               <th className={HEAD}>Empreendimento</th>
-              <th className={HEAD}>Recebido em</th>
               <th className={HEAD}>Corretor</th>
-              <th className={HEAD}>Status</th>
+              <th className={HEAD}>Recebido em</th>
             </tr>
           </thead>
           <tbody>
@@ -47,7 +69,7 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
               >
                 <td className="whitespace-nowrap py-3.5 pl-5 pr-3">
                   <button type="button" onClick={() => onSelect(lead.id)} aria-label={`Ver detalhes de ${lead.nome}`} className="flex cursor-pointer items-center gap-2.5 text-left text-ink hover:text-gold">
-                    <Avatar name={lead.nome} className="size-7 text-[10px]" />
+                    <Avatar name={lead.nome} className="size-7 text-xs" />
                     <span className="font-medium">{lead.nome}</span>
                     {needsAttention(lead) && (
                       <span title="Novo e sem corretor" className="size-1.5 rounded-full bg-gold">
@@ -57,26 +79,26 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
                   </button>
                 </td>
                 <td className="whitespace-nowrap px-3">
-                  <div>{formatPhone(lead.telefone) || "—"}</div>
-                  <div className="text-[11px] text-ink-3">{lead.email || "—"}</div>
+                  <LeadStatusBadge status={lead.status} />
                 </td>
-                <td className="max-w-64 px-3">
+                <td className="max-w-52 px-3">
+                  <div className="whitespace-nowrap">{formatPhone(lead.telefone) || "—"}</div>
+                  <div className="truncate text-xs text-ink-3" title={lead.email || undefined}>{lead.email || "—"}</div>
+                </td>
+                <td className="max-w-56 px-3">
                   {lead.empreendimento ? (
                     <>
                       <div className="truncate text-ink">{lead.empreendimento.nome}</div>
-                      <div className="truncate text-[11px] text-ink-3">{formatLocation(lead.empreendimento)}</div>
+                      <div className="truncate text-xs text-ink-3">{formatLocation(lead.empreendimento)}</div>
                     </>
                   ) : (
                     "—"
                   )}
                 </td>
-                <td className="whitespace-nowrap px-3">{formatDateTime(lead.criadoEm)}</td>
-                <td className="whitespace-nowrap px-3">
+                <td className="max-w-40 truncate px-3">
                   {lead.corretor ? lead.corretor.nome : <span className="text-gold">Sem corretor</span>}
                 </td>
-                <td className="whitespace-nowrap px-3">
-                  <LeadStatusBadge status={lead.status} />
-                </td>
+                <td className="whitespace-nowrap px-3">{formatDateTime(lead.criadoEm)}</td>
               </tr>
             ))}
           </tbody>
@@ -93,7 +115,7 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
             aria-label="Página anterior"
             disabled={current === 1}
             onClick={() => setPage(current - 1)}
-            className="grid size-7 cursor-pointer place-items-center rounded-md border border-line hover:border-gold disabled:cursor-not-allowed disabled:opacity-40"
+            className="grid size-11 cursor-pointer place-items-center rounded-md border border-line hover:border-gold disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Icon name="chevronLeft" className="size-3.5" />
           </button>
@@ -105,7 +127,7 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
             aria-label="Próxima página"
             disabled={current === totalPages}
             onClick={() => setPage(current + 1)}
-            className="grid size-7 cursor-pointer place-items-center rounded-md border border-line hover:border-gold disabled:cursor-not-allowed disabled:opacity-40"
+            className="grid size-11 cursor-pointer place-items-center rounded-md border border-line hover:border-gold disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Icon name="chevronRight" className="size-3.5" />
           </button>

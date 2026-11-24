@@ -51,7 +51,7 @@ export default function TrocaSenhaObrigatoria({ user }) {
     <div className="pb-auth grid min-h-screen place-items-center px-4 py-12 sm:px-6">
       <main className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo className="h-10" />
+          <Logo className="h-11" />
         </div>
         <Card>
           <h1 className="mb-1 text-xl font-medium">{primeiroNome ? `Bem-vindo(a), ${primeiroNome}` : "Crie sua senha"}</h1>

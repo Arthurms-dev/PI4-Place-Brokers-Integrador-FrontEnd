@@ -1,9 +1,16 @@
 // Feed derivado exclusivamente dos empreendimentos retornados pela API.
 // atualizado_em/atualizado_por mostram só a última alteração (não é histórico de auditoria).
 const dataValida = (valor) => typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}/.test(valor);
+// O dia é o de Recife: cortar o texto em UTC mostrava o dia seguinte para o que foi salvo depois das 21h.
+const DIA_RECIFE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Recife' });
+const diaLocal = (valor) => {
+  if (valor.length === 10) return valor;
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? valor.slice(0, 10) : DIA_RECIFE.format(data);
+};
 const dataDe = (imovel) => dataValida(imovel.atualizado_em)
-  ? imovel.atualizado_em.slice(0, 10)
-  : dataValida(imovel.criado_em) ? imovel.criado_em.slice(0, 10) : null;
+  ? diaLocal(imovel.atualizado_em)
+  : dataValida(imovel.criado_em) ? diaLocal(imovel.criado_em) : null;
 
 export function criarFeedsDoCatalogo({ data, loading, error }) {
   const estado = { loading, error };

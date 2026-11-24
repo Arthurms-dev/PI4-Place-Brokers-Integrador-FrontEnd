@@ -7,23 +7,25 @@ import { formatPhone, whatsappUrl } from "@/lib/contact";
 import { formatDateTime } from "@/lib/format";
 import { LEAD_STATUSES, formatLocation } from "@/lib/leads";
 import { LeadStatusBadge } from "./LeadStatusBadge";
+import { rotuladorDePessoas } from "@/lib/pessoas";
 import { LeadAtividades } from "@/components/leads/LeadAtividades";
 
 const selectClass =
-  "h-9 w-full rounded-lg border border-line bg-card-2 px-3 text-xs text-ink outline-none scheme-dark focus:border-gold";
+  "h-11 w-full rounded-lg border border-line bg-card-2 px-3 text-xs text-ink outline-none scheme-dark focus:border-gold";
 const linkButton =
-  "inline-flex h-8 items-center gap-2 rounded-md border border-line px-3 text-xs text-ink-2 transition-colors hover:border-gold hover:text-ink";
+  "inline-flex h-11 items-center gap-2 rounded-md border border-line px-3.5 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink";
 
 function Section({ title, children }) {
   return (
     <section className="border-t border-line-soft px-5 py-4">
-      <h3 className="mb-2.5 text-[11px] uppercase tracking-wide text-ink-3">{title}</h3>
+      <h3 className="mb-2.5 text-xs uppercase tracking-wide text-ink-3">{title}</h3>
       {children}
     </section>
   );
 }
 
 export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose, onStatusChange, onAssign, onConvert }) {
+  const rotuloCorretor = rotuladorDePessoas(corretores ?? []);
   const closeRef = useRef(null);
   // Converter tira o lead da aba "Ativos" do corretor: só vale depois de confirmar.
   const [confirmingConvert, setConfirmingConvert] = useState(false);
@@ -72,7 +74,7 @@ export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose
             type="button"
             aria-label="Fechar"
             onClick={onClose}
-            className="grid size-8 cursor-pointer place-items-center rounded-md border border-line text-ink-2 hover:border-gold hover:text-ink"
+            className="grid size-11 cursor-pointer place-items-center rounded-md border border-line text-ink-2 hover:border-gold hover:text-ink"
           >
             <Icon name="x" className="size-4" />
           </button>
@@ -120,7 +122,7 @@ export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose
           ) : (
             <p className="text-xs text-ink-3">Nenhum empreendimento associado.</p>
           )}
-          <p className="mt-2 text-[11px] text-ink-3">
+          <p className="mt-2 text-xs text-ink-3">
             Recebido em {formatDateTime(lead.criadoEm)} · origem: {lead.origem}
           </p>
         </Section>
@@ -162,12 +164,12 @@ export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose
                 <option value="">Sem corretor</option>
                 {corretores.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.nome}
+                    {rotuloCorretor(c)}
                   </option>
                 ))}
               </select>
               {corretores.length === 0 && (
-                <span className="mt-1 block text-[11px] text-ink-3">Nenhum corretor cadastrado ainda.</span>
+                <span className="mt-1 block text-xs text-ink-3">Nenhum corretor cadastrado ainda.</span>
               )}
             </label>
             {assignNotice && (
@@ -204,7 +206,7 @@ export function LeadDetailsDrawer({ lead, corretores, assignNotice = "", onClose
               {lead.status !== "convertido" && (
                 <Button onClick={() => setConfirmingConvert(true)}>Converter em cliente</Button>
               )}
-              <Link to={`/admin/agendamentos?lead=${lead.id}`} className={`${linkButton} h-8`}>
+              <Link to={`/admin/agendamentos?lead=${lead.id}`} className={linkButton}>
                 <Icon name="calendar" className="size-3.5" /> Agendar visita
               </Link>
             </div>

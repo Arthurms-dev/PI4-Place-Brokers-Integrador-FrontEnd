@@ -40,7 +40,7 @@ export function LeadsKanban({ leads, onSelect, onStatusChange }) {
             <header className="mb-3 flex items-center gap-2 px-1 text-[13px] font-medium">
               <span className={cn("size-2 rounded-full", status.dot)} />
               {status.label}
-              <span className="ml-auto rounded-full bg-white/8 px-2 py-px text-[11px] text-ink-2">{items.length}</span>
+              <span className="ml-auto rounded-full bg-white/8 px-2 py-px text-xs text-ink-2">{items.length}</span>
             </header>
 
             <div className="flex max-h-[62vh] flex-col gap-2.5 overflow-y-auto">
@@ -80,10 +80,10 @@ export function LeadsKanban({ leads, onSelect, onStatusChange }) {
                   {lead.empreendimento && (
                     <>
                       <div className="mt-1.5 truncate text-xs text-ink-2">{lead.empreendimento.nome}</div>
-                      <div className="truncate text-[11px] text-ink-3">{formatLocation(lead.empreendimento)}</div>
+                      <div className="truncate text-xs text-ink-3">{formatLocation(lead.empreendimento)}</div>
                     </>
                   )}
-                  <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] text-ink-3">
+                  <div className="mt-2.5 flex items-center justify-between gap-2 text-xs text-ink-3">
                     <span>{formatDateTime(lead.criadoEm)}</span>
                     <span className={lead.corretor ? "text-ink-2" : "text-gold"}>
                       {lead.corretor ? lead.corretor.nome : "Sem corretor"}

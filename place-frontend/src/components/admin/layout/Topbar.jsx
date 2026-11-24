@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { SinoLeads } from "@/components/leads/SinoLeads";
+import { cn } from "@/lib/cn";
 import { authService } from "@/services/authService";
 
 export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = [] }) {
@@ -10,6 +11,8 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
   const { pathname } = useLocation();
   const secao = items.flatMap((item) => [item.href, ...(item.match ?? [])].map((href) => ({ href, label: item.label }))).sort((a, b) => b.href.length - a.href.length).find((c) => pathname === c.href || pathname.startsWith(`${c.href}/`))?.label ?? "Painel";
   const [busca, setBusca] = useState("");
+  // No celular a busca vira um botão de lupa: o campo apertado mostrava só "Pesquisar nc".
+  const [buscaAberta, setBuscaAberta] = useState(false);
   const resultados = busca.trim() ? items.filter((item) => item.label.toLocaleLowerCase("pt-BR").includes(busca.trim().toLocaleLowerCase("pt-BR"))).slice(0, 6) : [];
 
   function sair() {
@@ -25,17 +28,33 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
         aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
         aria-controls="admin-sidebar"
         aria-expanded={menuOpen}
-        className="grid size-9.5 place-items-center rounded-lg border border-line lg:hidden"
+        className="grid size-11 shrink-0 place-items-center rounded-lg border border-line lg:hidden"
       >
         <Icon name="menu" />
       </button>
 
       <div className="hidden min-w-0 flex-col lg:flex">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.17em] text-ink-3">Place Brokers / Plataforma</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.17em] text-ink-3">Place Brokers / Plataforma</span>
         <span className="truncate text-[15px] font-semibold text-ink">{secao}</span>
       </div>
 
-      <div role="search" className="relative ml-auto min-w-0 max-w-[340px] flex-1">
+      <button
+        type="button"
+        onClick={() => setBuscaAberta((v) => !v)}
+        aria-label={buscaAberta ? "Fechar busca" : "Buscar página do painel"}
+        aria-expanded={buscaAberta}
+        className="ml-auto grid size-11 shrink-0 place-items-center rounded-lg border border-line text-ink-2 sm:hidden"
+      >
+        <Icon name={buscaAberta ? "x" : "search"} className="size-4.5" />
+      </button>
+
+      <div
+        role="search"
+        className={cn(
+          "min-w-0 flex-1 sm:relative sm:ml-auto sm:block sm:max-w-[340px] sm:border-0 sm:bg-transparent sm:p-0",
+          buscaAberta ? "absolute inset-x-0 top-full z-30 block border-b border-line-soft bg-page p-3" : "hidden",
+        )}
+      >
         <label className="pb-search flex h-11 items-center gap-3 rounded-xl border border-line bg-card-2 px-3.5 text-ink-3 focus-within:border-gold/60">
           <Icon name="search" className="size-4 shrink-0" />
           <span className="sr-only">Buscar página do painel</span>
@@ -45,15 +64,16 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
             onChange={(event) => setBusca(event.target.value)}
             onKeyDown={(event) => { if (event.key === "Escape") setBusca(""); }}
             placeholder="Pesquisar no menu..."
+            autoFocus={buscaAberta}
             aria-label="Buscar página do painel"
             aria-controls={busca.trim() ? "pesquisa-navegacao" : undefined}
-            className="min-w-0 w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
+            className="min-w-0 w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-3 sm:text-[13px]"
           />
         </label>
         {busca.trim() && (
           <div id="pesquisa-navegacao" role="region" aria-label="Resultados da navegação" className="absolute inset-x-0 top-full z-40 mt-2 max-h-72 overflow-auto rounded-xl border border-line bg-card p-1.5 shadow-xl">
             {resultados.length ? resultados.map((item) => (
-              <Link key={item.href} to={item.href} onClick={() => setBusca("")} className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 text-[13px] text-ink-2 hover:bg-white/5 hover:text-gold">
+              <Link key={item.href} to={item.href} onClick={() => { setBusca(""); setBuscaAberta(false); }} className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 text-[13px] text-ink-2 hover:bg-white/5 hover:text-gold">
                 <Icon name={item.icon} className="size-4 shrink-0" />{item.label}
               </Link>
             )) : <p className="px-3 py-3 text-xs text-ink-3">Nenhuma página encontrada.</p>}
@@ -61,9 +81,9 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
         )}
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Link to="/" aria-label="Ver site público da Place Brokers"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-lg border border-line px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-gold/50 hover:text-gold md:inline-flex">
+          className="hidden h-11 shrink-0 items-center gap-2 rounded-lg border border-line px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-gold/50 hover:text-gold md:inline-flex">
           <Icon name="home" className="size-4" /> Ver site
         </Link>
         {user?.cargo === "corretor" && <SinoLeads />}
@@ -80,13 +100,13 @@ export function Topbar({ user, menuOpen, onMenuToggle, home = "/admin", items = 
             onClick={() => setPerfilAberto((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={perfilAberto}
-            className="pb-account-button flex items-center gap-3 rounded-xl px-1 py-1 transition-colors hover:bg-white/5"
+            className="pb-account-button flex min-h-11 min-w-11 items-center justify-center gap-3 rounded-xl px-1 py-1 transition-colors hover:bg-white/5"
           >
             <Avatar name={user.name} src={user.avatarUrl} />
             <span className="sr-only">Abrir menu da conta</span>
             <div className="hidden text-left sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>
-              <div className="text-[11px] text-ink-3">{user.role}</div>
+              <div className="text-xs text-ink-3">{user.role}</div>
             </div>
             <Icon name="chevronDown" className="hidden size-3.5 sm:block" />
           </button>

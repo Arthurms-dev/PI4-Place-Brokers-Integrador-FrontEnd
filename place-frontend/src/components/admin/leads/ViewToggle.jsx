@@ -18,7 +18,7 @@ export function ViewToggle({ value, onChange }) {
             aria-pressed={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              "flex h-8 cursor-pointer items-center gap-2 rounded-md px-3 text-xs transition-colors",
+              "flex h-11 cursor-pointer items-center gap-2 rounded-md px-3.5 text-[13px] transition-colors",
               active ? "bg-gold-gradient font-medium text-[#1a1408]" : "text-ink-2 hover:text-ink",
             )}
           >

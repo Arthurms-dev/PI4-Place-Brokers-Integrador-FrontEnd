@@ -6,7 +6,7 @@ export function LeadStatusBadge({ status }) {
   return (
     <span
       className={cn(
-        "inline-block whitespace-nowrap rounded-full border px-3 py-px text-[10px]",
+        "inline-block whitespace-nowrap rounded-full border px-3 py-px text-xs",
         info?.badge,
       )}
     >

@@ -22,12 +22,14 @@ export default function MapaGeralPage() {
   const { data: empreendimentos, loading: carregandoEmpreendimentos } = useAsyncData(listarEmpreendimentos);
   const { data: construtoras, loading: carregandoConstrutoras } = useAsyncData(listarConstrutoras);
 
-  const lista = empreendimentos ?? [];
+  const lista = useMemo(() => (empreendimentos ?? []).filter((e) => e.publicado), [empreendimentos]);
   const listaConstrutoras = construtoras ?? [];
   const carregando = carregandoEmpreendimentos || carregandoConstrutoras;
 
   const [f, setF] = useState(FILTRO_VAZIO);
   const [ocultos, setOcultos] = useState([]);
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+  const qtdFiltros = ["uf", "cidade", "bairro", "construtoraId"].filter((k) => f[k]).length;
 
   const set = (k, v) =>
     setF((s) => ({ ...s, [k]: v, ...(k === "uf" && { cidade: "", bairro: "" }), ...(k === "cidade" && { bairro: "" }) }));
@@ -71,36 +73,41 @@ export default function MapaGeralPage() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
         <section className="rounded-xl border border-line bg-card p-4">
-          <div className="flex items-start justify-between gap-3">
-            <label className="flex h-9.5 flex-1 items-center gap-2.5 rounded-lg border border-line bg-card-2 px-3.5 text-ink-3 focus-within:border-gold">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className="flex h-11 min-w-0 flex-1 basis-56 items-center gap-2.5 rounded-lg border border-line bg-card-2 px-3.5 text-ink-3 focus-within:border-gold">
               <Icon name="search" className="size-4.5" />
               <input
                 value={f.busca}
                 onChange={(e) => set("busca", e.target.value)}
                 placeholder="Digite a cidade, bairro ou região..."
-                className="flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
+                className="min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-3 sm:text-[13px]"
               />
             </label>
-            <button type="button" onClick={limpar} className="inline-flex shrink-0 items-center gap-1.5 text-[12px] text-gold hover:underline">
-              Limpar filtros <Icon name="refresh" className="size-3.5" />
+            {/* No celular, os 4 filtros ficam recolhidos para o mapa aparecer logo. */}
+            <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} aria-controls="filtros-mapa"
+              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-line px-3 text-xs text-ink-2 lg:hidden">
+              <Icon name="list" className="size-4" /> Filtros{qtdFiltros ? ` (${qtdFiltros})` : ""}
+            </button>
+            <button type="button" onClick={limpar} className="inline-flex h-11 shrink-0 items-center gap-1.5 px-2 text-xs text-gold hover:underline">
+              Limpar <Icon name="refresh" className="size-3.5" />
             </button>
           </div>
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div id="filtros-mapa" className={cn("mt-3 gap-3 sm:grid-cols-2 lg:grid lg:grid-cols-4", filtrosAbertos ? "grid" : "hidden")}>
             {[["Estado", "uf", ufs, "Todos"], ["Cidade", "cidade", cidades, "Todas"], ["Bairro", "bairro", bairros, "Todos"]].map(
               ([rotulo, k, ops, todos]) => (
-                <label key={k} className="flex flex-col gap-0.5 rounded-lg border border-line bg-card-2 px-3 py-2 text-[11px] text-ink-3">
+                <label key={k} className="flex min-h-11 flex-col gap-0.5 rounded-lg border border-line bg-card-2 px-3 py-2 text-xs text-ink-3">
                   {rotulo}
-                  <select value={f[k]} onChange={(e) => set(k, e.target.value)} className="cursor-pointer bg-transparent text-[13px] text-ink outline-none">
+                  <select value={f[k]} onChange={(e) => set(k, e.target.value)} className="h-7 cursor-pointer bg-transparent text-base text-ink outline-none sm:text-[13px]">
                     <option value="" className="bg-card">{todos}</option>
                     {ops.map((o) => <option key={o} value={o} className="bg-card">{o}</option>)}
                   </select>
                 </label>
               ),
             )}
-            <label className="flex flex-col gap-0.5 rounded-lg border border-line bg-card-2 px-3 py-2 text-[11px] text-ink-3">
+            <label className="flex min-h-11 flex-col gap-0.5 rounded-lg border border-line bg-card-2 px-3 py-2 text-xs text-ink-3">
               Construtora
-              <select value={f.construtoraId} onChange={(e) => set("construtoraId", e.target.value)} className="cursor-pointer bg-transparent text-[13px] text-ink outline-none">
+              <select value={f.construtoraId} onChange={(e) => set("construtoraId", e.target.value)} className="h-7 cursor-pointer bg-transparent text-base text-ink outline-none sm:text-[13px]">
                 <option value="" className="bg-card">Todas</option>
                 {listaConstrutoras.map((c) => <option key={c.id} value={c.id} className="bg-card">{c.nome}</option>)}
               </select>
@@ -114,18 +121,18 @@ export default function MapaGeralPage() {
                 type="button"
                 aria-pressed={!ocultos.includes(k)}
                 onClick={() => alternar(k)}
-                className={cn("inline-flex items-center gap-2 text-[12px] text-ink-2", ocultos.includes(k) && "opacity-40")}
+                className={cn("inline-flex min-h-11 items-center gap-2 text-xs text-ink-2", ocultos.includes(k) && "opacity-40")}
               >
                 <span className="size-3 rounded-full" style={{ background: s.color }} />
                 {s.label}
               </button>
             ))}
-            <label className="ml-auto inline-flex items-center gap-2 text-[12px] text-ink-2">
+            <label className="ml-auto inline-flex min-h-11 items-center gap-2 text-xs text-ink-2">
               <input
                 type="checkbox"
                 checked={f.apenasDisponiveis}
                 onChange={(e) => set("apenasDisponiveis", e.target.checked)}
-                className="size-3.5 accent-gold"
+                className="size-4 accent-gold"
               />
               Somente disponíveis
             </label>
@@ -160,12 +167,12 @@ export default function MapaGeralPage() {
           </h2>
           <div className="flex flex-col divide-y divide-line-soft">
             {filtrados.map((e) => (
-              <Link key={e.id} to={`/corretor/empreendimentos/${e.id}`} className="flex items-center justify-between gap-2 py-2.5 text-[13px]">
+              <Link key={e.id} to={`/corretor/empreendimentos/${e.id}`} className="flex min-h-11 items-center justify-between gap-2 py-2.5 text-[13px] hover:text-gold">
                 <div className="min-w-0">
                   <b className="block truncate">{e.nome}</b>
-                  <small className="text-ink-3">{localExibicao(e)}{!e.disponivel && " · esgotado"}</small>
+                  <span className="block text-xs text-ink-3">{localExibicao(e)}{!e.disponivel && " · esgotado"}</span>
                 </div>
-                <span className="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold text-page" style={{ background: STATUS[e.status]?.color }}>
+                <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold text-page" style={{ background: STATUS[e.status]?.color }}>
                   {STATUS[e.status]?.label}
                 </span>
               </Link>

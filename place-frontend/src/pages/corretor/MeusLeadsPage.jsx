@@ -32,7 +32,7 @@ const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink o
 
 function Badge({ status }) {
   const s = STATUS[status] ?? STATUS.novo;
-  return <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${s.cls}`}>{s.label}</span>;
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${s.cls}`}>{s.label}</span>;
 }
 
 function BotaoZap({ telefone }) {
@@ -109,7 +109,7 @@ function CadastrarClienteModal({ onClose, onCriado }) {
           <label key={campo} className="block text-xs text-ink-2">
             {rotulo}
             <input type={tipo} autoComplete={auto} value={f[campo]} onChange={set(campo)} placeholder={campo === "telefone" ? "(81) 99999-9999" : undefined} className={`${CAMPO} mt-1.5 ${borda(campo)}`} />
-            {erros[campo] && <span className="mt-1 block text-[11px] text-danger">{erros[campo]}</span>}
+            {erros[campo] && <span className="mt-1 block text-xs text-danger">{erros[campo]}</span>}
           </label>
         ))}
         <label className="block text-xs text-ink-2">
@@ -257,7 +257,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
 
       {!carregando && aba === "leads" && (
         <>
-          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+          <div className="flex flex-wrap gap-2">
             {[["ativos", "Ativos"], ...Object.entries(STATUS).map(([k, v]) => [k, v.label]), ["", "Todos"]].map(([k, rotulo]) => (
               <button key={k} type="button" onClick={() => setFiltro(k)} aria-pressed={filtro === k}
                 className={`min-h-11 shrink-0 rounded-full border px-4 text-[13px] ${filtro === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
@@ -289,18 +289,18 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                       onRetorno={(lead, r) => setRetornos((m) => ({ ...m, [lead.id]: r }))}
                     />
                   ) : (
-                    l.telefone && <p className="select-all font-mono text-[14px] text-ink-2">{formatarTelefone(l.telefone)}</p>
+                    l.telefone && <p className="select-all text-[14px] tabular-nums text-ink-2">{formatarTelefone(l.telefone)}</p>
                   )}
                   {l.mensagem && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{l.mensagem}</p>}
                   <div className="flex flex-wrap gap-2">
                     {ATIVOS.includes(l.status) && (
                       <button type="button" onClick={() => agendarVisita(l)} disabled={agendando === l.id}
-                        className="inline-flex h-10 items-center gap-2 rounded-xl border border-gold/40 px-3.5 text-[13px] font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">
+                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-gold/40 px-3.5 text-[13px] font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-60">
                         <Icon name="calendar" className="size-4" /> {agendando === l.id ? "Abrindo agenda..." : "Agendar visita"}
                       </button>
                     )}
                     <button type="button" onClick={() => setAberto((v) => (v === l.id ? null : l.id))} aria-expanded={aberto === l.id}
-                      className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-line px-3.5 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
+                      className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-line px-3.5 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
                       Mais <Icon name="chevronDown" className={`size-4 transition-transform ${aberto === l.id ? "rotate-180" : ""}`} />
                     </button>
                   </div>
@@ -313,7 +313,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
                         <label className="flex items-center gap-2 text-[13px] text-ink-2">
                           Status
                           <select value={l.status} disabled={salvando === l.id} onChange={(e) => mudarStatus(l.id, e.target.value)} aria-label={`Status de ${l.nome}`}
-                            className="h-10 rounded-xl border border-line bg-card-2 px-3 text-sm text-ink outline-none focus:border-gold scheme-dark">
+                            className="h-11 rounded-xl border border-line bg-card-2 px-3 text-sm text-ink outline-none focus:border-gold scheme-dark">
                             {OPCOES_CORRETOR.map((st) => <option key={st} value={st}>{STATUS[st].label}</option>)}
                           </select>
                         </label>
@@ -332,7 +332,7 @@ export default function MeusLeadsPage({ abrirCadastro = false }) {
         clientes.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-line p-8 text-center text-sm text-ink-2">
             Sua carteira está vazia.
-            <button type="button" onClick={() => setModal(true)} className="ml-1 text-gold hover:underline">Cadastrar o primeiro cliente</button>
+            <button type="button" onClick={() => setModal(true)} className="ml-1 inline-flex min-h-11 items-center text-gold hover:underline">Cadastrar o primeiro cliente</button>
           </div>
         ) : (
           <ul className="grid gap-3 lg:grid-cols-2">

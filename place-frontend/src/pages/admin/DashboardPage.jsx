@@ -9,55 +9,19 @@ import { AreaChart, BarChart, Meter } from "@/components/admin/dashboard/charts"
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatNumber } from "@/lib/format";
 import { getDashboardData } from "@/services/dashboard";
-import { intervaloDoFiltro, isoLocal, rotuloDoIntervalo } from "@/lib/periodoDashboard";
+import { intervaloDoFiltro, rotuloDoIntervalo } from "@/lib/periodoDashboard";
 import { listarEmpreendimentos } from "@/services/empreendimentos";
+import { SeletorPeriodo } from "@/components/admin/periodo/SeletorPeriodo";
+import { getDiretoria } from "@/services/diretor";
 
 const DashMapa = lazy(() => import("@/components/admin/dashboard/DashMapa"));
 
-const PERIODOS = [[7, "7 dias"], [30, "30 dias"], [90, "90 dias"]];
 const STATUS_LEAD = {
   novo: { label: "Novo", cls: "bg-gold/15 text-gold" },
   atendimento: { label: "Em atendimento", cls: "bg-sky-500/15 text-sky-300" },
   convertido: { label: "Convertido", cls: "bg-emerald-500/15 text-emerald-300" },
 };
-const CAMPO_DATA = "h-10 rounded-lg border border-line bg-card-2 px-3 text-sm text-ink outline-none transition-colors scheme-dark focus:border-gold";
 
-/** Últimos 7/30/90 dias ou um mês fechado. Só avisa a página quando o período é válido. */
-function SeletorPeriodo({ filtro, onMudar }) {
-  const hoje = isoLocal(new Date());
-  const [modo, setModo] = useState(filtro.tipo);
-  const [mes, setMes] = useState(hoje.slice(0, 7));
-  const [erro, setErro] = useState("");
-
-  function aplicar(novo) {
-    const r = intervaloDoFiltro(novo);
-    setErro(r.ok ? "" : r.erro);
-    if (r.ok) onMudar(novo);
-  }
-  const botao = (ativo) => `h-10 rounded-lg px-3.5 text-sm font-medium transition-colors sm:px-4 ${ativo ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`;
-
-  return (
-    <div className="flex flex-col items-start gap-2 sm:items-end">
-      <div className="pb-period-selector flex flex-wrap rounded-xl border border-line bg-card-2 p-1" role="group" aria-label="Período">
-        {PERIODOS.map(([d, r]) => (
-          <button key={d} type="button" onClick={() => { setModo("dias"); aplicar({ tipo: "dias", dias: d }); }}
-            aria-pressed={modo === "dias" && filtro.dias === d} className={botao(modo === "dias" && filtro.dias === d)}>
-            {r}
-          </button>
-        ))}
-        <button type="button" onClick={() => { setModo("mes"); aplicar({ tipo: "mes", mes }); }} aria-pressed={modo === "mes"} className={botao(modo === "mes")}>Mês</button>
-      </div>
-      {modo === "mes" && (
-        <label className="flex items-center gap-2 text-xs text-ink-2">
-          Mês
-          <input type="month" value={mes} max={hoje.slice(0, 7)} aria-label="Mês do dashboard"
-            onChange={(e) => { setMes(e.target.value); aplicar({ tipo: "mes", mes: e.target.value }); }} className={CAMPO_DATA} />
-        </label>
-      )}
-      {erro && <p role="alert" className="text-xs text-danger">{erro}</p>}
-    </div>
-  );
-}
 
 function quando(iso) {
   const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -99,7 +63,7 @@ function Esqueleto() {
 export default function DashboardPage() {
   // Diretor: a API já devolve só a diretoria dele e sem os leads de clientes.
   const ehDiretor = useOutletContext()?.user?.cargo === "diretor";
-  usePageTitle("Dashboard");
+  usePageTitle("Indicadores");
   // 90 dias por padrão: no ambiente de teste, 30 dias compara o histórico de demonstração com o uso real e mostra tudo caindo.
   const [filtro, setFiltro] = useState({ tipo: "dias", dias: 90 });
   const intervalo = useMemo(() => {
@@ -108,6 +72,12 @@ export default function DashboardPage() {
   }, [filtro]);
   const [dados, setDados] = useState(null);
   const [empreendimentos, setEmpreendimentos] = useState([]);
+  // Diretor: mostra de qual diretoria são os números (ou avisa que a conta ainda não tem uma).
+  const [diretoria, setDiretoria] = useState(undefined);
+  useEffect(() => {
+    if (!ehDiretor) return;
+    getDiretoria().then((d) => setDiretoria(d.diretoria ?? null)).catch(() => setDiretoria(undefined));
+  }, [ehDiretor]);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
@@ -143,19 +113,25 @@ export default function DashboardPage() {
     <div className="pb-dashboard-motion space-y-5">
       <div className="pb-page-header animate-fade-up flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="pb-eyebrow">Visão executiva</p>
-          <h1 className="pb-page-title">Dashboard</h1>
+          <p className="pb-eyebrow">{ehDiretor && diretoria ? diretoria.nome : "Visão executiva"}</p>
+          <h1 className="pb-page-title">Indicadores</h1>
           <p className="mt-1 text-[12px] text-ink-3">Período: {rotuloDoIntervalo(intervalo)}</p>
           <p className="mt-2 text-[13px] text-ink-2">{ehDiretor ? "VGV e vendas das equipes da sua diretoria; acessos e agendamentos são da Place toda." : "Acompanhe a performance dos seus imóveis, contatos e agendamentos."}</p>
         </div>
         <SeletorPeriodo filtro={filtro} onMudar={setFiltro} />
       </div>
 
+      {ehDiretor && diretoria === null && (
+        <p role="status" className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-gold">
+          Sua conta ainda não está ligada a uma diretoria, por isso o VGV aparece zerado. Peça ao admin para escolher a diretoria em Equipe › Acessos internos.
+        </p>
+      )}
+
       {erro && (
         <div role="alert" className="rounded-2xl border border-danger/40 bg-danger/10 p-4 text-sm">
           <p className="text-danger">{erro}</p>
           <p className="mt-1 text-xs text-ink-2">Verifique a conexão com a API, suas permissões e as tabelas necessárias no banco de dados.</p>
-          <button type="button" onClick={carregar} className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl border border-line px-4 text-sm hover:border-gold">
+          <button type="button" onClick={carregar} className="mt-3 inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-sm hover:border-gold">
             <Icon name="refresh" className="size-4" /> Tentar de novo
           </button>
         </div>
@@ -165,17 +141,16 @@ export default function DashboardPage() {
 
       {dados && (
         <div key={`${intervalo.de}-${intervalo.ate}`} className={`space-y-4 transition-opacity duration-300 ${carregando ? "opacity-60" : "opacity-100"}`}>
-          <KpiCards kpis={dados.kpis} />
+          {/* Diretor: o VGV é da diretoria e o resto é da Place toda; o rótulo deixa isso claro em cada card. */}
+          <KpiCards kpis={ehDiretor ? dados.kpis.map((k) => ({ ...k, label: k.id === "vgv" ? "VGV da sua diretoria" : `${k.label} · Place toda` })) : dados.kpis} />
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <Painel titulo="Acessos no site" subtitulo="Visitantes por dia" atraso={80} className="lg:col-span-2">
+            <Painel titulo="Acessos no site" subtitulo="Visitantes por dia no período" atraso={80} className={dados.rating.total ? "lg:col-span-2" : "lg:col-span-3"}>
               <AreaChart dados={dados.visits} rotulo="acessos" />
             </Painel>
 
-            <Painel titulo="Avaliações de clientes" subtitulo={dados.rating.total ? `${dados.rating.total} avaliações` : undefined} atraso={140}>
-              {dados.rating.total === 0 ? (
-                <Vazio>Próxima etapa: o cliente avalia o atendimento depois da visita, e as notas aparecem aqui.</Vazio>
-              ) : (
+            {dados.rating.total > 0 && <Painel titulo="Avaliações de clientes" subtitulo={dados.rating.total ? `${dados.rating.total} avaliações` : undefined} atraso={140}>
+              {(
                 <div>
                   <div className="mb-4 flex items-end gap-2">
                     <span className="text-4xl font-bold">{formatNumber(dados.rating.average, 1)}</span>
@@ -192,7 +167,7 @@ export default function DashboardPage() {
                   </ul>
                 </div>
               )}
-            </Painel>
+            </Painel>}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-5">
@@ -214,7 +189,7 @@ export default function DashboardPage() {
                           <span className="truncate text-sm font-medium">{t.title}</span>
                           <span className="shrink-0 text-xs text-ink-2">{formatNumber(t.views)}</span>
                         </div>
-                        <div className="truncate text-[11px] text-ink-3">{t.city}/{t.state}</div>
+                        <div className="truncate text-xs text-ink-3">{t.city}/{t.state}</div>
                         <Meter pct={(t.views / maxViews) * 100} atraso={i * 90} className="mt-1.5" />
                       </div>
                     </li>
@@ -236,7 +211,7 @@ export default function DashboardPage() {
             </Painel>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className={`grid gap-4 ${ehDiretor ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
             <Painel titulo="Agendamentos de visitas" subtitulo={`${dados.bookingsTotal} no período`} atraso={260}>
               <BarChart dados={dados.bookings} rotulo="agendamentos" />
             </Painel>
@@ -252,9 +227,9 @@ export default function DashboardPage() {
                       <li key={l.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium">{l.name}</div>
-                          <div className="truncate text-[11px] text-ink-3">{l.property} · {quando(l.createdAt)}</div>
+                          <div className="truncate text-xs text-ink-3">{l.property} · {quando(l.createdAt)}</div>
                         </div>
-                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${st.cls}`}>{st.label}</span>
                       </li>
                     );
                   })}

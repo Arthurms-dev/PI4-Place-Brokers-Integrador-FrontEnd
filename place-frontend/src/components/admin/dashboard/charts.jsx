@@ -87,8 +87,8 @@ export function AreaChart({ dados = [], rotulo = "acessos" }) {
           </>
         )}
       </div>
-      <div className="mt-1 flex items-center justify-between text-[11px] text-ink-3"><span>0–{numero(max)} {rotulo}</span><span>Unidade: {rotulo}</span></div>
-      <div className="mt-2 flex justify-between text-[11px] text-ink-3">
+      <div className="mt-1 flex items-center justify-between text-xs text-ink-3"><span>0–{numero(max)} {rotulo}</span><span>Unidade: {rotulo}</span></div>
+      <div className="mt-2 flex justify-between text-xs text-ink-3">
         <span>{diaMes(dados[0].date)}</span>
         <span>{diaMes(dados[Math.floor(dados.length / 2)].date)}</span>
         <span>{diaMes(dados[dados.length - 1].date)}</span>
@@ -103,7 +103,7 @@ export function BarChart({ dados = [], rotulo = "agendamentos" }) {
   const max = Math.max(...dados.map((d) => d.value), 1);
   return (
     <div>
-      <div className="mb-1 text-right text-[11px] text-ink-3">Máximo: {numero(max)} {rotulo}</div>
+      <div className="mb-1 text-right text-xs text-ink-3">Máximo: {numero(max)} {rotulo}</div>
       <div className="flex h-44 items-end gap-[3px] border-b border-line-soft">
         {dados.map((d, i) => (
           <div key={d.date} className="group relative flex h-full flex-1 items-end" title={`${diaMes(d.date)}: ${numero(d.value)} ${rotulo}`}>
@@ -114,7 +114,7 @@ export function BarChart({ dados = [], rotulo = "agendamentos" }) {
           </div>
         ))}
       </div>
-      <div className="mt-2 flex justify-between text-[11px] text-ink-3">
+      <div className="mt-2 flex justify-between text-xs text-ink-3">
         <span>{diaMes(dados[0].date)}</span>
         <span>{diaMes(dados[dados.length - 1].date)}</span>
       </div>

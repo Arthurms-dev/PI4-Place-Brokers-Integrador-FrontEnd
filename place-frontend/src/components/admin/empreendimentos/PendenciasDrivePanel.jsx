@@ -32,7 +32,7 @@ export default function PendenciasDrivePanel({ onAbrirEmpreendimento }) {
           </p>
         </div>
         <button type="button" onClick={consultar} disabled={carregando}
-          className="h-10 rounded-xl border border-line px-4 text-xs hover:border-gold disabled:opacity-50">
+          className="h-11 rounded-xl border border-line px-4 text-xs hover:border-gold disabled:opacity-50">
           {carregando ? 'Consultando...' : 'Atualizar lista'}
         </button>
       </div>
@@ -64,13 +64,13 @@ export default function PendenciasDrivePanel({ onAbrirEmpreendimento }) {
                   <div className="flex flex-wrap gap-2">
                     {item.driveUrl && (
                       <a href={item.driveUrl} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex h-10 items-center rounded-lg border border-line px-3 text-xs hover:border-gold">
+                        className="inline-flex h-11 items-center rounded-lg border border-line px-3 text-xs hover:border-gold">
                         Abrir no Drive
                       </a>
                     )}
                     {item.empreendimentoId && onAbrirEmpreendimento && (
                       <button type="button" onClick={() => onAbrirEmpreendimento(item.empreendimentoId)}
-                        className="h-10 rounded-lg border border-line px-3 text-xs hover:border-gold">
+                        className="h-11 rounded-lg border border-line px-3 text-xs hover:border-gold">
                         Ver empreendimento
                       </button>
                     )}

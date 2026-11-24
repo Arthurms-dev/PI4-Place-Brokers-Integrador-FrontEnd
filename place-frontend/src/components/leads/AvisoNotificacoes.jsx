@@ -69,7 +69,7 @@ export function AvisoNotificacoes() {
       <b className="block text-[14px] font-medium">Avise no celular quando chegar lead</b>
       <span className="block text-[12px] text-ink-2">O celular toca na hora, mesmo com o site fechado. Quem liga primeiro leva o cliente.</span>
       <button type="button" onClick={ativar} disabled={ocupado}
-        className="mt-2 inline-flex h-10 items-center gap-2 rounded-lg bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] disabled:opacity-60">
+        className="mt-2 inline-flex h-11 items-center gap-2 rounded-lg bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] disabled:opacity-60">
         <Icon name="bell" className="size-4" /> {ocupado ? "Ativando..." : "Ativar avisos"}
       </button>
       {erro && <p role="alert" className="mt-1 text-[12px] text-danger">{erro}</p>}
@@ -82,7 +82,7 @@ function Cartao({ children, onDispensar }) {
     <section className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4">
       <Icon name="bell" className="mt-0.5 size-4.5 shrink-0 text-gold" />
       <div className="min-w-0 flex-1">{children}</div>
-      <button type="button" onClick={onDispensar} aria-label="Dispensar" className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/5 hover:text-ink">
+      <button type="button" onClick={onDispensar} aria-label="Dispensar" className="-m-1.5 grid size-11 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/5 hover:text-ink">
         <Icon name="x" className="size-4" />
       </button>
     </section>

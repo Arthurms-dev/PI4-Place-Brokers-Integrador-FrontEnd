@@ -152,7 +152,7 @@ export default function PerfilPage() {
           ) : (
             <span className="grid size-full place-items-center bg-gold-gradient text-2xl font-semibold text-[#1a1408]">{iniciais}</span>
           )}
-          <span className="absolute inset-0 grid place-items-center bg-black/55 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="absolute inset-0 grid place-items-center bg-black/55 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {enviandoFoto ? "Enviando..." : "Trocar"}
           </span>
         </button>
@@ -160,10 +160,10 @@ export default function PerfilPage() {
           <h1 className="truncate text-2xl font-semibold">{user.name}</h1>
           <p className="text-[13px] text-ink-2">{user.role}</p>
           <div className="mt-1.5 flex flex-wrap gap-x-3 text-[12px]">
-            <button type="button" onClick={() => seletorFoto.current?.click()} disabled={enviandoFoto} className="text-gold hover:underline disabled:opacity-60">
+            <button type="button" onClick={() => seletorFoto.current?.click()} disabled={enviandoFoto} className="inline-flex min-h-11 items-center text-gold hover:underline disabled:opacity-60">
               {enviandoFoto ? "Enviando..." : foto ? "Trocar foto" : "Adicionar foto"}
             </button>
-            {foto && !enviandoFoto && <button type="button" onClick={tirarFoto} className="text-ink-3 hover:text-danger">Remover</button>}
+            {foto && !enviandoFoto && <button type="button" onClick={tirarFoto} className="inline-flex min-h-11 items-center text-ink-3 hover:text-danger">Remover</button>}
           </div>
           {erroFoto && <p role="alert" className="mt-1 text-[12px] text-danger">{erroFoto}</p>}
         </div>
@@ -196,7 +196,7 @@ export default function PerfilPage() {
           {senha.novaSenha && (
             <div className="mt-2 flex items-center gap-3">
               <Meter pct={pontos} className="flex-1" />
-              <span className="w-12 text-right text-[11px] text-ink-3">{pontos < 45 ? "Fraca" : pontos < 75 ? "Boa" : "Forte"}</span>
+              <span className="w-12 text-right text-xs text-ink-3">{pontos < 45 ? "Fraca" : pontos < 75 ? "Boa" : "Forte"}</span>
             </div>
           )}
         </div>

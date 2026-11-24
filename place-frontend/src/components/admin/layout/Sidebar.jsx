@@ -49,7 +49,7 @@ export function Sidebar({
         </div>
 
         <nav aria-label="Menu principal" className="flex flex-col gap-1 px-3 pt-6">
-          <p className="mb-3 px-4 text-[10px] font-semibold uppercase tracking-[0.19em] text-ink-3">Navegação</p>
+          <p className="mb-3 px-4 text-xs font-semibold uppercase tracking-[0.19em] text-ink-3">Navegação</p>
           {items.map((item) => {
             // `match`: outras rotas que fazem parte da mesma entrada (ex.: mapa e books dentro de Empreendimentos).
             const caminhos = [item.href, ...(item.match ?? [])];
@@ -74,7 +74,7 @@ export function Sidebar({
                 {item.badge > 0 && (
                   <span
                     aria-label={`${item.badge} ${item.badge === 1 ? "nova" : "novas"}`}
-                    className="ml-auto min-w-5 rounded-full bg-gold px-1.5 text-center text-[11px] font-bold leading-5 text-[#1a1408]"
+                    className="ml-auto min-w-5 rounded-full bg-gold px-1.5 text-center text-xs font-bold leading-5 text-[#1a1408]"
                   >
                     {item.badge > 99 ? "99+" : item.badge}
                   </span>
@@ -95,7 +95,7 @@ export function SidebarPromo() {
   return (
     <div className="pb-sidebar-quick mx-4 mt-auto pt-8">
       <div className="rounded-2xl border border-line bg-card-2 p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">Acesso rápido</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Acesso rápido</p>
         <h4 className="mt-2 text-[14px] font-semibold leading-snug">Seu catálogo em um lugar</h4>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">Consulte e gerencie os empreendimentos da plataforma.</p>
         <ButtonLink to="/admin/imoveis" className="mt-4 w-full">Ver empreendimentos</ButtonLink>

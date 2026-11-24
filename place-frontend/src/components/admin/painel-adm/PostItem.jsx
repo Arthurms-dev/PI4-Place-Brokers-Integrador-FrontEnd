@@ -15,13 +15,13 @@ export function PostItem ({ title, description, date, tagLabel, tagTone = "neutr
             <div className = "flex items-start justify-between gap-2">
                 <h4 className= "text-[13px] font-medium">{title}</h4>
                 {tagLabel && (
-                    <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[10px]", TAG_TONE[tagTone])}>
+                    <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-xs", TAG_TONE[tagTone])}>
                         {tagLabel}
                     </span>
                 )}
             </div>
             <p className="mt-1 text-xs leading-relaxed text-ink-2">{description}</p>
-            <div className="mt-2.5 flex items-center justify-between text-[10px] text-ink-3">
+            <div className="mt-2.5 flex items-center justify-between text-xs text-ink-3">
                 <span>{author ?? " "}</span>
                 <span>{formatDate(date)}</span>
             </div>

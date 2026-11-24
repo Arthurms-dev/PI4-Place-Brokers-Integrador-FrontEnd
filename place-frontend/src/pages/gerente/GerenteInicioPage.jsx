@@ -31,7 +31,7 @@ export default function GerenteInicioPage() {
   if (carregando) {
     return (
       <div className="space-y-4" aria-busy="true" aria-label="Carregando">
-        <div className="h-9 w-64 animate-pulse rounded-xl bg-card" />
+        <div className="h-11 w-64 animate-pulse rounded-xl bg-card" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-card" />)}</div>
         <div className="h-64 animate-pulse rounded-2xl bg-card" />
       </div>
@@ -87,7 +87,7 @@ export default function GerenteInicioPage() {
           </div>
 
           {pendentes.length > 0 && (
-            <Bloco titulo={`Vendas esperando a sua confirmação (${pendentes.length})`} atraso={120} acao={<Link to="/gerente/vendas" className="text-[13px] text-gold hover:underline">Decidir</Link>}>
+            <Bloco titulo={`Vendas esperando a sua confirmação (${pendentes.length})`} atraso={120} acao={<Link to="/gerente/vendas" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Decidir</Link>}>
               <ul className="divide-y divide-line-soft">
                 {pendentes.slice(0, 3).map((v) => (
                   <li key={v.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -103,7 +103,7 @@ export default function GerenteInicioPage() {
           )}
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bloco titulo="Desempenho da equipe (VGV confirmado)" atraso={180} acao={<Link to="/gerente/equipe" className="text-[13px] text-gold hover:underline">Ver equipe</Link>}>
+            <Bloco titulo="Desempenho da equipe (VGV confirmado)" atraso={180} acao={<Link to="/gerente/equipe" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Ver equipe</Link>}>
               {ranking.length === 0 ? (
                 <p className="py-6 text-center text-sm text-ink-3">Nenhum corretor na equipe ainda.</p>
               ) : (
@@ -112,7 +112,7 @@ export default function GerenteInicioPage() {
                     <li key={r.id}>
                       <div className="flex items-baseline justify-between gap-3 text-sm">
                         <span className="truncate">{r.nome}</span>
-                        <span className="shrink-0 text-ink-2">{brl(r.vgv)} <span className="ml-1 text-[12px] text-ink-3">{r.vendas} {r.vendas === 1 ? "venda" : "vendas"} · {r.leads} leads</span></span>
+                        <span className="shrink-0 text-ink-2">{brl(r.vgv)} <span className="ml-1 text-[12px] text-ink-3">{r.vendas} {r.vendas === 1 ? "venda" : "vendas"} · {r.leads} {r.leads === 1 ? "lead" : "leads"} no total</span></span>
                       </div>
                       <Meter pct={(r.vgv / maior) * 100} atraso={i * 70} className="mt-1.5" />
                     </li>
@@ -121,7 +121,7 @@ export default function GerenteInicioPage() {
               )}
             </Bloco>
 
-            <Bloco titulo="Próximas visitas" atraso={240} acao={<Link to="/gerente/agendamentos" className="text-[13px] text-gold hover:underline">Ver agenda</Link>}>
+            <Bloco titulo="Próximas visitas" atraso={240} acao={<Link to="/gerente/agendamentos" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Ver agenda</Link>}>
               {proximas.length === 0 ? (
                 <p className="py-6 text-center text-sm text-ink-3">Nenhuma visita marcada para os próximos dias.</p>
               ) : (
@@ -130,7 +130,7 @@ export default function GerenteInicioPage() {
                     <li key={a.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                       <div className="w-16 shrink-0 text-center">
                         <p className="font-semibold text-gold">{hora(a.dataHora)}</p>
-                        <p className="text-[11px] capitalize text-ink-3">{dia(a.dataHora)}</p>
+                        <p className="text-xs capitalize text-ink-3">{dia(a.dataHora)}</p>
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{a.cliente?.nome ?? "—"}</p>

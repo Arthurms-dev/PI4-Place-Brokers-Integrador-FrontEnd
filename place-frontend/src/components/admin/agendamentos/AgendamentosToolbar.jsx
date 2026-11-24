@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { rotuladorDePessoas } from "@/lib/pessoas";
 
 const STATUS_OPCOES = [
   { value: "", label: "Todos os status" },
@@ -32,7 +33,7 @@ export default function AgendamentosToolbar({ filtros, onFiltrosChange, corretor
         </select>
         <select value={filtros.corretorId} onChange={(e) => atualizar("corretorId", e.target.value)} aria-label="Filtrar por corretor" className={SELECT}>
           <option value="">Todos os corretores</option>
-          {corretores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+          {corretores.map((c) => <option key={c.id} value={c.id}>{rotuladorDePessoas(corretores)(c)}</option>)}
         </select>
       </div>
 
@@ -44,7 +45,7 @@ export default function AgendamentosToolbar({ filtros, onFiltrosChange, corretor
               type="button"
               onClick={() => onViewModeChange(valor)}
               aria-pressed={viewMode === valor}
-              className={`h-10 flex-1 rounded-lg px-4 text-sm font-medium transition-colors lg:flex-none ${
+              className={`h-11 flex-1 rounded-lg px-4 text-sm font-medium transition-colors lg:flex-none ${
                 viewMode === valor ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"
               }`}
             >

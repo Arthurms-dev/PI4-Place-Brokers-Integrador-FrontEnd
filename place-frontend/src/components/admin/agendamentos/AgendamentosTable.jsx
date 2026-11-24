@@ -19,7 +19,7 @@ export default function AgendamentosTable({ agendamentos = [], onSelecionar }) {
       {/* PC: tabela */}
       <div className="hidden overflow-x-auto rounded-2xl border border-line bg-card md:block">
         <table className="min-w-full text-sm">
-          <thead className="border-b border-line-soft text-left text-[11px] font-medium uppercase tracking-wide text-ink-3">
+          <thead className="border-b border-line-soft text-left text-xs font-medium uppercase tracking-wide text-ink-3">
             <tr>
               {["Data/hora", "Tipo", "Cliente", "Corretor", "Imóvel", "Status"].map((t) => (
                 <th key={t} className="px-4 py-3">{t}</th>

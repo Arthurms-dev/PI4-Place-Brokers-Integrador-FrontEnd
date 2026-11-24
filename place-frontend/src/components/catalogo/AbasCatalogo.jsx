@@ -18,7 +18,7 @@ export function AbasCatalogo() {
         return (
           <Link key={a.href} to={a.href} aria-current={ativa ? "page" : undefined}
             className={cn(
-              "inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-[13px] transition-colors sm:flex-none",
+              "inline-flex h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-[13px] transition-colors sm:flex-none",
               ativa ? "bg-gold/15 font-medium text-gold" : "text-ink-2 hover:text-ink",
             )}>
             <Icon name={a.icone} className="size-4" /> {a.rotulo}

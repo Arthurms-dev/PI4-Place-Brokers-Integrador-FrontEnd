@@ -59,7 +59,7 @@ export function SinoLeads() {
         className="relative grid size-11 place-items-center rounded-xl border border-line text-ink-2 transition-colors hover:border-gold/50 hover:text-gold">
         <Icon name="bell" className={`size-5 ${avisos.length ? "animate-pulse text-gold" : ""}`} />
         {total > 0 && (
-          <span className="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-danger px-1 text-[11px] font-bold leading-5 text-white">
+          <span className="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-danger px-1 text-xs font-bold leading-5 text-white">
             {total > 9 ? "9+" : total}
           </span>
         )}
@@ -79,7 +79,7 @@ export function SinoLeads() {
                     <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold/15 text-gold"><Icon name="user" className="size-4" /></span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-medium text-ink">{l.nome}</span>
-                      <span className="block truncate text-[11px] text-ink-3">{l.empreendimento?.nome ?? "Sem empreendimento"} · {tempoDesde(l.atribuidoEm ?? l.criadoEm)}</span>
+                      <span className="block truncate text-xs text-ink-3">{l.empreendimento?.nome ?? "Sem empreendimento"} · {tempoDesde(l.atribuidoEm ?? l.criadoEm)}</span>
                     </span>
                   </Link>
                 </li>

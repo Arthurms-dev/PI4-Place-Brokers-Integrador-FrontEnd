@@ -56,4 +56,4 @@ export default function AprovacoesTab({ pendentes, onMudar }) {
       ))}
     </ul>
   );
-}
+}

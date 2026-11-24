@@ -33,7 +33,7 @@ export default function ViabilizadorInicioPage() {
   if (!dados && !erro) {
     return (
       <div className="space-y-4" aria-busy="true" aria-label="Carregando">
-        <div className="h-9 w-64 animate-pulse rounded-xl bg-card" />
+        <div className="h-11 w-64 animate-pulse rounded-xl bg-card" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-card" />)}</div>
         <div className="h-64 animate-pulse rounded-2xl bg-card" />
       </div>
@@ -75,7 +75,7 @@ export default function ViabilizadorInicioPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bloco titulo={pendentes.length ? `Para atualizar (${pendentes.length})` : "Tudo em dia"} atraso={140} acao={pendentes.length > 0 && <Link to="/viabilizador/books" className="text-[13px] text-gold hover:underline">Atualizar</Link>}>
+            <Bloco titulo={pendentes.length ? `Para atualizar (${pendentes.length})` : "Tudo em dia"} atraso={140} acao={pendentes.length > 0 && <Link to="/viabilizador/books" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Atualizar</Link>}>
               {pendentes.length === 0 ? (
                 <p className="py-6 text-center text-sm text-ink-3">Nenhuma pendência nos seus produtos. Bom trabalho!</p>
               ) : (
@@ -90,7 +90,7 @@ export default function ViabilizadorInicioPage() {
               )}
             </Bloco>
 
-            <Bloco titulo="Mais procurados" atraso={200} acao={<Link to="/viabilizador/oportunidades" className="text-[13px] text-gold hover:underline">Ver todos</Link>}>
+            <Bloco titulo="Mais procurados" atraso={200} acao={<Link to="/viabilizador/oportunidades" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Ver todos</Link>}>
               <ul className="space-y-4">
                 {top.map((p, i) => (
                   <li key={p.id}>

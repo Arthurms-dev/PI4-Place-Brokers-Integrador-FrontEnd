@@ -30,7 +30,7 @@ export function ResumoOperacional() {
 
   const indicadores = data ? [
     { id: "leads", titulo: "Leads captados", valor: inteiro(data.leadsTotal), link: "/admin/leads" },
-    { id: "conv", titulo: "Conversão de leads", valor: percentual(data.leadsConversionRate), link: "/admin/relatorios" },
+    { id: "conv", titulo: "Conversão de leads (90 dias)", valor: percentual(data.leadsConversionRate), link: "/admin/relatorios" },
     { id: "visits", titulo: "Acessos no site", valor: inteiro(obter("visits")), link: "/admin/dashboard" },
     { id: "bookings", titulo: "Agendamentos", valor: inteiro(obter("bookings")), link: "/admin/agendamentos" },
     { id: "vgv", titulo: "VGV confirmado", valor: moeda(obter("vgv")), link: "/admin/vendas" },
@@ -53,13 +53,13 @@ export function ResumoOperacional() {
         </Card>
       )}
       {data && (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1 xl:grid-cols-3 2xl:grid-cols-5">
           {indicadores.map((item) => (
             <Link key={item.id} to={item.link} className="block min-w-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               <Card className="h-full min-w-0 transition-colors hover:border-gold">
                 <p className="text-[12px] text-ink-2">{item.titulo}</p>
                 <p className="mt-2 break-words text-[clamp(1.4rem,2vw,1.85rem)] font-bold tracking-tight tabular-nums text-ink"><NumeroAnimado texto={item.valor} /></p>
-                <p className="mt-3 text-[11px] text-gold">Ver detalhes →</p>
+                <p className="mt-3 text-xs text-gold">Ver detalhes →</p>
               </Card>
             </Link>
           ))}

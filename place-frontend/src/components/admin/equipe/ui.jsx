@@ -29,7 +29,7 @@ const TONS = {
   azul: "bg-sky-500/15 text-sky-300",
 };
 export const Selo = ({ tom = "neutro", children }) => (
-  <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TONS[tom]}`}>{children}</span>
+  <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${TONS[tom]}`}>{children}</span>
 );
 
 export const Vazio = ({ children }) => (
@@ -41,12 +41,12 @@ export function Campo({ rotulo, erro, children }) {
     <label className="block text-xs text-ink-2">
       {rotulo}
       <div className="mt-1.5">{children}</div>
-      {erro && <span className="mt-1 block text-[11px] text-danger">{erro}</span>}
+      {erro && <span className="mt-1 block text-xs text-danger">{erro}</span>}
     </label>
   );
 }
 
-export function Folha({ titulo, onClose, largo = false, children }) {
+export function Folha({ titulo, onClose, largo = false, muitoLargo = false, children }) {
   useEffect(() => {
     const aoTeclar = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", aoTeclar);
@@ -59,8 +59,9 @@ export function Folha({ titulo, onClose, largo = false, children }) {
   }, [onClose]);
   return (
     <div className="animate-fade-in fixed inset-0 z-50 flex items-end justify-center bg-black/65 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label={titulo} className={`animate-slide-up sm:animate-fade-up max-h-[94dvh] w-full overflow-y-auto rounded-t-3xl border border-line bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] ${largo ? "sm:max-w-2xl" : "sm:max-w-md"} sm:rounded-3xl sm:p-7`}>
-        <div className="mb-4 flex items-center justify-between gap-3">
+      <div role="dialog" aria-modal="true" aria-label={titulo} className={`animate-slide-up sm:animate-fade-up max-h-[94dvh] w-full overflow-y-auto rounded-t-3xl border border-line bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] ${muitoLargo ? "sm:max-w-2xl lg:max-w-4xl" : largo ? "sm:max-w-2xl" : "sm:max-w-md"} sm:rounded-3xl sm:p-7`}>
+        {/* Título e fechar ficam fixos no topo enquanto o formulário rola. */}
+        <div className="sticky -top-5 z-20 -mx-5 -mt-5 mb-4 flex items-center justify-between gap-3 bg-card px-5 pb-3 pt-5 sm:-top-7 sm:-mx-7 sm:-mt-7 sm:px-7 sm:pt-7">
           <h2 className="text-lg font-semibold">{titulo}</h2>
           <button type="button" onClick={onClose} aria-label="Fechar" className="grid size-11 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-gold hover:text-ink">
             <Icon name="x" className="size-5" />

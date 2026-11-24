@@ -124,4 +124,4 @@ export default function CorretoresTab({ modo, corretores, times, onMudar }) {
       )}
     </div>
   );
-}
+}

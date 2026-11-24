@@ -19,6 +19,8 @@ const MiniMapa = lazy(() => import("@/components/site/MiniMapa"));
 const TOM_STATUS = { lancamento: "ok", obras: "azul", pronto: "ouro", outros: "neutro" };
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
+const POR_PAGINA = 12;
+
 function Documento({ empreendimentoId, tipo, disponivel, rotulo, docId = null }) {
   const [abrindo, setAbrindo] = useState(false);
   const [erro, setErro] = useState("");
@@ -53,7 +55,7 @@ function Documento({ empreendimentoId, tipo, disponivel, rotulo, docId = null })
       <button type="button" onClick={abrir} disabled={abrindo} className={`${cls} border-gold/50 text-gold hover:bg-gold/10 disabled:opacity-60`}>
         <Icon name="book" className="size-4" /> {abrindo ? "Abrindo..." : rotulo}
       </button>
-      {erro && <p role="alert" className="mt-1 text-[11px] text-danger">{erro}</p>}
+      {erro && <p role="alert" className="mt-1 text-xs text-danger">{erro}</p>}
     </div>
   );
 }
@@ -103,8 +105,8 @@ function Fotos({ imagens, titulo }) {
       {imagens.length > 1 && (
         <>
           <span className="absolute bottom-3 right-3 rounded-full bg-page/80 px-3 py-1 text-xs backdrop-blur">{atual + 1} / {imagens.length}</span>
-          {atual > 0 && <button type="button" aria-label="Foto anterior" onClick={() => ir(atual - 1)} className="absolute left-2 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur sm:grid"><Icon name="chevronLeft" className="size-5" /></button>}
-          {atual < imagens.length - 1 && <button type="button" aria-label="Próxima foto" onClick={() => ir(atual + 1)} className="absolute right-2 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur sm:grid"><Icon name="chevronRight" className="size-5" /></button>}
+          {atual > 0 && <button type="button" aria-label="Foto anterior" onClick={() => ir(atual - 1)} className="absolute left-2 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur"><Icon name="chevronLeft" className="size-5" /></button>}
+          {atual < imagens.length - 1 && <button type="button" aria-label="Próxima foto" onClick={() => ir(atual + 1)} className="absolute right-2 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-page/80 backdrop-blur"><Icon name="chevronRight" className="size-5" /></button>}
         </>
       )}
     </div>
@@ -184,7 +186,7 @@ function Detalhe({ resumo, onClose }) {
           <Selo tom={TOM_STATUS[emp.status] ?? "neutro"}>{STATUS[emp.status]?.label ?? emp.status}</Selo>
           {!emp.publicado && <Selo tom="neutro">Rascunho</Selo>}
           {!emp.disponivel && <Selo tom="perigo">Indisponível</Selo>}
-          {emp.construtora?.nome && <span className="text-[13px] text-ink-2">{emp.construtora.nome}</span>}
+          {emp.construtora?.nome && <span className="text-[13px] text-ink-2">Construtora: {emp.construtora.nome}</span>}
         </div>
         <p className="flex items-center gap-1.5 text-sm text-ink-2"><Icon name="mapPin" className="size-4 text-gold" /> {[emp.endereco, emp.bairro, `${emp.cidade}/${emp.uf}`].filter(Boolean).join(" · ")}</p>
 
@@ -246,7 +248,7 @@ function Cartao({ e, indice, onAbrir }) {
         <div className="relative aspect-4/3 w-24 shrink-0 overflow-hidden rounded-xl bg-card-2 sm:aspect-16/10 sm:w-full sm:rounded-none">
           {e.capa_url ? <img src={e.capa_miniatura_url || e.capa_url} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid size-full place-items-center text-gold/60"><Icon name="building" className="size-8" /></div>}
           <div className="absolute left-3 top-3 hidden gap-1.5 sm:flex">
-            <Fase status={e.status} className="rounded-full bg-page/85 px-2.5 py-1 text-[11px] font-medium text-ink backdrop-blur" />
+            <Fase status={e.status} className="rounded-full bg-page/85 px-2.5 py-1 text-xs font-medium text-ink backdrop-blur" />
             {!e.publicado && <Selo tom="neutro">Rascunho</Selo>}
             {!e.disponivel && <Selo tom="perigo">Indisponível</Selo>}
           </div>
@@ -298,11 +300,16 @@ export default function CatalogoPage({ modo = "catalogo" }) {
   const [segmento, setSegmento] = useState("");
   const [soDisponiveis, setSoDisponiveis] = useState(false);
   const [aberto, setAberto] = useState(null);
+  // Mostra aos poucos: com 57 empreendimentos a página passava de 9 mil px no celular,
+  // e na aba de books cada item pedia os documentos ao mesmo tempo.
+  const [limite, setLimite] = useState(POR_PAGINA);
+  useEffect(() => setLimite(POR_PAGINA), [busca, cidade, status, segmento, soDisponiveis, books]);
 
   useEffect(() => {
     let ativo = true;
     listarEmpreendimentos()
-      .then((l) => ativo && setLista(l))
+      // Rascunho é só para quem cadastra: corretor e gerente veem o que já está publicado.
+      .then((l) => ativo && setLista(l.filter((e) => e.publicado)))
       .catch((e) => ativo && setErro(e.message))
       .finally(() => ativo && setCarregando(false));
     return () => {
@@ -342,7 +349,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
 
       <div className="space-y-2">
         <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, bairro ou cidade" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="flex flex-wrap gap-2">
           {[["", "Todos", lista.length], ...segmentos].map(([k, rotulo, n]) => (
             <button key={k || "todos"} type="button" onClick={() => setSegmento(k)} aria-pressed={segmento === k}
               className={`min-h-11 shrink-0 rounded-full border px-4 text-[13px] ${segmento === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
@@ -374,7 +381,7 @@ export default function CatalogoPage({ modo = "catalogo" }) {
         <Vazio>{lista.length === 0 ? "Nenhum empreendimento disponível para esta conta." : "Nenhum empreendimento com esses filtros."}</Vazio>
       ) : books ? (
         <ul className="divide-y divide-line-soft rounded-2xl border border-line bg-card px-4">
-          {visiveis.map((e) => (
+          {visiveis.slice(0, limite).map((e) => (
             <li key={e.id} className="animate-fade-in flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{e.nome}</p>
@@ -386,8 +393,15 @@ export default function CatalogoPage({ modo = "catalogo" }) {
         </ul>
       ) : (
         <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
-          {visiveis.map((e, i) => <Cartao key={e.id} e={e} indice={i} onAbrir={setAberto} />)}
+          {visiveis.slice(0, limite).map((e, i) => <Cartao key={e.id} e={e} indice={i % POR_PAGINA} onAbrir={setAberto} />)}
         </ul>
+      )}
+
+      {!carregando && visiveis.length > limite && (
+        <button type="button" onClick={() => setLimite((n) => n + POR_PAGINA)}
+          className="mx-auto flex h-11 items-center gap-2 rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">
+          Mostrar mais {Math.min(POR_PAGINA, visiveis.length - limite)} <span className="text-ink-3">({limite} de {visiveis.length})</span>
+        </button>
       )}
 
       {aberto && <Detalhe key={aberto.id} resumo={aberto} onClose={() => {

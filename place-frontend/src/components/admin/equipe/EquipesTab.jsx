@@ -18,7 +18,7 @@ function Membro({ m, times, onMudar }) {
       <Avatar nome={m.nome} src={m.avatar_url} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{m.nome}</div>
-        <div className="truncate text-[11px] text-ink-3">{m.email}</div>
+        <div className="truncate text-xs text-ink-3">{m.email}</div>
       </div>
       <select value={m.equipe_id ?? ""} disabled={salvando} onChange={(e) => mover(e.target.value)} aria-label={`Equipe de ${m.nome}`}
         className="h-11 max-w-[9.5rem] rounded-xl border border-line bg-card-2 px-2 text-[13px] outline-none focus:border-gold scheme-dark">
@@ -89,7 +89,7 @@ export default function EquipesTab({ times, diretorias, corretoresPlace, gerente
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Sede">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Sede">
           {["", ...SEDES].map((s) => (
             <button key={s || "todas"} type="button" onClick={() => setSede(s)} aria-pressed={sede === s}
               className={`h-11 shrink-0 rounded-full border px-4 text-[13px] transition-colors ${sede === s ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>

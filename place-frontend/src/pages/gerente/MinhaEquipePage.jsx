@@ -67,7 +67,7 @@ export default function MinhaEquipePage() {
                           {dados.map(([r, n]) => (
                             <div key={r} className="rounded-xl bg-card-2 py-2">
                               <dd className="text-lg font-semibold">{n}</dd>
-                              <dt className="text-[11px] text-ink-3">{r}</dt>
+                              <dt className="text-xs text-ink-3">{r}</dt>
                             </div>
                           ))}
                         </dl>
@@ -90,4 +90,4 @@ export default function MinhaEquipePage() {
       )}
     </div>
   );
-}
+}

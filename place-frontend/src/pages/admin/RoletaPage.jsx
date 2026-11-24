@@ -18,6 +18,10 @@ import {
 
 const norm = (s = "") => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const ATUALIZAR_A_CADA = 30 * 1000;
+const UM_DIA = 24 * 60 * 60 * 1000;
+/** Lead esperando há mais de 1 dia: precisa de alguém olhar. */
+const parado = (l) => Date.now() - new Date(l.criadoEm).getTime() > UM_DIA;
+const primeiraMaiuscula = (t = "") => t.charAt(0).toLocaleUpperCase("pt-BR") + t.slice(1);
 
 function Situacao({ painel }) {
   const { situacao, mensagem } = painel.horario;
@@ -51,7 +55,7 @@ function LinhaChegada({ c, ocupado, onApto, onRemover }) {
         aria-pressed={c.apto}
         title={c.apto ? "Tirar da roleta de hoje" : "Colocar na roleta de hoje"}
         className={cn(
-          "shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-medium disabled:opacity-50",
+          "h-11 shrink-0 rounded-full border px-3.5 text-[13px] font-medium disabled:opacity-50",
           c.apto ? "border-ok/50 bg-ok/10 text-ok" : "border-line text-ink-3",
         )}
       >
@@ -59,12 +63,12 @@ function LinhaChegada({ c, ocupado, onApto, onRemover }) {
       </button>
       {confirmar ? (
         <button type="button" disabled={ocupado} onClick={onRemover} onBlur={() => setConfirmar(false)}
-          className="shrink-0 rounded-full border border-danger/50 px-3 py-1.5 text-[12px] text-danger disabled:opacity-50">
-          Remover?
+          className="h-11 shrink-0 rounded-full border border-danger/50 px-3.5 text-[13px] text-danger disabled:opacity-50">
+          Tirar da lista?
         </button>
       ) : (
-        <button type="button" onClick={() => setConfirmar(true)} aria-label={`Tirar ${c.nome} da lista`}
-          className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/5 hover:text-ink">
+        <button type="button" onClick={() => setConfirmar(true)} aria-label={`Desfazer a chegada de ${c.nome}`} title="Marcou por engano? Desfazer a chegada"
+          className="grid size-11 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/5 hover:text-ink">
           <Icon name="x" className="size-4" />
         </button>
       )}
@@ -122,23 +126,29 @@ export default function RoletaPage() {
   }
 
   const aptos = painel.chegadas.filter((c) => c.apto).length;
+  const situacao = painel.horario.situacao;
+  // Depois das 09h sem ninguém apto a roleta não começa: a tela não pode dizer "fecha às 09h" nem oferecer o botão.
+  const semRoletaHoje = !painel.iniciada && situacao !== "chegada";
+  const hojeEmRecife = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Recife" }).format(new Date());
+  const diaAberto = painel.dia === hojeEmRecife && situacao !== "fechada";
   const entregues = (r) => (r.distribuidos ? `${r.distribuidos} lead${r.distribuidos > 1 ? "s" : ""} distribuído${r.distribuidos > 1 ? "s" : ""}.` : "Nenhum lead para distribuir agora.");
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="pb-eyebrow">Recepção</p>
           <h1 className="text-xl font-semibold">Roleta do dia</h1>
-          <p className="mt-1 text-[13px] capitalize text-ink-2">{diaPorExtenso(painel.dia)}</p>
+          <p className="mt-1 text-[13px] text-ink-2">{primeiraMaiuscula(diaPorExtenso(painel.dia))}</p>
         </div>
-        <Situacao painel={painel} />
+        <Situacao painel={semRoletaHoje && situacao === "distribuindo" ? { horario: { situacao: "fechada", mensagem: "Lista fechada às 09h · ninguém apto hoje" } } : painel} />
       </header>
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-[13px] text-danger">{erro}</p>}
       {aviso && <p role="status" className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-[13px] text-gold">{aviso}</p>}
 
-      <Card className="flex flex-wrap items-center justify-between gap-3">
+      {/* Celular: marcar chegada vem primeiro (é o que a recepção faz o tempo todo); encerrar fica depois da lista. */}
+      <Card className="order-3 flex flex-wrap items-center justify-between gap-3 lg:order-none">
         {painel.iniciada ? (
           <>
             <p className="text-[14px]">
@@ -151,21 +161,31 @@ export default function RoletaPage() {
               <Icon name="refresh" className="mr-2 size-4" /> Distribuir agora
             </Button>
           </>
+        ) : semRoletaHoje ? (
+          <p className="text-[14px] text-ink-2">
+            <b className="font-semibold text-ink">A roleta não começou hoje.</b>{" "}
+            {situacao === "fechada"
+              ? painel.horario.mensagem
+              : "A lista fechou às 09h sem nenhum corretor apto. Leads novos ficam aguardando para o admin distribuir em Leads."}
+          </p>
         ) : (
           <>
             <p className="text-[14px] text-ink-2">
               {aptos ? `${aptos} corretor${aptos > 1 ? "es" : ""} apto${aptos > 1 ? "s" : ""} na lista.` : "Ninguém apto na lista ainda."}{" "}
               A lista fecha sozinha às 09h; se todos já chegaram, pode fechar antes.
             </p>
-            <Button disabled={ocupado || !aptos || painel.horario.situacao === "fechada"} onClick={() => executar(iniciarRoleta, entregues)}>
-              Encerrar lista e iniciar roleta
-            </Button>
+            <div className="flex flex-col items-end gap-1">
+              <Button disabled={ocupado || !aptos} onClick={() => executar(iniciarRoleta, entregues)}>
+                Encerrar lista e iniciar roleta
+              </Button>
+              {!aptos && <span className="text-xs text-ink-3">Marque ao menos 1 corretor que chegou para encerrar.</span>}
+            </div>
           </>
         )}
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-start">
-        <Card>
+      <div className="order-2 grid gap-5 lg:order-none lg:grid-cols-[1.2fr_1fr] lg:items-start">
+        <Card className="order-2 lg:order-none">
           <CardHeader title="Lista de chegada" description="Ordem geral do dia. Quem chega antes das 09h fica apto." />
           {painel.chegadas.length === 0 ? (
             <p className="rounded-xl border border-dashed border-line p-6 text-center text-[13px] text-ink-2">Ninguém marcado ainda.</p>
@@ -184,8 +204,11 @@ export default function RoletaPage() {
           )}
         </Card>
 
-        <Card>
-          <CardHeader title="Marcar chegada" description="Toque no corretor assim que ele chegar." />
+        <Card className="order-1 lg:order-none">
+          <CardHeader
+            title="Marcar chegada"
+            description={situacao === "chegada" || !diaAberto ? "Toque no corretor assim que ele chegar." : "Já passou das 09h: quem chegar agora entra na lista, mas não recebe leads hoje."}
+          />
           <label className="relative mb-3 block">
             <Icon name="search" className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
             <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar corretor"
@@ -197,11 +220,16 @@ export default function RoletaPage() {
             <ul className="max-h-[28rem] space-y-1.5 overflow-y-auto pr-1">
               {faltam.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-white/5">
-                  <span className="truncate text-[14px]">{c.nome}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[14px]">{c.nome}</span>
+                    {(c.equipe || c.gerente) && (
+                      <span className="block truncate text-xs text-ink-3">{[c.equipe, c.gerente && `gerente ${c.gerente}`].filter(Boolean).join(" · ")}</span>
+                    )}
+                  </span>
                   <button type="button" disabled={ocupado}
                     onClick={() => executar(() => marcarChegada(c.id), (r) => `${c.nome}: nº ${r.ordem}${r.apto ? "" : " (depois do fechamento, não recebe hoje)"}.`)}
-                    className="shrink-0 rounded-full border border-gold/50 px-3.5 py-1.5 text-[12px] font-medium text-gold hover:bg-gold/10 disabled:opacity-50">
-                    Chegou
+                    className="h-11 shrink-0 rounded-full border border-gold/50 px-4 text-[13px] font-medium text-gold hover:bg-gold/10 disabled:opacity-50">
+                    {situacao === "chegada" ? "Chegou" : "Chegou (após 09h)"}
                   </button>
                 </li>
               ))}
@@ -210,28 +238,30 @@ export default function RoletaPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="order-4 lg:order-none">
         <CardHeader
           title={`Leads aguardando corretor (${painel.aguardando.length})`}
           description={painel.aguardando.length ? motivoAguardando(painel) : "Nenhum lead parado. Quem chega pelo site entra na roleta na hora."}
-          action={ehAdmin ? <Link to="/admin/leads" className="text-[12px] text-gold hover:underline">Abrir Leads</Link> : null}
+          action={ehAdmin ? <Link to="/admin/leads" className="inline-flex min-h-11 items-center text-[12px] text-gold hover:underline">Abrir Leads</Link> : null}
         />
         {painel.aguardando.length > 0 && (
           <ul className="divide-y divide-line-soft">
             {painel.aguardando.map((l) => (
-              <li key={l.id} className="flex items-center justify-between gap-3 py-2.5">
+              <li key={l.id} className={cn("flex items-center justify-between gap-3 py-2.5", parado(l) && "-mx-2 rounded-xl bg-danger/10 px-2")}>
                 <span className="min-w-0">
                   <b className="block truncate text-[14px] font-medium">{l.nome}</b>
                   <small className="block truncate text-[12px] text-ink-3">{l.empreendimento?.nome ?? "Sem empreendimento"} · {l.origem ?? "site"}</small>
                 </span>
-                <span className="shrink-0 text-[12px] text-ink-2">{tempoDesde(l.criadoEm)}</span>
+                <span className={cn("shrink-0 text-[12px]", parado(l) ? "font-semibold text-danger" : "text-ink-2")}>
+                  {parado(l) ? `parado ${tempoDesde(l.criadoEm)}` : tempoDesde(l.criadoEm)}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </Card>
 
-      <p className="text-[12px] text-ink-3">
+      <p className="order-5 text-[12px] text-ink-3 lg:order-none">
         Os leads vão para o próximo apto da lista com foco no empreendimento; no fim da lista, recomeça do topo.
         Os focos são definidos pelos gerentes{ehAdmin ? <> em <Link to="/admin/focos" className="text-gold hover:underline">Focos dos corretores</Link></> : null}.
       </p>

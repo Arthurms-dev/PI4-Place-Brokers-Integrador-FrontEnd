@@ -19,7 +19,7 @@ export default function AgendamentoStatusBadge({ status }) {
   const label = LABELS[status] ?? status;
 
   return (
-    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ring-inset ${estilo}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${estilo}`}>
       {label}
     </span>
   );

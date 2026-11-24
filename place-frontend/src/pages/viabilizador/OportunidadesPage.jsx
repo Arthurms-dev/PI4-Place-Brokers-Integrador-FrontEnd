@@ -38,7 +38,7 @@ export default function OportunidadesPage() {
         </div>
         <div className="flex rounded-xl border border-line p-0.5" role="group" aria-label="Período">
           {PERIODOS.map(([d, rotulo]) => (
-            <button key={d} type="button" onClick={() => setDias(d)} aria-pressed={dias === d} className={`h-10 rounded-lg px-4 text-sm font-medium transition-colors ${dias === d ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`}>{rotulo}</button>
+            <button key={d} type="button" onClick={() => setDias(d)} aria-pressed={dias === d} className={`h-11 rounded-lg px-4 text-sm font-medium transition-colors ${dias === d ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`}>{rotulo}</button>
           ))}
         </div>
       </div>
@@ -70,7 +70,7 @@ export default function OportunidadesPage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-xl font-semibold text-gold">{p.pontuacao}</p>
-                    <p className="text-[11px] text-ink-3">pontos</p>
+                    <p className="text-xs text-ink-3">pontos</p>
                   </div>
                 </div>
                 <Meter pct={(p.pontuacao / maior) * 100} atraso={i * 70} />
@@ -78,7 +78,7 @@ export default function OportunidadesPage() {
                   {[["Visualizações", p.visualizacoes], ["Leads", p.leads], ["Visitas", p.visitas], ["Vendas", p.vendas.confirmadas], ["VGV", brl(p.vendas.vgv)]].map(([rotulo, valor]) => (
                     <div key={rotulo} className="rounded-xl bg-card-2 py-2">
                       <dd className="text-[15px] font-semibold">{valor}</dd>
-                      <dt className="text-[11px] text-ink-3">{rotulo}</dt>
+                      <dt className="text-xs text-ink-3">{rotulo}</dt>
                     </div>
                   ))}
                 </dl>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AgendamentoDrawer from "./AgendamentoDrawer";
+import { filtrarPessoas, rotuladorDePessoas } from "@/lib/pessoas";
 
 const TIPOS = [
   { value: "visita_imovel", label: "Visita ao imóvel" },
@@ -14,7 +15,7 @@ function Campo({ rotulo, erro, children }) {
     <label className="block text-xs text-ink-2">
       {rotulo}
       <div className="mt-1.5">{children}</div>
-      {erro && <span className="mt-1 block text-[11px] text-danger">{erro}</span>}
+      {erro && <span className="mt-1 block text-xs text-danger">{erro}</span>}
     </label>
   );
 }
@@ -24,15 +25,21 @@ export default function AgendamentoFormDrawer({ aberto, onFechar, onSalvar, clie
   const [erros, setErros] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [erroGeral, setErroGeral] = useState("");
+  const [buscaCliente, setBuscaCliente] = useState("");
 
   if (!aberto) return null;
+  const rotuloCorretor = rotuladorDePessoas(corretores);
+  const rotuloCliente = rotuladorDePessoas(clientes);
 
   const visita = form.tipo === "visita_imovel";
   const atualizar = (campo) => (e) => setForm((f) => ({ ...f, [campo]: e.target.value }));
   const borda = (c) => (erros[c] ? "border-danger" : "border-line focus:border-gold");
 
-  const doCorretor = form.corretorId ? clientes.filter((c) => c.corretorId === form.corretorId) : [];
-  const outros = clientes.filter((c) => !doCorretor.includes(c));
+  // Com muitos clientes, a busca filtra a lista (o escolhido continua aparecendo).
+  const achados = filtrarPessoas(clientes, buscaCliente);
+  const filtrados = achados.concat(clientes.filter((c) => c.id === form.clienteId && !achados.includes(c)));
+  const doCorretor = form.corretorId ? filtrados.filter((c) => c.corretorId === form.corretorId) : [];
+  const outros = filtrados.filter((c) => !doCorretor.includes(c));
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -84,24 +91,28 @@ export default function AgendamentoFormDrawer({ aberto, onFechar, onSalvar, clie
         <Campo rotulo="Corretor responsável" erro={erros.corretorId}>
           <select value={form.corretorId} onChange={atualizar("corretorId")} className={`${CAMPO} ${borda("corretorId")}`}>
             <option value="">Selecione o corretor</option>
-            {corretores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+            {corretores.map((c) => <option key={c.id} value={c.id}>{rotuloCorretor(c)}</option>)}
           </select>
         </Campo>
 
         <Campo rotulo="Cliente" erro={erros.clienteId}>
+          {clientes.length > 8 && (
+            <input type="search" value={buscaCliente} onChange={(e) => setBuscaCliente(e.target.value)} placeholder="Buscar cliente por nome ou telefone"
+              aria-label="Buscar cliente" className={`${CAMPO} mb-2 border-line focus:border-gold`} />
+          )}
           <select value={form.clienteId} onChange={atualizar("clienteId")} className={`${CAMPO} ${borda("clienteId")}`}>
             <option value="">Selecione o cliente</option>
             {doCorretor.length > 0 ? (
               <>
                 <optgroup label="Clientes do corretor">
-                  {doCorretor.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                  {doCorretor.map((c) => <option key={c.id} value={c.id}>{rotuloCliente(c)}</option>)}
                 </optgroup>
                 <optgroup label="Outros clientes">
-                  {outros.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                  {outros.map((c) => <option key={c.id} value={c.id}>{rotuloCliente(c)}</option>)}
                 </optgroup>
               </>
             ) : (
-              clientes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)
+              filtrados.map((c) => <option key={c.id} value={c.id}>{rotuloCliente(c)}</option>)
             )}
           </select>
         </Campo>

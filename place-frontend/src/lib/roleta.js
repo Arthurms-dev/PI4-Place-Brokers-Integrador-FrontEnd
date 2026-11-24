@@ -58,6 +58,7 @@ export function situacaoDoCorretor(minha) {
 export function motivoAguardando(painel) {
   if (!painel) return "";
   if (painel.horario?.situacao === "fechada") return painel.horario.mensagem;
-  if (!painel.iniciada) return "Esperando a lista fechar (às 09h ou no botão).";
+  if (!painel.iniciada && painel.horario?.situacao === "chegada") return "Esperando a lista fechar (às 09h ou no botão).";
+  if (!painel.iniciada) return "A roleta não começou hoje (ninguém apto às 09h). Atribua manualmente em Leads.";
   return "Sem corretor apto com foco no empreendimento (ou lead sem empreendimento). Atribua manualmente em Leads.";
 }

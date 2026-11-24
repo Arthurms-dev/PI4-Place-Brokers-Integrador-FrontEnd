@@ -6,8 +6,8 @@ import { ROLE_HOME } from "@/lib/areas";
 import { comContador, useCandidaturasNovas } from "@/hooks/useCandidaturasNovas";
 
 const MENU = [
-  { label: "Visão Geral", href: "/admin/painel", icon: "home" },
-  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
+  { label: "Início", href: "/admin/painel", icon: "home" },
+  { label: "Indicadores", href: "/admin/dashboard", icon: "dashboard" },
   { label: "Empreendimentos", href: "/admin/imoveis", icon: "building" },
   { label: "Leads", href: "/admin/leads", icon: "users" },
   { label: "Roleta do dia", href: "/admin/roleta", icon: "refresh" },

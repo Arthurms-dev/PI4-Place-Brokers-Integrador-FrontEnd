@@ -169,7 +169,7 @@ select:-webkit-autofill {
 
 
 .leaflet-control-attribution {
-  font-size: 10px !important;
+  font-size: 12px !important;
   padding: 2px 6px !important;
   background: rgba(8, 21, 43, 0.85) !important;
   color: #c3cee0 !important;
@@ -262,8 +262,8 @@ select:-webkit-autofill {
   color: var(--color-gold);
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 10px;
-  letter-spacing: .21em;
+  font-size: 12px;
+  letter-spacing: .16em;
   margin-bottom: 9px;
 }
 .pb-page-header { padding-bottom: 13px; }
@@ -382,9 +382,9 @@ select:-webkit-autofill {
 }
 .pb-workspace table thead th {
   color: var(--color-ink-3);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 .pb-workspace table tbody tr { border-bottom-color: var(--pb-calm-border); }
@@ -486,9 +486,10 @@ select:-webkit-autofill {
   .pb-kpi-card { min-height: 155px; }
 }
 @media (max-width: 479px) {
-  .pb-kpi-grid, .pb-summary-grid { grid-template-columns: 1fr; }
-  .pb-kpi-grid .pb-kpi-feature { grid-column: auto; }
-  .pb-kpi-card { min-height: 132px; }
+  /* Celular: 2 números por linha (o destaque ocupa a linha toda), para a página não ficar enorme. */
+  .pb-kpi-grid, .pb-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pb-kpi-grid .pb-kpi-feature, .pb-summary-grid > :first-child { grid-column: 1 / -1; }
+  .pb-kpi-card { min-height: 0; }
   .pb-hero-title { font-size: clamp(2.65rem, 11vw, 3.4rem) !important; }
   .pb-workspace table { font-size: 12px; }
   .pb-topbar [role="search"] { max-width: unset; }
@@ -531,3 +532,16 @@ select:-webkit-autofill {
 @media (prefers-reduced-motion: reduce) {
   .pb-texto-ouro, .pb-editorial-page .animate-kenburns { animation: none; }
 }
+
+/* Revisão de telas (24/11/2026)
+   Itens de grid e fieldset não encolhem por padrão (min-width: auto / min-content):
+   um texto com "truncate" esticava o card e a página passava da tela no celular
+   (Clientes, Vendas e o grupo "Arquivos" do formulário de empreendimento). */
+.pb-workspace :is(ul, ol).grid > li { min-width: 0; }
+fieldset { min-width: 0; }
+
+/* Botões +/− do mapa com 44 px, como o resto das áreas de toque. */
+.leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+
+/* Tailwind 4 deixa botão com cursor padrão; nas áreas internas, o que é clicável mostra a mãozinha. */
+.pb-workspace :is(button, [role="button"], summary, label:has(> select)):not(:disabled) { cursor: pointer; }

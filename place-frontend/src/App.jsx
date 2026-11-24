@@ -48,6 +48,8 @@ const ViabilizadorInicioPage = lazy(() => import("@/pages/viabilizador/Viabiliza
 const MeusProdutosPage = lazy(() => import("@/pages/viabilizador/MeusProdutosPage"));
 const ViabilizadorBooksPage = lazy(() => import("@/pages/viabilizador/ViabilizadorBooksPage"));
 const OportunidadesPage = lazy(() => import("@/pages/viabilizador/OportunidadesPage"));
+const MinhaDiretoriaPage = lazy(() => import("@/pages/diretor/MinhaDiretoriaPage"));
+const DiretorLeadsPage = lazy(() => import("@/pages/diretor/DiretorLeadsPage"));
 
 export default function App() {
   return (
@@ -138,6 +140,8 @@ export default function App() {
 
       <Route path="/diretor" element={<AreaLayout cargo="diretor" />}>
         <Route index element={<DashboardPage />} />
+        <Route path="diretoria" element={<MinhaDiretoriaPage />} />
+        <Route path="leads" element={<DiretorLeadsPage />} />
         <Route path="vendas" element={<VendasPage />} />
         <Route path="configuracoes" element={<PerfilPage />} />
         <Route path="perfil" element={<PerfilPage />} />

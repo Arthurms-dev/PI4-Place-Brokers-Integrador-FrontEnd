@@ -42,12 +42,12 @@ function LeadParado({ lead, membros, onRepassado }) {
       {opcoes.length > 0 && (
         <div className="flex gap-2 sm:max-w-md">
           <select value={destino} onChange={(e) => setDestino(e.target.value)} aria-label={`Repassar ${lead.nome} para`}
-            className="h-10 min-w-0 flex-1 rounded-lg border border-line bg-card-2 px-2.5 text-[13px] text-ink outline-none focus:border-gold scheme-dark">
+            className="h-11 min-w-0 flex-1 rounded-lg border border-line bg-card-2 px-2.5 text-[13px] text-ink outline-none focus:border-gold scheme-dark">
             <option value="">Repassar para…</option>
             {opcoes.map((m) => <option key={m.id} value={m.id}>{m.nome}</option>)}
           </select>
           <button type="button" onClick={repassar} disabled={!destino || enviando}
-            className="h-10 shrink-0 rounded-lg bg-gold-gradient px-3.5 text-[13px] font-semibold text-[#1a1408] disabled:opacity-50">
+            className="h-11 shrink-0 rounded-lg bg-gold-gradient px-3.5 text-[13px] font-semibold text-[#1a1408] disabled:opacity-50">
             {enviando ? "..." : "Repassar"}
           </button>
         </div>
@@ -136,7 +136,7 @@ export function AtendimentoEquipe({ membros }) {
           </ul>
           <div className="hidden sm:block">
             <table className="w-full text-left text-[13px]">
-              <thead className="text-[11px] uppercase tracking-wide text-ink-3">
+              <thead className="text-xs uppercase tracking-wide text-ink-3">
                 <tr>
                   <th className="pb-2 font-medium">Corretor</th>
                   <th className="pb-2 text-right font-medium">Leads</th>
@@ -164,7 +164,7 @@ export function AtendimentoEquipe({ membros }) {
           </div>
           </>
         )}
-        <p className="mt-3 text-[11px] text-ink-3">O 1º contato conta quando o corretor liga ou chama no WhatsApp pelo botão do app.</p>
+        <p className="mt-3 text-xs text-ink-3">O 1º contato conta quando o corretor liga ou chama no WhatsApp pelo botão do app.</p>
       </section>
     </>
   );

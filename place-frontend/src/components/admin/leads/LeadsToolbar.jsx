@@ -1,10 +1,12 @@
 import { Icon } from "@/components/ui/Icon";
 import { LEAD_STATUSES } from "@/lib/leads";
+import { rotuladorDePessoas } from "@/lib/pessoas";
 
 const selectClass =
   "min-h-11 rounded-xl border border-line bg-card-2 px-3 text-[13px] text-ink outline-none scheme-dark focus:border-gold";
 
 export function LeadsToolbar({ filters, onChange, empreendimentos, corretores, total }) {
+  const rotuloCorretor = rotuladorDePessoas(corretores ?? []);
   const set = (key) => (e) => onChange({ ...filters, [key]: e.target.value });
 
   return (
@@ -49,7 +51,7 @@ export function LeadsToolbar({ filters, onChange, empreendimentos, corretores, t
         <option value="sem">Sem corretor</option>
         {corretores.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.nome}
+            {rotuloCorretor(c)}
           </option>
         ))}
       </select>

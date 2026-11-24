@@ -98,7 +98,7 @@ export default function DocumentosComerciaisForm({ empreendimentoId, temBookLega
         </div>
         {editando === null && !carregando && (
           <button type="button" onClick={iniciarNovo}
-            className="h-10 rounded-xl border border-gold/50 px-4 text-xs font-semibold text-gold hover:bg-gold/10">
+            className="h-11 rounded-xl border border-gold/50 px-4 text-xs font-semibold text-gold hover:bg-gold/10">
             Adicionar documento
           </button>
         )}
@@ -129,12 +129,12 @@ export default function DocumentosComerciaisForm({ empreendimentoId, temBookLega
                 <div className="flex flex-wrap gap-2">
                   {doc.driveUrl && (
                     <a href={doc.driveUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex h-10 items-center rounded-lg border border-line px-3 text-xs hover:border-gold">
+                      className="inline-flex h-11 items-center rounded-lg border border-line px-3 text-xs hover:border-gold">
                       Abrir no Drive
                     </a>
                   )}
                   <button type="button" onClick={() => iniciarEdicao(doc)} disabled={editando !== null}
-                    className="h-10 rounded-lg border border-line px-4 text-xs hover:border-gold disabled:opacity-40">Editar vínculo</button>
+                    className="h-11 rounded-lg border border-line px-4 text-xs hover:border-gold disabled:opacity-40">Editar vínculo</button>
                 </div>
               </div>
             </li>

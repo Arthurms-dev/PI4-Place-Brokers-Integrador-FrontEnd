@@ -70,7 +70,9 @@ export const AREAS = {
   diretor: {
     home: "/diretor",
     items: [
-      { label: "Dashboard", href: "/diretor", icon: "dashboard", end: true },
+      { label: "Indicadores", href: "/diretor", icon: "dashboard", end: true },
+      { label: "Minha diretoria", href: "/diretor/diretoria", icon: "team" },
+      { label: "Leads", href: "/diretor/leads", icon: "users" },
       { label: "Vendas", href: "/diretor/vendas", icon: "chart" },
       { label: "Configurações", href: "/diretor/configuracoes", icon: "settings" },
     ],

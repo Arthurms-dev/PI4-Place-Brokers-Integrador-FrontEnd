@@ -57,6 +57,7 @@ function quartosParaExibicao(empreendimento) {
   )}`;
 }
 
+// Interruptor com cara de interruptor (antes parecia um selo e um toque tirava o imóvel do site).
 function Chave({ ativo, rotulo, onClick, ocupado }) {
   return (
     <button
@@ -65,17 +66,20 @@ function Chave({ ativo, rotulo, onClick, ocupado }) {
       aria-checked={ativo}
       disabled={ocupado}
       onClick={onClick}
-      className={`flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border text-[13px] transition-colors disabled:opacity-50 ${
-        ativo
-          ? "border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10"
-          : "border-line text-ink-3 hover:border-gold/60 hover:text-ink"
-      }`}
+      className="flex h-11 flex-1 items-center justify-between gap-2 rounded-xl border border-line px-3 text-[13px] text-ink-2 transition-colors hover:border-gold/60 disabled:opacity-50"
     >
-      <span className={`size-2 rounded-full ${ativo ? "bg-emerald-400" : "bg-white/30"}`} />
-      {rotulo}
+      <span className="truncate">{rotulo}</span>
+      <span aria-hidden="true" className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${ativo ? "bg-emerald-500/80" : "bg-white/15"}`}>
+        <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${ativo ? "left-[18px]" : "left-0.5"}`} />
+      </span>
     </button>
   );
 }
+
+const CONFIRMAR_DESLIGAR = {
+  publicado: { pergunta: "Tirar do site?", detalhe: "Some da home e do catálogo público na hora.", botao: "Tirar do site" },
+  disponivel: { pergunta: "Marcar como esgotado?", detalhe: "Continua no site, mas aparece como indisponível.", botao: "Marcar esgotado" },
+};
 
 function documentoVigente(doc, tipo) {
   const hoje = new Date().toISOString().slice(0, 10);
@@ -85,8 +89,15 @@ function documentoVigente(doc, tipo) {
 
 function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
   const [ocupado, setOcupado] = useState(false);
+  const [confirmando, setConfirmando] = useState(null);
 
   async function alternar(campo) {
+    // Desligar pede confirmação; ligar é direto.
+    if (e[campo] && confirmando !== campo) {
+      setConfirmando(campo);
+      return;
+    }
+    setConfirmando(null);
     setOcupado(true);
     try {
       await onMudar(e.id, { [campo]: !e[campo] });
@@ -128,12 +139,12 @@ function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
             <Icon name="building" className="size-10" />
           </div>
         )}
-        <div className="absolute left-3 top-3 flex gap-1.5">
+        <div className="absolute left-3 top-3 flex gap-1.5 [&>*]:bg-page/90 [&>*]:backdrop-blur">
           <Selo tom={TOM_STATUS[e.status] ?? "neutro"}>
             {STATUS[e.status]?.label ?? e.status}
           </Selo>
         </div>
-        <div className="absolute right-3 top-3">
+        <div className="absolute right-3 top-3 [&>*]:bg-page/90 [&>*]:backdrop-blur">
           <Selo tom={e.publicado ? "ok" : "alerta"}>
             {e.publicado ? "Publicado" : "Rascunho"}
           </Selo>
@@ -159,7 +170,7 @@ function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
             : "Sem características preenchidas")}
         </p>
 
-        <div className="flex flex-wrap gap-1.5 text-[11px]">
+        <div className="flex flex-wrap gap-1.5 text-xs">
           {plantas.length > 0 && (
             <Selo tom="neutro">
               {plantas.length}{" "}
@@ -177,16 +188,27 @@ function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
           </Selo>
         </div>
 
+        {confirmando && (
+          <div role="alertdialog" aria-label={CONFIRMAR_DESLIGAR[confirmando].pergunta} className="animate-fade-in space-y-2 rounded-xl border border-danger/40 bg-danger/10 p-3">
+            <p className="text-[13px]"><b className="text-ink">{CONFIRMAR_DESLIGAR[confirmando].pergunta}</b> <span className="text-ink-2">{CONFIRMAR_DESLIGAR[confirmando].detalhe}</span></p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setConfirmando(null)} className="h-11 rounded-xl border border-line text-[13px] text-ink-2">Cancelar</button>
+              <button type="button" disabled={ocupado} onClick={() => alternar(confirmando)} className="h-11 rounded-xl bg-danger text-[13px] font-semibold text-white disabled:opacity-60">
+                {CONFIRMAR_DESLIGAR[confirmando].botao}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex gap-2">
           <Chave
             ativo={e.publicado}
-            rotulo="Publicado"
+            rotulo="No site"
             ocupado={ocupado}
             onClick={() => alternar("publicado")}
           />
           <Chave
             ativo={e.disponivel}
-            rotulo="Disponível"
+            rotulo="À venda"
             ocupado={ocupado}
             onClick={() => alternar("disponivel")}
           />
@@ -203,7 +225,10 @@ function Cartao({ e, indice, onEditar, onMudar, docsComerciais }) {
   );
 }
 
+const POR_PAGINA = 12;
+
 export default function EmpreendimentosPage() {
+  const [limite, setLimite] = useState(POR_PAGINA);
   usePageTitle("Empreendimentos");
   const [lista, setLista] = useState([]);
   const [docsPorEmp, setDocsPorEmp] = useState({});
@@ -213,6 +238,7 @@ export default function EmpreendimentosPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
   const [publicacao, setPublicacao] = useState("");
+  useEffect(() => setLimite(POR_PAGINA), [busca, status, publicacao]);
   const [form, setForm] = useState(null);
 
   useEffect(() => {
@@ -367,7 +393,7 @@ export default function EmpreendimentosPage() {
             <button
               type="button"
               onClick={() => setForm({})}
-              className="ml-1 text-gold hover:underline"
+              className="ml-1 inline-flex min-h-11 items-center text-gold hover:underline"
             >
               Cadastrar o primeiro
             </button>
@@ -375,7 +401,7 @@ export default function EmpreendimentosPage() {
         </Vazio>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {visiveis.map((item, indice) => (
+          {visiveis.slice(0, limite).map((item, indice) => (
             <Cartao
               key={item.id}
               e={item}
@@ -386,6 +412,13 @@ export default function EmpreendimentosPage() {
             />
           ))}
         </ul>
+      )}
+
+      {!carregando && visiveis.length > limite && (
+        <button type="button" onClick={() => setLimite((n) => n + POR_PAGINA)}
+          className="mx-auto flex h-11 items-center gap-2 rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">
+          Mostrar mais {Math.min(POR_PAGINA, visiveis.length - limite)} <span className="text-ink-3">({limite} de {visiveis.length})</span>
+        </button>
       )}
 
       {form && (

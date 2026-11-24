@@ -21,17 +21,17 @@ function Objecao({ o, aberta, onAlternar }) {
       {aberta && (
         <div className="space-y-3 border-t border-line-soft p-4 text-[14px] leading-relaxed">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-gold">O que costuma estar por trás</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gold">O que costuma estar por trás</p>
             <p className="mt-1 text-ink-2">{o.porTras}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-gold">Caminho</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gold">Caminho</p>
             <ol className="mt-1 list-decimal space-y-1 pl-5 text-ink-2">
               {o.caminho.map((passo) => <li key={passo}>{passo}</li>)}
             </ol>
           </div>
           <div className="rounded-xl border-l-2 border-gold bg-card-2 px-3.5 py-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-3">Exemplo de fala</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-3">Exemplo de fala</p>
             <p className="mt-1 italic text-ink">“{o.exemplo}”</p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function TreinamentoPage() {
     <div className="space-y-5">
       <header>
         <p className="pb-eyebrow">Treinamento</p>
-        <h1 className="text-xl font-semibold">Quebra de objeções</h1>
+        <h1 className="text-xl font-semibold">Treinamento: quebra de objeções</h1>
         <p className="mt-1 max-w-2xl text-[13px] text-ink-2">
           Material de estudo para quem está começando. São caminhos, não scripts: adapte ao seu jeito de falar.
           A regra de ouro vale para todas: o cliente só cede quando enxerga a vantagem para ele.
@@ -69,7 +69,7 @@ export default function TreinamentoPage() {
           className="h-12 w-full rounded-xl border border-line bg-card-2 pl-10 pr-3.5 text-base text-ink outline-none focus:border-gold scheme-dark sm:text-sm" />
       </label>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
+      <div className="flex flex-wrap gap-2">
         {[["", "Todas"], ...Object.entries(TEMAS)].map(([k, rotulo]) => (
           <button key={k} type="button" onClick={() => setTema(k)} aria-pressed={tema === k}
             className={`shrink-0 rounded-full border px-4 py-2 text-[13px] ${tema === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
@@ -81,7 +81,7 @@ export default function TreinamentoPage() {
       {lista.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line p-8 text-center text-sm text-ink-2">Nenhuma objeção encontrada.</p>
       ) : (
-        <ul className="grid gap-3 lg:grid-cols-2 lg:items-start">
+        <ul className="space-y-3 lg:columns-2 lg:gap-3 lg:space-y-0 [&>li]:break-inside-avoid lg:[&>li]:mb-3">
           {lista.map((o) => (
             <Objecao key={o.id} o={o} aberta={aberta === o.id} onAlternar={() => setAberta((v) => (v === o.id ? null : o.id))} />
           ))}

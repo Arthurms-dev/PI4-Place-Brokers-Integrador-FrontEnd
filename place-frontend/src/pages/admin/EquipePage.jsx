@@ -87,7 +87,7 @@ export default function EquipePage() {
   if (carregando) {
     return (
       <div className="space-y-4" aria-busy="true" aria-label="Carregando equipe">
-        <div className="h-9 w-48 animate-pulse rounded-xl bg-card" />
+        <div className="h-11 w-48 animate-pulse rounded-xl bg-card" />
         <div className="h-11 w-full max-w-xl animate-pulse rounded-xl bg-card" />
         <div className="grid gap-3 lg:grid-cols-2">{[0, 1, 2, 3].map((i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-card" />)}</div>
       </div>
@@ -104,12 +104,12 @@ export default function EquipePage() {
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden" role="tablist">
+      <div className="flex flex-wrap gap-2" role="tablist">
         {abas.map(([id, rotulo, n]) => (
           <button key={id} type="button" role="tab" aria-selected={aba === id} onClick={() => setAba(id)}
             className={`flex h-11 shrink-0 items-center gap-2 rounded-xl border px-4 text-sm transition-colors ${aba === id ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
             {rotulo}
-            <span className={`rounded-full px-2 py-0.5 text-[11px] ${id === "aprovacoes" && n > 0 ? "bg-gold text-[#1a1408]" : "bg-white/10"}`}>{n}</span>
+            <span className={`rounded-full px-2 py-0.5 text-xs ${id === "aprovacoes" && n > 0 ? "bg-gold text-[#1a1408]" : "bg-white/10"}`}>{n}</span>
           </button>
         ))}
       </div>
@@ -144,4 +144,4 @@ export default function EquipePage() {
       )}
     </div>
   );
-}
+}

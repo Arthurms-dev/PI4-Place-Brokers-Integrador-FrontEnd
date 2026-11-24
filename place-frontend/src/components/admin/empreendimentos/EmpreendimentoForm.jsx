@@ -31,9 +31,12 @@ const COLUNA_FICHA = {
   registroIncorporacao: "registro_incorporacao", registroCartorio: "registro_cartorio", registroData: "registro_data",
 };
 
+const SECOES = ["Informações", "Localização", "Características", "Ficha técnica e registro da incorporação (opcional)", "Andamento da obra", "Fatos da região (com fonte)", "Arquivos", "Publicação"];
+const idDaSecao = (titulo) => `secao-${titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
 function Secao({ titulo, children }) {
   return (
-    <fieldset className="space-y-3.5 border-t border-line-soft pt-4">
+    <fieldset id={idDaSecao(titulo)} className="scroll-mt-24 space-y-3.5 border-t border-line-soft pt-4">
       <legend className="-mt-7 mb-1 bg-card pr-3 text-[13px] font-semibold text-gold">{titulo}</legend>
       {children}
     </fieldset>
@@ -55,7 +58,7 @@ function Arquivo({ rotulo, accept, arquivo, onChange, dica, erro }) {
         </div>
       </div>
       <input ref={ref} type="file" accept={accept} className="hidden" onChange={(e) => { onChange(e.target.files?.[0] ?? null); e.target.value = ""; }} />
-      {erro && <p className="mt-1 text-[11px] text-danger">{erro}</p>}
+      {erro && <p className="mt-1 text-xs text-danger">{erro}</p>}
     </div>
   );
 }
@@ -66,7 +69,7 @@ function Interruptor({ ativo, onChange, rotulo, ajuda }) {
       className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2 text-left transition-colors hover:border-gold/60">
       <span>
         <span className="block text-sm">{rotulo}</span>
-        <span className="block text-[11px] text-ink-3">{ajuda}</span>
+        <span className="block text-xs text-ink-3">{ajuda}</span>
       </span>
       <span className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${ativo ? "bg-gold" : "bg-white/15"}`}>
         <span className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${ativo ? "left-[1.375rem]" : "left-0.5"}`} />
@@ -291,8 +294,14 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
   }
 
   return (
-    <Folha titulo={emp ? "Editar empreendimento" : "Novo empreendimento"} onClose={onClose} largo>
+    <Folha titulo={emp ? "Editar empreendimento" : "Novo empreendimento"} onClose={onClose} muitoLargo>
       <form onSubmit={enviar} noValidate className="space-y-6 pt-3">
+        {/* Índice: com 35 campos, pular direto para a parte que precisa mudar. */}
+        <nav aria-label="Partes do formulário" className="flex flex-wrap gap-1.5">
+          {SECOES.map((t) => (
+            <a key={t} href={`#${idDaSecao(t)}`} className="inline-flex min-h-11 items-center rounded-full border border-line px-3 text-xs text-ink-2 hover:border-gold hover:text-ink">{t.replace(/ \(.*\)$/, "")}</a>
+          ))}
+        </nav>
         {erroGeral && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erroGeral}</p>}
         <Secao titulo="Informações">
           <Campo rotulo="Nome do empreendimento" erro={erros.nome}><input value={f.nome} onChange={set("nome")} className={`${CAMPO} ${borda(erros, "nome")}`} /></Campo>
@@ -451,9 +460,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
                     <button type="button" onClick={() => setModulos((l) => l.filter((_, k) => k !== i))} aria-label={`Tirar o módulo ${i + 1}`} className="grid size-12 place-items-center rounded-xl border border-line hover:border-danger"><Icon name="x" className="size-4" /></button>
                   </div>
                 ))}
-                {erros.andamentoObra && <p className="text-[11px] text-danger">{erros.andamentoObra}</p>}
+                {erros.andamentoObra && <p className="text-xs text-danger">{erros.andamentoObra}</p>}
                 {modulos.length < 10 && (
-                  <button type="button" onClick={() => setModulos((l) => [...l, { modulo: `Módulo ${String(l.length + 1).padStart(2, "0")}`, percentual: "" }])} className="h-10 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
+                  <button type="button" onClick={() => setModulos((l) => [...l, { modulo: `Módulo ${String(l.length + 1).padStart(2, "0")}`, percentual: "" }])} className="h-11 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
                     + Módulo / torre
                   </button>
                 )}
@@ -487,9 +496,9 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
               </div>
             </div>
           ))}
-          {erros.fatosMercado && <p className="text-[11px] text-danger">{erros.fatosMercado}</p>}
+          {erros.fatosMercado && <p className="text-xs text-danger">{erros.fatosMercado}</p>}
           {fatos.length < 3 && (
-            <button type="button" onClick={() => setFatos((l) => [...l, { texto: "", fonte: "", url: "", mes: "" }])} className="h-10 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
+            <button type="button" onClick={() => setFatos((l) => [...l, { texto: "", fonte: "", url: "", mes: "" }])} className="h-11 rounded-xl border border-dashed border-line px-4 text-sm hover:border-gold">
               + Fato com fonte
             </button>
           )}
@@ -537,12 +546,12 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
                       <li key={u} className="relative aspect-square overflow-hidden rounded-lg bg-card-2">
                         <img src={u} alt="" className="size-full object-cover" />
                         <button type="button" aria-label={`Remover foto ${i + 1}`} onClick={() => setArquivos((s) => ({ ...s, galeria: s.galeria.filter((_, k) => k !== i) }))}
-                          className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-black/70 text-white"><Icon name="x" className="size-3.5" /></button>
+                          className="absolute right-0 top-0 grid size-11 place-items-center rounded-full text-white before:absolute before:size-7 before:rounded-full before:bg-black/70 [&>svg]:relative"><Icon name="x" className="size-3.5" /></button>
                       </li>
                     ))}
                   </ul>
                 )}
-                {erros.galeria && <p className="mt-1 text-[11px] text-danger">{erros.galeria}</p>}
+                {erros.galeria && <p className="mt-1 text-xs text-danger">{erros.galeria}</p>}
               </div>
               <Arquivo rotulo="Book (PDF)" accept="application/pdf" arquivo={arquivos.book} onChange={(a) => aceitarArquivo("book", a)} dica="PDF do book do empreendimento" erro={erros.book} />
               <Arquivo rotulo="Tabela de preços (PDF)" accept="application/pdf" arquivo={arquivos.tabela} onChange={(a) => aceitarArquivo("tabela", a)} dica="PDF da tabela vigente" erro={erros.tabela} />
@@ -556,9 +565,12 @@ export default function EmpreendimentoForm({ empreendimento: emp, construtoras, 
             <Interruptor ativo={f.destaque} onChange={(v) => setF((s) => ({ ...s, destaque: v }))} rotulo="Destaque na tela inicial" ajuda="Aparece primeiro no topo e na lista do site" />
           )}
         </Secao>
-        <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">
-          {enviando ? (emp ? "Salvando..." : "Enviando arquivos...") : emp ? "Salvar alterações" : "Cadastrar empreendimento"}
-        </button>
+        {/* Salvar sempre à mão no rodapé (antes ficava só no fim de 4 mil px). */}
+        <div className="sticky -bottom-5 z-20 -mx-5 border-t border-line-soft bg-card px-5 pb-5 pt-3 sm:-bottom-7 sm:-mx-7 sm:px-7 sm:pb-7">
+          <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">
+            {enviando ? (emp ? "Salvando..." : "Enviando arquivos...") : emp ? "Salvar alterações" : "Cadastrar empreendimento"}
+          </button>
+        </div>
       </form>
     </Folha>
   );

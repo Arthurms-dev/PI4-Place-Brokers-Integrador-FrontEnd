@@ -15,18 +15,18 @@ export function LeadsSummary({ leads }) {
   const rate = total ? Math.round((count("convertido") / total) * 100) : 0;
 
   const items = [
-    { key: "total", label: "Total de leads", value: total, note: "recebidos pelo site", dot: "bg-ink-3" },
+    { key: "total", label: "Total de leads", value: total, note: "desde o início", dot: "bg-ink-3" },
     ...Object.keys(LABELS).map((status) => ({
       key: status,
       label: LABELS[status],
       value: count(status),
-      note: status === "convertido" ? `${rate}% de conversão` : "",
+      note: status === "convertido" ? `${rate}% de conversão (todos os leads)` : "",
       dot: STATUS_BY_VALUE[status].dot,
     })),
   ];
 
   return (
-    <section aria-label="Resumo dos leads" className="pb-summary-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <section aria-label="Resumo dos leads" className="pb-summary-grid grid grid-cols-2 gap-3 sm:gap-4 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1 xl:grid-cols-5">
       {items.map((item) => (
         <Card key={item.key} className={`pb-summary-card px-5 py-5 ${item.key === "total" ? "pb-summary-feature" : ""}`}>
           <div className="flex items-center gap-2 text-[13px] text-ink-2">

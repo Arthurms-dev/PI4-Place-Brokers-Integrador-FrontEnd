@@ -102,7 +102,7 @@ function LembreteFolha({ lead, onClose, onSalvo }) {
             >
               <Icon name="bell" className="size-4.5" /> Pôr alarme no celular
             </button>
-            <p className="text-center text-[11px] text-ink-3">Abre no calendário do celular e toca na hora marcada, mesmo com o site fechado.</p>
+            <p className="text-center text-xs text-ink-3">Abre no calendário do celular e toca na hora marcada, mesmo com o site fechado.</p>
             <button type="button" onClick={onClose} className="h-11 w-full rounded-xl border border-line text-sm text-ink-2 hover:text-ink">Fechar</button>
           </div>
         ) : (
@@ -111,7 +111,7 @@ function LembreteFolha({ lead, onClose, onSalvo }) {
               {atalhos.map((a) => (
                 <button key={a.rotulo} type="button" onClick={() => setQuando(paraCampoDataHora(a.data))}
                   aria-pressed={quando === paraCampoDataHora(a.data)}
-                  className={`h-10 rounded-full border px-4 text-[13px] ${quando === paraCampoDataHora(a.data) ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
+                  className={`h-11 rounded-full border px-4 text-[13px] ${quando === paraCampoDataHora(a.data) ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
                   {a.rotulo}
                 </button>
               ))}
@@ -174,12 +174,12 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
       {(espera || retorno) && (
         <div className="flex flex-wrap gap-2">
           {espera && (
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${COR_ESPERA[espera]}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${COR_ESPERA[espera]}`}>
               <Icon name="clock" className="size-3.5" /> Aguardando retorno {tempoDesde(chegadaDoLead(lead), agora)}
             </span>
           )}
           {retorno && (
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${retorno.atrasado || new Date(retorno.proximoContatoEm) < agora ? "bg-danger/15 text-danger" : "bg-gold/15 text-gold"}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${retorno.atrasado || new Date(retorno.proximoContatoEm) < agora ? "bg-danger/15 text-danger" : "bg-gold/15 text-gold"}`}>
               <Icon name="bell" className="size-3.5" /> Retornar {quandoTexto(retorno.proximoContatoEm)}
             </span>
           )}
@@ -189,7 +189,7 @@ export function AtendimentoLead({ lead, retorno, onIniciarAtendimento, onRetorno
       {lead.telefone && (
         <div className="flex items-center gap-2 rounded-xl bg-card-2 px-3 py-2">
           <Icon name="phone" className="size-4 shrink-0 text-gold" />
-          <span className="min-w-0 flex-1 select-all font-mono text-[15px] tracking-wide text-ink" title="Segure para copiar">
+          <span className="min-w-0 flex-1 select-all text-[15px] font-medium tabular-nums tracking-wide text-ink" title="Segure para copiar">
             {formatarTelefone(lead.telefone)}
           </span>
           <button type="button" onClick={copiar} className="h-11 shrink-0 rounded-lg border border-line px-3.5 text-[13px] text-ink-2 hover:border-gold hover:text-ink">

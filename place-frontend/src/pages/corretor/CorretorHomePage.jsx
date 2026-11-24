@@ -99,15 +99,16 @@ function NumerosRapidos({ resumo, carregando }) {
       rodape: resumo.visitasPendentes ? `${plural(resumo.visitasPendentes, "ainda vai acontecer", "ainda vão acontecer")}` : "Segunda a domingo",
     },
     {
-      to: "/corretor/vendas", rotulo: "VGV confirmado", valor: brl(resumo.vgvConfirmado), destaque: true,
+      to: "/corretor/vendas", rotulo: "VGV confirmado", valor: brl(resumo.vgvConfirmado), destaque: true, ordem: "order-first col-span-2 sm:order-none sm:col-span-1",
       rodape: resumo.vendasPendentes ? `${plural(resumo.vendasPendentes, "venda aguardando", "vendas aguardando")} · ${brl(resumo.valorPendente)}` : plural(resumo.vendasConfirmadas, "venda confirmada", "vendas confirmadas"),
     },
   ];
   return (
-    <section aria-label="Seus números" className="grid grid-cols-3 gap-2 sm:gap-3">
+    // Celular: o VGV ocupa a linha inteira (cortava em "R$ 400...."); os outros dois ficam lado a lado embaixo.
+    <section aria-label="Seus números" className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
       {cards.map((c) => (
-        <Link key={c.to} to={c.to} className="min-w-0 rounded-xl border border-line bg-card px-3 py-2.5 transition-colors hover:border-gold sm:p-4">
-          <span className="block text-[11px] leading-tight text-ink-3 sm:truncate sm:text-[12px]">{c.rotulo}</span>
+        <Link key={c.to} to={c.to} className={cn("min-w-0 rounded-xl border border-line bg-card px-3 py-2.5 transition-colors hover:border-gold sm:p-4", c.ordem)}>
+          <span className="block text-xs leading-tight text-ink-3 sm:truncate sm:text-[12px]">{c.rotulo}</span>
           <strong className={cn("mt-0.5 block truncate text-lg font-semibold sm:text-2xl", c.destaque && "text-gold")}>{carregando ? "…" : c.valor}</strong>
           <small className="mt-0.5 hidden truncate text-[12px] text-ink-3 sm:block">{carregando ? "\u00a0" : c.rodape}</small>
         </Link>
@@ -128,7 +129,7 @@ function AvisoDoDia({ agendamentos }) {
           <Icon name="bell" className="size-4.5 text-gold" />
           {hoje.length === 1 ? "Você tem 1 compromisso hoje" : `Você tem ${hoje.length} compromissos hoje`}
         </h2>
-        <Link to="/corretor/agenda" className="inline-flex items-center gap-1.5 text-[12px] text-gold hover:underline">
+        <Link to="/corretor/agenda" className="inline-flex min-h-11 items-center gap-1.5 text-[12px] text-gold hover:underline">
           Ver agenda <Icon name="arrowRight" className="size-3.5" />
         </Link>
       </div>
@@ -139,7 +140,7 @@ function AvisoDoDia({ agendamentos }) {
               <span className="w-12 shrink-0 text-[15px] font-semibold text-gold">{hora(a.dataHora)}</span>
               <span className="min-w-0 flex-1">
                 <b className="block truncate text-[13px] font-medium">{a.cliente?.nome ?? "Cliente"}</b>
-                <small className="flex items-center gap-1 truncate text-[11px] text-ink-3">
+                <small className="flex items-center gap-1 truncate text-xs text-ink-3">
                   <Icon name={a.tipo === "visita_imovel" ? "mapPin" : "home"} className="size-3 shrink-0" />
                   {localDoCompromisso(a)}
                 </small>
@@ -199,7 +200,7 @@ function RetornosDeHoje({ retornos }) {
             <span className={cn("w-12 shrink-0 text-[15px] font-semibold", r.atrasado ? "text-danger" : "text-gold")}>{hora(r.proximoContatoEm)}</span>
             <span className="min-w-0 flex-1">
               <b className="block truncate text-[13px] font-medium">{r.nome}</b>
-              <small className="block truncate text-[11px] text-ink-3">{[r.empreendimento?.nome, r.nota].filter(Boolean).join(" · ")}</small>
+              <small className="block truncate text-xs text-ink-3">{[r.empreendimento?.nome, r.nota].filter(Boolean).join(" · ")}</small>
             </span>
             {r.telefone && (
               <a href={linkLigar(r.telefone)} aria-label={`Ligar para ${r.nome}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-gold-gradient text-[#1a1408]">
@@ -230,7 +231,7 @@ function Row({ e, mostrarFase, className }) {
       <Thumb e={e} className="h-12 w-16" />
       <div className="min-w-0 flex-1">
         <b className="block truncate text-[13px] font-medium">{e.nome}</b>
-        <small className="flex items-center gap-1.5 truncate text-[11px] text-ink-3">
+        <small className="flex items-center gap-1.5 truncate text-xs text-ink-3">
           {mostrarFase && fase && <span className="size-2 shrink-0 rounded-full" style={{ background: fase.color }} aria-hidden="true" />}
           {mostrarFase && fase ? `${fase.label} · ` : ""}{local(e)}
         </small>
@@ -300,7 +301,7 @@ export default function CorretorHomePage() {
             <h2 className="flex items-center gap-2 text-[15px] font-medium">
               <Icon name="building" className="size-4" /> Atualizados recentemente
             </h2>
-            <Link to="/corretor/empreendimentos" className="text-[12px] text-gold hover:underline">Ver todos</Link>
+            <Link to="/corretor/empreendimentos" className="inline-flex min-h-11 items-center text-[12px] text-gold hover:underline">Ver todos</Link>
           </div>
           {recentes.length > 0 ? (
             recentes.map((e) => <Row key={e.id} e={e} mostrarFase className="border-t border-line-soft" />)

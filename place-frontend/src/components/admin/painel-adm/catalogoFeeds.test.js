@@ -30,4 +30,9 @@ describe('criarFeedsDoCatalogo', () => {
     expect(atualizacoes.data[0].date).toBe('2026-10-22');
     expect(atualizacoes.data[0].description).toContain('alteração cadastral');
   });
+
+  it('usa o dia de Recife, não o de UTC', () => {
+    const { atualizacoes } = criarFeedsDoCatalogo({ data: [{ id: 1, nome: 'X', publicado: true, atualizado_em: '2026-11-25T01:30:00Z' }], loading: false, error: null });
+    expect(atualizacoes.data[0].date).toBe('2026-11-24');
+  });
 });

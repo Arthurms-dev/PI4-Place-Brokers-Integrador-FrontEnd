@@ -93,7 +93,7 @@ export default function AgendamentosPage() {
   if (carregando) {
     return (
       <div className="space-y-5" aria-busy="true" aria-label="Carregando agendamentos">
-        <div className="h-9 w-56 animate-pulse rounded-xl bg-card" />
+        <div className="h-11 w-56 animate-pulse rounded-xl bg-card" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-card" />)}
         </div>
@@ -112,7 +112,7 @@ export default function AgendamentosPage() {
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <AgendamentosSummary agendamentos={agendamentos} />
+      <AgendamentosSummary agendamentos={agendamentos} onFiltrar={(status) => { setFiltros((f) => ({ ...f, status })); setViewMode("tabela"); }} />
 
       <AgendamentosToolbar
         filtros={filtros}

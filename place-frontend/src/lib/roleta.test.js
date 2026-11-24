@@ -30,4 +30,9 @@ describe("roleta nas telas", () => {
     expect(motivoAguardando({ horario: { situacao: "chegada" }, iniciada: null })).toContain("09h");
     expect(motivoAguardando({ horario: { situacao: "distribuindo" }, iniciada: { em: "x" } })).toContain("foco");
   });
+
+  it("depois das 09h sem roleta, explica que ninguém estava apto", () => {
+    expect(motivoAguardando({ horario: { situacao: "chegada" }, iniciada: null })).toMatch(/Esperando a lista fechar/);
+    expect(motivoAguardando({ horario: { situacao: "distribuindo" }, iniciada: null })).toMatch(/ninguém apto às 09h/);
+  });
 });

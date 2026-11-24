@@ -25,7 +25,8 @@ const corretores = [{ id: "c1", nome: "Bruno Lima" }, { id: "c2", nome: "Ana Rei
 async function abrirLead() {
   const usuario = userEvent.setup();
   render(<MemoryRouter><LeadsPage /></MemoryRouter>);
-  await usuario.click(await screen.findByRole("button", { name: "Ver detalhes de Carla Souza" }));
+  // A lista aparece duas vezes (cartões no celular e tabela no PC); qualquer uma abre o lead.
+  await usuario.click((await screen.findAllByRole("button", { name: "Ver detalhes de Carla Souza" }))[0]);
   return usuario;
 }
 

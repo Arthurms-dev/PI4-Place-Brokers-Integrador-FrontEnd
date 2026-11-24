@@ -35,7 +35,7 @@ export default function AgendamentosCalendar({ agendamentos = [], semanaBase, on
         </button>
         <div className="flex flex-1 flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <p className="text-sm font-medium">{curto(inicio)} — {curto(dias[6])}</p>
-          <button type="button" onClick={irParaHoje} className="h-9 rounded-full border border-line px-4 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
+          <button type="button" onClick={irParaHoje} className="h-11 rounded-full border border-line px-4 text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink">
             Hoje
           </button>
         </div>
@@ -44,6 +44,10 @@ export default function AgendamentosCalendar({ agendamentos = [], semanaBase, on
         </button>
       </div>
 
+      {/* Semana sem nada: um aviso em vez de 7 colunas vazias. */}
+      {!dias.some((dia) => agendamentos.some((a) => mesmoDia(new Date(a.dataHora), dia))) && (
+        <p className="border-b border-line-soft px-4 py-3 text-center text-[13px] text-ink-2">Nenhum compromisso nesta semana. Use as setas para ver outras semanas ou "Novo agendamento".</p>
+      )}
       <div key={inicio.getTime()} className="animate-fade-in grid grid-cols-1 divide-y divide-line-soft md:grid-cols-7 md:divide-x md:divide-y-0">
         {dias.map((dia, i) => {
           const doDia = agendamentos

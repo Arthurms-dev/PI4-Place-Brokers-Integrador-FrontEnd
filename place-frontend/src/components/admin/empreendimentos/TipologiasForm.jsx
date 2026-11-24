@@ -219,7 +219,7 @@ export default function TipologiasForm({ empreendimentoId, onAtualizadas }) {
           <button
             type="button"
             onClick={novaPlanta}
-            className="h-10 rounded-xl border border-gold/50 px-4 text-xs font-semibold text-gold hover:bg-gold/10"
+            className="h-11 rounded-xl border border-gold/50 px-4 text-xs font-semibold text-gold hover:bg-gold/10"
           >
             Adicionar planta
           </button>
@@ -254,7 +254,7 @@ export default function TipologiasForm({ empreendimentoId, onAtualizadas }) {
                 type="button"
                 onClick={() => editarPlanta(tipologia)}
                 disabled={editando !== null}
-                className="h-10 rounded-lg border border-line px-4 text-xs font-medium hover:border-gold disabled:opacity-40"
+                className="h-11 rounded-lg border border-line px-4 text-xs font-medium hover:border-gold disabled:opacity-40"
               >
                 Editar
               </button>

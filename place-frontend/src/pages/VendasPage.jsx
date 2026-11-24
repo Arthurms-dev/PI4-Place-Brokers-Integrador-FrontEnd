@@ -309,7 +309,7 @@ export default function VendasPage() {
           {vendas.length === 0
             ? ehCorretor ? "Você ainda não lançou nenhuma venda." : "Nenhuma venda lançada ainda."
             : "Nenhuma venda com esse filtro."}
-          {ehCorretor && vendas.length === 0 && <button type="button" onClick={() => setLancando(true)} className="ml-1 text-gold hover:underline">Lançar a primeira</button>}
+          {ehCorretor && vendas.length === 0 && <button type="button" onClick={() => setLancando(true)} className="ml-1 inline-flex min-h-11 items-center text-gold hover:underline">Lançar a primeira</button>}
         </Vazio>
       ) : (
         <ul className="grid gap-3 lg:grid-cols-2">
@@ -322,4 +322,4 @@ export default function VendasPage() {
       )}
     </div>
   );
-}
+}

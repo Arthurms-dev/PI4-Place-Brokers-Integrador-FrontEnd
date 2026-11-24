@@ -1,5 +1,4 @@
 import { useOutletContext } from "react-router-dom";
-import { DashboardAcesso } from "@/components/admin/painel-adm/DashboardAcesso";
 import { ResumoOperacional } from "@/components/admin/painel-adm/ResumoOperacional";
 import { FeedCard } from "@/components/admin/painel-adm/FeedCard";
 import { useAsyncData} from "@/hooks/useAsyncData";
@@ -25,8 +24,6 @@ export default function PainelAdmPage (){
             </div>
 
             <ResumoOperacional/>
-
-            <DashboardAcesso/>
 
             <section className="grid gap-4 lg:grid-cols-3">
                 <FeedCard title="Registros de Segurança" description="Ocorrências cadastradas; não representa monitoramento automático" icon="bell" feed={alerts} emptyLabel="Nenhum registro cadastrado. Isso não garante ausência de incidentes." />

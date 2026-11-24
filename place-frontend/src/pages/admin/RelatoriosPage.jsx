@@ -5,9 +5,10 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { getAgendamentos } from "@/services/admin/agendamentos";
 import { getLeads } from "@/services/admin/leads";
 import { listarVendas } from "@/services/vendas";
+import { SeletorPeriodo } from "@/components/admin/periodo/SeletorPeriodo";
+import { intervaloDoFiltro } from "@/lib/periodoDashboard";
 
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-const PERIODOS = [[7, "7 dias"], [30, "30 dias"], [90, "90 dias"], [0, "Tudo"]];
 const FUNIL = [["novo", "Novos"], ["em_atendimento", "Em atendimento"], ["convertido", "Convertidos"], ["perdido", "Perdidos"]];
 const AGENDA = [["agendado", "Agendados"], ["confirmado", "Confirmados"], ["realizado", "Realizados"], ["nao_compareceu", "Não compareceram"], ["cancelado", "Cancelados"]];
 
@@ -61,7 +62,7 @@ function Barras({ itens, vazio, formato = (n) => n }) {
 
 export default function RelatoriosPage() {
   usePageTitle("Relatórios");
-  const [dias, setDias] = useState(30);
+  const [filtro, setFiltro] = useState({ tipo: "dias", dias: 30 });
   const [dados, setDados] = useState({ vendas: [], leads: [], agenda: [] });
   const [falhas, setFalhas] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -80,8 +81,10 @@ export default function RelatoriosPage() {
   }, []);
 
   const r = useMemo(() => {
-    const desde = dias ? Date.now() - dias * 86400000 : 0;
-    const noPeriodo = (iso) => !dias || new Date(iso).getTime() >= desde;
+    // Mesmo período do Dashboard: dias de Recife, do primeiro ao último dia escolhido.
+    const intervalo = filtro.tipo === "tudo" ? null : intervaloDoFiltro(filtro);
+    const diaDe = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Recife" }).format(new Date(iso));
+    const noPeriodo = (iso) => !intervalo?.ok || (iso && diaDe(iso) >= intervalo.de && diaDe(iso) <= intervalo.ate);
     const vendas = dados.vendas.filter((v) => noPeriodo(v.confirmado_em ?? v.criado_em));
     const confirmadas = vendas.filter((v) => v.status === "confirmada");
     const leads = dados.leads.filter((l) => noPeriodo(l.criadoEm));
@@ -116,7 +119,7 @@ export default function RelatoriosPage() {
       funil: conta(leads, "status", FUNIL),
       agenda: conta(agenda, "status", AGENDA),
     };
-  }, [dados, dias]);
+  }, [dados, filtro]);
 
   function exportar() {
     const linhas = [["Data", "Corretor", "Cliente", "Empreendimento", "Valor (R$)"]];
@@ -133,7 +136,7 @@ export default function RelatoriosPage() {
     ["VGV confirmado", <Contagem key="v" valor={r.vgv} formato={(n) => brl(n)} />, true],
     ["Vendas confirmadas", <Contagem key="q" valor={r.confirmadas.length} />],
     ["Ticket médio", <Contagem key="t" valor={r.ticket} formato={(n) => brl(n)} />],
-    ["Leads que viraram venda", <Contagem key="c" valor={r.conversao} formato={(n) => `${n.toFixed(0)}%`} />],
+    ["Conversão de leads (no período)", <Contagem key="c" valor={r.conversao} formato={(n) => `${n.toFixed(0)}%`} />],
     ["Comparecimento nas visitas", <Contagem key="p" valor={r.comparecimento} formato={(n) => `${n.toFixed(0)}%`} />],
   ];
 
@@ -146,11 +149,7 @@ export default function RelatoriosPage() {
           <p className="text-[13px] text-ink-2">Desempenho de vendas, leads e visitas no período.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <div className="flex rounded-xl border border-line p-0.5" role="group" aria-label="Período">
-            {PERIODOS.map(([d, rotulo]) => (
-              <button key={d} type="button" onClick={() => setDias(d)} aria-pressed={dias === d} className={`h-10 rounded-lg px-4 text-sm font-medium transition-colors ${dias === d ? "bg-gold/15 text-gold" : "text-ink-2 hover:text-ink"}`}>{rotulo}</button>
-            ))}
-          </div>
+          <SeletorPeriodo filtro={filtro} onMudar={setFiltro} comTudo />
           <button type="button" onClick={exportar} disabled={!r.confirmadas.length} className="h-11 rounded-xl border border-line px-4 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink disabled:opacity-40">Exportar vendas (CSV)</button>
         </div>
       </div>
@@ -160,8 +159,8 @@ export default function RelatoriosPage() {
       {carregando ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" aria-busy="true">{[0, 1, 2, 3, 4].map((i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-card" />)}</div>
       ) : (
-        <div key={dias} className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div key={JSON.stringify(filtro)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1 xl:grid-cols-5">
             {indicadores.map(([rotulo, valor, destaque], i) => (
               <div key={rotulo} style={{ animationDelay: `${i * 60}ms` }} className="animate-fade-up rounded-2xl border border-line bg-card p-4">
                 <p className="text-[12px] text-ink-3">{rotulo}</p>

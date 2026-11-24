@@ -63,7 +63,7 @@ function Rotulo({ texto, erro, children }) {
     <label className="block text-xs text-ink-2">
       {texto}
       <div className="mt-1.5">{children}</div>
-      {erro && <span className="mt-1 block text-[11px] text-danger">{erro}</span>}
+      {erro && <span className="mt-1 block text-xs text-danger">{erro}</span>}
     </label>
   );
 }
@@ -217,7 +217,7 @@ function Compromisso({ ag, aberto, onAbrir, onStatus, onRemarcar, ocupado }) {
             <Icon name={ag.tipo === "visita_imovel" ? "mapPin" : "home"} className="size-3.5 shrink-0" /> {onde}
           </div>
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${st.cls}`}>{st.label}</span>
       </button>
 
       {aberto && (
@@ -379,7 +379,7 @@ export default function AgendaPage() {
       {!carregando && grupos.length === 0 && (
         <div className="rounded-2xl border border-dashed border-line p-8 text-center text-sm text-ink-2">
           {filtro === "historico" ? "Nada no histórico ainda." : "Nenhum compromisso por aqui."}
-          {filtro !== "historico" && <button type="button" onClick={() => setNovo(true)} className="ml-1 text-gold hover:underline">Agendar agora</button>}
+          {filtro !== "historico" && <button type="button" onClick={() => setNovo(true)} className="ml-1 inline-flex min-h-11 items-center text-gold hover:underline">Agendar agora</button>}
         </div>
       )}
 

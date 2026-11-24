@@ -93,7 +93,12 @@ export default function ClientesPage() {
     };
   }, []);
 
-  const nomeDoCorretor = useCallback((id) => corretores.find((c) => c.id === id)?.nome ?? "—", [corretores]);
+  // O nome vem da própria API; a lista de corretores ativos só cobre quem está ativo hoje
+  // (cliente de corretor desativado aparecia como "Corretor: —" mesmo com venda confirmada).
+  const nomeDoCorretor = useCallback(
+    (c) => c.corretor?.nome ?? corretores.find((x) => x.id === (c.corretorId ?? c.corretor?.id))?.nome ?? "sem corretor",
+    [corretores],
+  );
   const vendasDoCliente = useMemo(() => {
     const m = new Map();
     for (const v of vendas) if (v.cliente_id) m.set(v.cliente_id, [...(m.get(v.cliente_id) ?? []), v]);
@@ -102,7 +107,7 @@ export default function ClientesPage() {
 
   const visiveis = useMemo(() => {
     const q = busca.trim().toLowerCase();
-    return clientes.filter((c) => (!corretorId || c.corretorId === corretorId) && (!q || `${c.nome} ${c.email ?? ""} ${c.telefone ?? ""}`.toLowerCase().includes(q)));
+    return clientes.filter((c) => (!corretorId || (c.corretorId ?? c.corretor?.id) === corretorId) && (!q || `${c.nome} ${c.email ?? ""} ${c.telefone ?? ""}`.toLowerCase().includes(q)));
   }, [clientes, busca, corretorId]);
 
   const comVenda = clientes.filter((c) => (vendasDoCliente.get(c.id) ?? []).some((v) => v.status === "confirmada")).length;
@@ -137,7 +142,7 @@ export default function ClientesPage() {
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1 sm:grid-cols-3">
         {[["Clientes", clientes.length], ["Com venda confirmada", comVenda], ["Novos no mês", novosNoMes]].map(([r, n], i) => (
           <div key={r} style={{ animationDelay: `${i * 70}ms` }} className="animate-fade-up rounded-2xl border border-line bg-card p-4">
             <p className="text-[12px] text-ink-3">{r}</p>
@@ -172,7 +177,7 @@ export default function ClientesPage() {
                   <span className="shrink-0 text-[12px] text-ink-3">{dataCurta(c.criadoEm)}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Selo tom="azul">Corretor: {nomeDoCorretor(c.corretorId)}</Selo>
+                  <Selo tom="azul">Corretor: {nomeDoCorretor(c)}</Selo>
                   {confirmadas.length > 0 && <Selo tom="ok">{confirmadas.length} {confirmadas.length === 1 ? "venda" : "vendas"} · {brl(confirmadas.reduce((t, v) => t + Number(v.valor), 0))}</Selo>}
                 </div>
                 {c.observacoes && <p className="rounded-xl bg-card-2 px-3 py-2 text-[13px] text-ink-2">{c.observacoes}</p>}
