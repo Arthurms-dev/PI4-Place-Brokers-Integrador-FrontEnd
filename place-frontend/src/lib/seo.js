@@ -91,7 +91,23 @@ export function sitemap(base, empreendimentos = []) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${linhas.join("\n")}\n</urlset>\n`;
 }
 
+/** Endereços oficiais da Place. Em qualquer outro (teste na Vercel, prévias) o Google não indexa. */
+export const DOMINIOS_OFICIAIS = ["placebrokers.com.br", "www.placebrokers.com.br"];
+
+export function ehDominioOficial(base) {
+  try {
+    return DOMINIOS_OFICIAIS.includes(new URL(base).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
 export function robots(base) {
+  // Fora do domínio oficial, o robô pode ler (para ver o "noindex" e tirar as páginas da busca),
+  // mas não recebe o sitemap.
+  if (!ehDominioOficial(base)) {
+    return ["User-agent: *", "Allow: /", "", "# Ambiente de teste: as páginas não devem aparecer na busca (noindex).", ""].join("\n");
+  }
   return [
     "User-agent: *",
     "Allow: /",

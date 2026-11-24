@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { metaDoEmpreendimento, paginaDePrevia, robots, sitemap } from "./seo";
+import { ehDominioOficial, metaDoEmpreendimento, paginaDePrevia, robots, sitemap } from "./seo";
 
 const emp = { id: "6a1b0c2d-0000-4000-8000-000000000001", nome: "Vila Alta Vista", bairro: "Janga", cidade: "Paulista", uf: "PE", segmento: "mcmv", parcela_min: 499, status: "pronto", capa_url: "https://img/capa.webp", capa_miniatura_url: "https://img/mini.webp", atualizado_em: "2026-10-29T10:00:00Z" };
 
@@ -27,10 +27,27 @@ describe("SEO e prévia de link", () => {
     expect(xml).not.toContain("rascunho");
   });
 
-  it("robots esconde as áreas internas e aponta o sitemap", () => {
-    const txt = robots("https://x/");
+  it("robots do domínio oficial esconde as áreas internas e aponta o sitemap", () => {
+    const txt = robots("https://placebrokers.com.br/");
     expect(txt).toContain("Disallow: /admin");
     expect(txt).toContain("Disallow: /corretor");
-    expect(txt).toContain("Sitemap: https://x/sitemap.xml");
+    expect(txt).toContain("Sitemap: https://placebrokers.com.br/sitemap.xml");
+    expect(robots("https://www.placebrokers.com.br")).toContain("Sitemap: https://www.placebrokers.com.br/sitemap.xml");
+  });
+
+  it("robots fora do domínio oficial não entrega o sitemap", () => {
+    for (const base of ["https://placebrokers-frontend.vercel.app", "https://x/", "endereço inválido"]) {
+      const txt = robots(base);
+      expect(txt).not.toContain("Sitemap:");
+      expect(txt).toContain("noindex");
+    }
+  });
+
+  it("só placebrokers.com.br conta como domínio oficial", () => {
+    expect(ehDominioOficial("https://placebrokers.com.br")).toBe(true);
+    expect(ehDominioOficial("https://WWW.placebrokers.com.br/imoveis/1")).toBe(true);
+    expect(ehDominioOficial("https://placebrokers-frontend.vercel.app")).toBe(false);
+    expect(ehDominioOficial("https://placebrokers.com.br.golpe.com")).toBe(false);
+    expect(ehDominioOficial("")).toBe(false);
   });
 });
