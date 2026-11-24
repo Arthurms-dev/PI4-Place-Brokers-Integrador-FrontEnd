@@ -183,4 +183,4 @@ export default function RegisterPage() {
       </p>
     </Card>
   );
-}
+}

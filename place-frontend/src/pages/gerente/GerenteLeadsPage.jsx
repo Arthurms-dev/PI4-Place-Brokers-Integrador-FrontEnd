@@ -148,4 +148,4 @@ export function LeadsDoTime({ membros, leads, carregando, erro, atualizarLead, t
       )}
     </div>
   );
-}
+}

@@ -132,4 +132,4 @@ export default function EquipesTab({ times, diretorias, corretoresPlace, gerente
       )}
     </div>
   );
-}
+}

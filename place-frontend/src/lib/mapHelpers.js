@@ -16,4 +16,4 @@ function criarPin(color) {
 /** @param {typeof import("@/services/empreendimentos").STATUS} STATUS */
 export function criarIconesPorStatus(STATUS) {
   return Object.fromEntries(Object.entries(STATUS).map(([k, v]) => [k, criarPin(v.color)]));
-}
+}

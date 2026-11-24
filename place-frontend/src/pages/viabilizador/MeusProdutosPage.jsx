@@ -176,4 +176,4 @@ export default function MeusProdutosPage() {
       {editando && <EditarPreco key={editando.id} produto={editando} onClose={() => setEditando(null)} onSalvo={(novo) => { setLista((l) => l.map((p) => (p.id === novo.id ? novo : p))); setEditando(null); }} />}
     </div>
   );
-}
+}

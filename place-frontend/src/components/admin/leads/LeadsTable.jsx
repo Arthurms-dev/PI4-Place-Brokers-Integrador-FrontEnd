@@ -135,4 +135,4 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
       </div>
     </>
   );
-}
+}
