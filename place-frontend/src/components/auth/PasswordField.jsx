@@ -21,7 +21,7 @@ export default function PasswordField({ value, onChange, autoComplete, error, in
         title={visivel ? "Ocultar senha" : "Mostrar senha"}
         aria-pressed={visivel}
         onClick={() => setVisivel((v) => !v)}
-        className="absolute inset-y-0 right-1 flex min-w-10 items-center justify-center rounded-lg text-ink-3 transition-colors hover:text-gold focus-visible:outline-2 focus-visible:outline-gold"
+        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-lg text-ink-3 transition-colors hover:text-gold focus-visible:outline-2 focus-visible:outline-gold"
       >
         <Icon name={visivel ? "eyeOff" : "eye"} className="size-[18px]" />
       </button>

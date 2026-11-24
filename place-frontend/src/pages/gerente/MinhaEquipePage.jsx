@@ -1,4 +1,5 @@
 import { Selo, Vazio } from "@/components/admin/equipe/ui";
+import { formatarTelefone } from "@/lib/atendimento";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useDadosEquipe } from "./useDadosEquipe";
@@ -58,7 +59,7 @@ export default function MinhaEquipePage() {
                           <span className="grid size-11 shrink-0 place-items-center rounded-full bg-gold/15 text-sm font-semibold text-gold">{iniciais(m.nome)}</span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">{m.nome}</p>
-                            <p className="truncate text-[12px] text-ink-3">{m.email}</p>
+                            <p className="truncate text-xs text-ink-3">{m.email}{m.telefone ? ` · ${formatarTelefone(m.telefone)}` : ""}</p>
                           </div>
                           {!m.ativo && <Selo tom="perigo">Inativo</Selo>}
                         </div>
@@ -89,4 +90,4 @@ export default function MinhaEquipePage() {
       )}
     </div>
   );
-}
+}

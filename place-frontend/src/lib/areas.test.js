@@ -3,7 +3,7 @@ import { AREAS, ROLE_HOME } from "./areas";
 import { robots } from "./seo";
 
 describe("divisão de cargos", () => {
-  it.each(["rh", "recepcao", "diretor", "cadastro"])("%s tem tela inicial e menu próprio", (cargo) => {
+  it.each(["rh", "recepcao", "diretor", "cadastro", "viabilizador"])("%s tem tela inicial e menu próprio", (cargo) => {
     expect(ROLE_HOME[cargo]).toBe(`/${cargo}`);
     expect(AREAS[cargo].home).toBe(`/${cargo}`);
     expect(AREAS[cargo].items.every((i) => i.href.startsWith(`/${cargo}`))).toBe(true);

@@ -164,6 +164,19 @@ describe("AuthService", () => {
   });
 
   describe("register", () => {
+    const base = { name: "Pessoa", email: "p@exemplo.com", password: "senha-forte-1", confirmPassword: "senha-forte-1", role: "CORRETOR", vinculo: "interno" };
+
+    it("pede o WhatsApp do corretor", () => {
+      const service = new AuthService({ fetchImpl: vi.fn() });
+      expect(service.validateRegister(base).telefone).toBe("Informe o seu WhatsApp com DDD.");
+      expect(service.validateRegister({ ...base, telefone: "(81) 99629-8692" })).toEqual({});
+    });
+
+    it("exige 8 caracteres na senha, como o back", () => {
+      const service = new AuthService({ fetchImpl: vi.fn() });
+      expect(service.validateRegister({ ...base, telefone: "81996298692", password: "abc1234", confirmPassword: "abc1234" }).password).toMatch(/8 caracteres/);
+    });
+
     it.todo("caso de sucesso: cria a conta e retorna usuário e token");
     it.todo("dados inválidos: não chama a API e lança AuthError de validação");
     it.todo("e-mail já cadastrado: lança AuthError USER_ALREADY_EXISTS");

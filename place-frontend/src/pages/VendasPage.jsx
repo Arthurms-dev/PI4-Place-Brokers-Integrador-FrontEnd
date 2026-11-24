@@ -8,7 +8,11 @@ import { listarClientes } from "@/services/meusLeads";
 import { criarVenda, decidirVenda, listarVendas } from "@/services/vendas";
 
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-const dataCurta = (iso) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+// "2026-11-24" (só a data) vira meio-dia local, senão o fuso de Recife mostraria o dia anterior.
+const dataCurta = (valor) => new Date(/^\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T12:00:00` : valor)
+  .toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+/** Hoje em Recife, no formato do campo de data (AAAA-MM-DD). */
+const hojeIso = () => new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
 const STATUS = {
   pendente: { rotulo: "Aguardando", tom: "alerta" },
   confirmada: { rotulo: "Confirmada", tom: "ok" },
@@ -49,15 +53,15 @@ const moeda = (digitos) => (digitos ? (Number(digitos) / 100).toLocaleString("pt
 
 function LancarVenda({ clienteInicial = "", empreendimentoInicial = "", onClose, onCriada }) {
   const [empreendimentos, setEmpreendimentos] = useState([]);
-  const [clientes, setClientes] = useState([]);
-  const [f, setF] = useState({ empreendimentoId: empreendimentoInicial, clienteId: clienteInicial, centavos: "" });
+  const [clientes, setClientes] = useState(null);
+  const [f, setF] = useState({ empreendimentoId: empreendimentoInicial, clienteId: clienteInicial, centavos: "", unidade: "", dataVenda: hojeIso() });
   const [erros, setErros] = useState({});
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
     listarEmpreendimentos().then(setEmpreendimentos).catch(() => {});
-    listarClientes().then(setClientes).catch(() => {});
+    listarClientes().then(setClientes).catch(() => setClientes([]));
   }, []);
 
   const borda = (c) => (erros[c] ? "border-danger" : "border-line focus:border-gold");
@@ -67,6 +71,9 @@ function LancarVenda({ clienteInicial = "", empreendimentoInicial = "", onClose,
     const e = {};
     if (!f.empreendimentoId) e.empreendimentoId = "Escolha o empreendimento.";
     if (!f.clienteId) e.clienteId = "Escolha o cliente.";
+    if (!f.unidade.trim()) e.unidade = "Informe a unidade (ex.: Torre A, 1203).";
+    if (!f.dataVenda) e.dataVenda = "Informe a data da venda.";
+    else if (f.dataVenda > hojeIso()) e.dataVenda = "A data da venda não pode ser futura.";
     if (!Number(f.centavos)) e.valor = "Informe o valor da venda.";
     setErros(e);
     setErroGeral("");
@@ -74,7 +81,10 @@ function LancarVenda({ clienteInicial = "", empreendimentoInicial = "", onClose,
 
     setEnviando(true);
     try {
-      onCriada(await criarVenda({ empreendimentoId: f.empreendimentoId, clienteId: f.clienteId, valor: Number(f.centavos) / 100 }));
+      onCriada(await criarVenda({
+        empreendimentoId: f.empreendimentoId, clienteId: f.clienteId, valor: Number(f.centavos) / 100,
+        unidade: f.unidade.trim(), dataVenda: f.dataVenda,
+      }));
     } catch (err) {
       setErros(err.fieldErrors ?? {});
       setErroGeral(err.message);
@@ -95,10 +105,18 @@ function LancarVenda({ clienteInicial = "", empreendimentoInicial = "", onClose,
         </Campo>
         <Campo rotulo="Cliente" erro={erros.clienteId}>
           <select value={f.clienteId} onChange={(e) => setF((s) => ({ ...s, clienteId: e.target.value }))} className={`${CAMPO} ${borda("clienteId")}`}>
-            <option value="">{clientes.length ? "Escolha o cliente" : "Nenhum cliente cadastrado"}</option>
-            {clientes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+            <option value="">{clientes === null ? "Carregando clientes…" : clientes.length ? "Escolha o cliente" : "Nenhum cliente cadastrado"}</option>
+            {(clientes ?? []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
           </select>
         </Campo>
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          <Campo rotulo="Unidade" erro={erros.unidade}>
+            <input value={f.unidade} maxLength={40} placeholder="Ex.: Torre A, 1203" onChange={(e) => setF((s) => ({ ...s, unidade: e.target.value }))} className={`${CAMPO} ${borda("unidade")}`} />
+          </Campo>
+          <Campo rotulo="Data da venda" erro={erros.dataVenda}>
+            <input type="date" value={f.dataVenda} max={hojeIso()} onChange={(e) => setF((s) => ({ ...s, dataVenda: e.target.value }))} className={`${CAMPO} ${borda("dataVenda")} scheme-dark`} />
+          </Campo>
+        </div>
         <Campo rotulo="Valor da venda" erro={erros.valor}>
           <input inputMode="numeric" placeholder="R$ 0,00" value={moeda(f.centavos)} onChange={(e) => setF((s) => ({ ...s, centavos: soDigitos(e.target.value).slice(0, 12) }))} className={`${CAMPO} ${borda("valor")}`} />
         </Campo>
@@ -130,18 +148,22 @@ function Venda({ v, indice, decide, onDecidir }) {
   }
 
   return (
-    <li style={{ animationDelay: `${Math.min(indice, 6) * 50}ms` }} className="animate-fade-up space-y-3 rounded-2xl border border-line bg-card p-4">
+    <li style={{ animationDelay: `${Math.min(indice, 6) * 50}ms` }} className="animate-fade-up min-w-0 space-y-3 rounded-2xl border border-line bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xl font-semibold text-gold">{brl(v.valor)}</p>
-          <p className="truncate text-sm font-medium">{v.empreendimento?.nome ?? "Empreendimento removido"}</p>
+          <p className="truncate text-sm font-medium">
+            {v.empreendimento?.nome ?? "Empreendimento removido"}{v.unidade ? <span className="font-normal text-ink-2"> · {v.unidade}</span> : null}
+          </p>
           <p className="truncate text-[13px] text-ink-2">
             {v.cliente?.nome ?? "Cliente não informado"}{v.corretor?.nome ? ` · ${v.corretor.nome}` : ""}
           </p>
         </div>
         <div className="shrink-0 text-right">
           <Selo tom={st.tom}>{rotulo}</Selo>
-          <p className="mt-1.5 text-[12px] text-ink-3">{dataCurta(v.criado_em)}</p>
+          <p className="mt-1.5 text-xs text-ink-3" title={v.data_venda ? `Lançada em ${dataCurta(v.criado_em)}` : "Data em que a venda foi lançada"}>
+            {dataCurta(v.data_venda ?? v.criado_em)}
+          </p>
         </div>
       </div>
 
@@ -230,7 +252,7 @@ export default function VendasPage() {
   const visiveis = useMemo(() => {
     const q = busca.trim().toLowerCase();
     return vendas.filter(
-      (v) => (!filtro || v.status === filtro) && (!q || `${v.corretor?.nome ?? ""} ${v.cliente?.nome ?? ""} ${v.empreendimento?.nome ?? ""}`.toLowerCase().includes(q)),
+      (v) => (!filtro || v.status === filtro) && (!q || `${v.corretor?.nome ?? ""} ${v.cliente?.nome ?? ""} ${v.empreendimento?.nome ?? ""} ${v.unidade ?? ""}`.toLowerCase().includes(q)),
     );
   }, [vendas, filtro, busca]);
 
@@ -255,7 +277,7 @@ export default function VendasPage() {
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1">
         <Indicador rotulo="VGV confirmado" destaque atraso={0} rodape={`${confirmadas.length} ${confirmadas.length === 1 ? "venda confirmada" : "vendas confirmadas"}`}>
           <Contagem valor={soma(confirmadas)} formato={(n) => brl(n)} />
         </Indicador>
@@ -267,17 +289,17 @@ export default function VendasPage() {
         </Indicador>
       </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filtrar por status">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por status">
         {filtros.map(([k, rotulo, n]) => (
           <button key={k || "todas"} type="button" onClick={() => setFiltro(k)} aria-pressed={filtro === k}
             className={`flex h-11 shrink-0 items-center gap-2 rounded-xl border px-4 text-sm transition-colors ${filtro === k ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
-            {rotulo} <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px]">{n}</span>
+            {rotulo} <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs">{n}</span>
           </button>
         ))}
       </div>
 
       {decide && vendas.length > 0 && (
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por corretor, cliente ou empreendimento" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
+        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Corretor, cliente, empreendimento ou unidade" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
       )}
 
       {carregando ? (
@@ -300,4 +322,4 @@ export default function VendasPage() {
       )}
     </div>
   );
-}
+}

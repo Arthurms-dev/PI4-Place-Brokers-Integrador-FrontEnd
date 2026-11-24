@@ -8,6 +8,7 @@ export const CARGOS_INTERNOS = [
   ["recepcao", "Recepção", "Marca a chegada e roda a roleta do dia. Não vê mais nada."],
   ["cadastro", "Cadastro", "Cadastra empreendimentos, fotos, books e tabelas."],
   ["rh", "RH", "Candidaturas do Trabalhe conosco e vagas."],
+  ["viabilizador", "Viabilizador", "Books, tabelas e disponibilidade dos produtos da própria construtora."],
 ];
 export const NOME_DO_CARGO = Object.fromEntries(CARGOS_INTERNOS.map(([v, r]) => [v, r]));
 
@@ -55,7 +56,8 @@ function Linha({ m, diretorias, onMudar }) {
 }
 
 export default function AcessosInternosTab({ membros, diretorias, onMudar, onNovo }) {
-  const internos = membros.filter((m) => NOME_DO_CARGO[m.cargo]);
+  // Viabilizadores têm aba própria (com a construtora); aqui ficam os demais cargos internos.
+  const internos = membros.filter((m) => NOME_DO_CARGO[m.cargo] && m.cargo !== "viabilizador");
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -67,7 +69,7 @@ export default function AcessosInternosTab({ membros, diretorias, onMudar, onNov
         </button>
       </div>
       {internos.length === 0 ? (
-        <Vazio>Nenhum acesso interno criado. Use "Novo acesso" para criar o login do RH, da recepção, de um diretor ou do cadastro.</Vazio>
+        <Vazio>Nenhum acesso interno criado. Use "Novo acesso" para criar o login do RH, da recepção, de um diretor, do cadastro ou de um viabilizador.</Vazio>
       ) : (
         <ul className="grid gap-3 lg:grid-cols-2">
           {internos.map((m) => <Linha key={m.id} m={m} diretorias={diretorias} onMudar={onMudar} />)}

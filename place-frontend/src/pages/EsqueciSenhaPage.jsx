@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useFocoNoPrimeiroErro } from "@/components/auth/useFocoNoPrimeiroErro";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormField, fieldInputClass } from "@/components/auth/FormField";
@@ -8,11 +9,15 @@ import { authService, AuthError } from "@/services/authService";
 
 export default function EsqueciSenhaPage() {
   usePageTitle("Esqueci minha senha");
-  const [email, setEmail] = useState("");
+  const { state } = useLocation();
+  // E-mail que a pessoa já tinha digitado no login (vem pelo estado da navegação, não pela URL).
+  const [email, setEmail] = useState(() => (typeof state?.email === "string" ? state.email : ""));
+  const formRef = useRef(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [enviado, setEnviado] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  useFocoNoPrimeiroErro(formRef, fieldErrors);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -41,8 +46,8 @@ export default function EsqueciSenhaPage() {
         <p role="status" className="text-sm leading-relaxed text-ink-2">{enviado}</p>
         <p className="mt-3 text-xs leading-relaxed text-ink-3">O link vale por 1 hora. Se não chegar em alguns minutos, você pode pedir de novo.</p>
         <div className="mt-6 flex flex-col gap-2">
-          <Link to="/login" className="text-center text-sm text-gold hover:underline">Voltar para o login</Link>
-          <button type="button" onClick={() => setEnviado("")} className="text-xs text-ink-2 hover:text-ink">
+          <Link to="/login" className="inline-flex min-h-11 items-center justify-center text-sm text-gold hover:underline">Voltar para o login</Link>
+          <button type="button" onClick={() => setEnviado("")} className="min-h-11 text-xs text-ink-2 hover:text-ink">
             Usar outro e-mail
           </button>
         </div>
@@ -55,7 +60,7 @@ export default function EsqueciSenhaPage() {
       <h1 className="mb-1 text-xl font-medium">Esqueci minha senha</h1>
       <p className="mb-6 text-sm text-ink-2">Digite o e-mail da sua conta. Vamos mandar um link para você criar uma senha nova.</p>
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="E-mail" error={fieldErrors.email}>
           <input
             type="email"
@@ -74,9 +79,9 @@ export default function EsqueciSenhaPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-ink-2">
+      <p className="mt-4 text-center text-xs text-ink-2">
         Lembrou a senha?{" "}
-        <Link to="/login" className="text-gold hover:underline">Entrar</Link>
+        <Link to="/login" className="inline-flex min-h-11 items-center px-1 text-gold hover:underline">Entrar</Link>
       </p>
     </Card>
   );

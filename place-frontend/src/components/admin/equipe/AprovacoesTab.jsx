@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatarTelefone } from "@/lib/atendimento";
 import { Avatar, Selo, Vazio, dataCurta } from "./ui";
 
 export default function AprovacoesTab({ pendentes, onMudar }) {
@@ -26,7 +27,7 @@ export default function AprovacoesTab({ pendentes, onMudar }) {
             <Avatar nome={m.nome} src={m.avatar_url} />
             <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold">{m.nome}</h3>
-              <p className="truncate text-[13px] text-ink-2">{m.email}{m.telefone ? ` · ${m.telefone}` : ""}</p>
+              <p className="truncate text-[13px] text-ink-2">{m.email}{m.telefone ? ` · ${formatarTelefone(m.telefone)}` : ""}</p>
             </div>
             <span className="shrink-0 text-[12px] text-ink-3">{dataCurta(m.criado_em)}</span>
           </div>
@@ -55,4 +56,4 @@ export default function AprovacoesTab({ pendentes, onMudar }) {
       ))}
     </ul>
   );
-}
+}

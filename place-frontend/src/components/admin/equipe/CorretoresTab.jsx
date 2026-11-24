@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
+import { formatarTelefone, linkWhatsApp } from "@/lib/atendimento";
 import { Avatar, CAMPO, Selo, Vazio, ehAutonomo, nomeReservado, ufDe } from "./ui";
 
 const STATUS = { aprovado: ["ok", "Aprovado"], pendente: ["alerta", "Pendente"], recusado: ["perigo", "Recusado"] };
@@ -41,10 +43,17 @@ function Linha({ m, times, onMudar, mostrarEquipe }) {
           {m.status !== "aprovado" && <Selo tom={tom}>{rotulo}</Selo>}
           {!m.ativo && <Selo tom="perigo">Inativo</Selo>}
         </div>
-        <div className="truncate text-[11px] text-ink-3">
+        <div className="truncate text-xs text-ink-3">
           {autonomo ? (m.creci ? "CRECI informado" : "Sem CRECI") : mostrarEquipe ? (time?.nome ?? "Sem equipe") : m.email}
+          {!autonomo && m.telefone ? ` · ${formatarTelefone(m.telefone)}` : ""}
         </div>
       </div>
+      {!autonomo && m.telefone && (
+        <a href={linkWhatsApp(m.telefone)} target="_blank" rel="noreferrer" aria-label={`WhatsApp de ${m.nome}`} title="WhatsApp"
+          className="grid size-11 shrink-0 place-items-center rounded-xl border border-[#25D366]/40 text-[#25D366] transition-colors hover:bg-[#25D366]/10">
+          <Icon name="messageCircle" className="size-[18px]" />
+        </a>
+      )}
       {m.status === "aprovado" && (
         <button type="button" disabled={salvando} onClick={alternar} aria-pressed={m.ativo}
           className={`h-11 shrink-0 rounded-xl border px-4 text-[13px] transition-colors disabled:opacity-50 ${m.ativo ? "border-line text-ink-2 hover:border-danger/50 hover:text-danger" : "border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10"}`}>
@@ -115,4 +124,4 @@ export default function CorretoresTab({ modo, corretores, times, onMudar }) {
       )}
     </div>
   );
-}
+}

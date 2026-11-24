@@ -44,6 +44,10 @@ const MinhaEquipePage = lazy(() => import("@/pages/gerente/MinhaEquipePage"));
 const GerenteLeadsPage = lazy(() => import("@/pages/gerente/GerenteLeadsPage"));
 const GerenteAgendaPage = lazy(() => import("@/pages/gerente/GerenteAgendaPage"));
 const FocosEquipePage = lazy(() => import("@/pages/gerente/FocosEquipePage"));
+const ViabilizadorInicioPage = lazy(() => import("@/pages/viabilizador/ViabilizadorInicioPage"));
+const MeusProdutosPage = lazy(() => import("@/pages/viabilizador/MeusProdutosPage"));
+const ViabilizadorBooksPage = lazy(() => import("@/pages/viabilizador/ViabilizadorBooksPage"));
+const OportunidadesPage = lazy(() => import("@/pages/viabilizador/OportunidadesPage"));
 
 export default function App() {
   return (
@@ -105,7 +109,16 @@ export default function App() {
         <Route path="*" element={<ComingSoonPage />} />
       </Route>
 
-      <Route path="/viabilizador/*" element={<Navigate to="/acesso-negado" replace />} />
+      {/* Viabilizador: acesso criado pelo admin, sempre ligado a uma construtora. */}
+      <Route path="/viabilizador" element={<AreaLayout cargo="viabilizador" />}>
+        <Route index element={<ViabilizadorInicioPage />} />
+        <Route path="produtos" element={<MeusProdutosPage />} />
+        <Route path="books" element={<ViabilizadorBooksPage />} />
+        <Route path="oportunidades" element={<OportunidadesPage />} />
+        <Route path="configuracoes" element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="*" element={<Navigate to="/viabilizador" replace />} />
+      </Route>
 
       {/* Cargos internos criados pelo admin: cada um vê só a sua parte. */}
       <Route path="/rh" element={<AreaLayout cargo="rh" />}>

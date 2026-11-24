@@ -100,11 +100,15 @@ export function ModalGerente({ onClose, onSalvo }) {
     </Folha>
   );
 }
-export function ModalUsuarioInterno({ diretorias, cargoInicial = "rh", onClose, onSalvo }) {
-  const [f, setF] = useState({ cargo: cargoInicial, nome: "", email: "", password: "", diretoriaId: "" });
+export function ModalUsuarioInterno({ diretorias, construtoras = [], cargoInicial = "rh", onClose, onSalvo }) {
+  const [f, setF] = useState({ cargo: cargoInicial, nome: "", email: "", password: "", diretoriaId: "", construtoraId: "" });
   const set = (c) => (e) => setF((s) => ({ ...s, [c]: e.target.value }));
   const { erros, erroGeral, enviando, enviar } = useEnvio(
-    () => criarUsuarioInterno({ ...f, diretoriaId: f.cargo === "diretor" ? f.diretoriaId : undefined }),
+    () => criarUsuarioInterno({
+      ...f,
+      diretoriaId: f.cargo === "diretor" ? f.diretoriaId : undefined,
+      construtoraId: f.cargo === "viabilizador" ? f.construtoraId : undefined,
+    }),
     onSalvo,
   );
   const descricao = CARGOS_INTERNOS.find(([v]) => v === f.cargo)?.[2];
@@ -122,6 +126,14 @@ export function ModalUsuarioInterno({ diretorias, cargoInicial = "rh", onClose, 
             <select value={f.diretoriaId} onChange={set("diretoriaId")} className={`${CAMPO} ${borda(erros, "diretoriaId")}`}>
               <option value="">Escolha a diretoria</option>
               {diretorias.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
+            </select>
+          </Campo>
+        )}
+        {f.cargo === "viabilizador" && (
+          <Campo rotulo="Construtora" erro={erros.construtoraId}>
+            <select value={f.construtoraId} onChange={set("construtoraId")} className={`${CAMPO} ${borda(erros, "construtoraId")}`}>
+              <option value="">Escolha a construtora</option>
+              {construtoras.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
             </select>
           </Campo>
         )}

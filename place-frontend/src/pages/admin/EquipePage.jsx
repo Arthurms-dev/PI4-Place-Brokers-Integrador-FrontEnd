@@ -4,6 +4,7 @@ import AcessosInternosTab, { NOME_DO_CARGO } from "@/components/admin/equipe/Ace
 import AprovacoesTab from "@/components/admin/equipe/AprovacoesTab";
 import CorretoresTab from "@/components/admin/equipe/CorretoresTab";
 import EquipesTab from "@/components/admin/equipe/EquipesTab";
+import ViabilizadoresTab from "@/components/admin/equipe/ViabilizadoresTab";
 import { ModalDiretoria, ModalEquipe, ModalGerente, ModalUsuarioInterno } from "@/components/admin/equipe/modais";
 import { ehAutonomo } from "@/components/admin/equipe/ui";
 import * as api from "@/services/admin/equipe";
@@ -71,7 +72,8 @@ export default function EquipePage() {
   const aprovadosPlace = useMemo(() => corretores.filter((m) => m.status === "aprovado" && m.ativo && !ehAutonomo(m)), [corretores]);
   const gerentes = useMemo(() => membros.filter((m) => m.cargo === "gerente"), [membros]);
   const autonomos = useMemo(() => corretores.filter(ehAutonomo), [corretores]);
-  const internos = useMemo(() => membros.filter((m) => NOME_DO_CARGO[m.cargo]), [membros]);
+  const internos = useMemo(() => membros.filter((m) => NOME_DO_CARGO[m.cargo] && m.cargo !== "viabilizador"), [membros]);
+  const viabilizadores = useMemo(() => membros.filter((m) => m.cargo === "viabilizador" && m.status === "aprovado"), [membros]);
 
   const abas = [
     ["aprovacoes", "Aprovações", pendentes.length],
@@ -79,6 +81,7 @@ export default function EquipePage() {
     ["autonomos", "Autônomos", autonomos.length],
     ["todos", "Todos os corretores", corretores.length],
     ["internos", "Acessos internos", internos.length],
+    ["viabilizadores", "Viabilizadores", viabilizadores.length],
   ];
 
   if (carregando) {
@@ -122,6 +125,7 @@ export default function EquipePage() {
         )}
         {aba === "autonomos" && <CorretoresTab modo="autonomos" corretores={corretores} times={times} onMudar={mudar} />}
         {aba === "todos" && <CorretoresTab modo="todos" corretores={corretores} times={times} onMudar={mudar} />}
+        {aba === "viabilizadores" && <ViabilizadoresTab viabilizadores={viabilizadores} construtoras={construtoras} onMudar={mudar} />}
         {aba === "internos" && <AcessosInternosTab membros={membros} diretorias={diretorias} onMudar={mudar} onNovo={() => setModal({ tipo: "interno" })} />}
       </div>
 
@@ -133,11 +137,11 @@ export default function EquipePage() {
         <ModalDiretoria onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
       )}
       {modal?.tipo === "interno" && (
-        <ModalUsuarioInterno diretorias={diretorias} onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
+        <ModalUsuarioInterno diretorias={diretorias} construtoras={construtoras} onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
       )}
       {modal?.tipo === "gerente" && (
         <ModalGerente onClose={() => setModal(null)} onSalvo={async () => { setModal(null); await recarregar(); }} />
       )}
     </div>
   );
-}
+}

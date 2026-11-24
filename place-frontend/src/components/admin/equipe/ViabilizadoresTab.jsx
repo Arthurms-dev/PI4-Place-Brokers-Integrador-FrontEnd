@@ -41,7 +41,7 @@ function Linha({ v, construtoras, onMudar }) {
 }
 
 export default function ViabilizadoresTab({ viabilizadores, construtoras, onMudar }) {
-  if (viabilizadores.length === 0) return <Vazio>Nenhum viabilizador aprovado ainda. Os cadastros novos aparecem em Aprovações.</Vazio>;
+  if (viabilizadores.length === 0) return <Vazio>Nenhum viabilizador ainda. Crie o acesso em Acessos internos › Novo acesso, escolhendo a construtora.</Vazio>;
   return (
     <div className="space-y-3">
       <p className="text-[12px] text-ink-3">O viabilizador só vê e atualiza os empreendimentos da construtora a que está vinculado.</p>
@@ -50,4 +50,4 @@ export default function ViabilizadoresTab({ viabilizadores, construtoras, onMuda
       </ul>
     </div>
   );
-}
+}

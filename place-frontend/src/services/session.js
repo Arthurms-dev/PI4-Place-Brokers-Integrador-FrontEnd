@@ -23,6 +23,7 @@ export async function getCurrentUser() {
         cargo: user.role, avatarUrl: user.avatarUrl ?? null, unreadNotifications: 0,
         avisoLeadEmail: Boolean(user.avisoLeadEmail),
         trocarSenha: user.trocarSenha === true,
+        telefone: user.telefone ?? null,
       };
     } catch (erro) {
       if (erro?.status === 401 && getToken() === token) clearToken();

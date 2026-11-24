@@ -2,11 +2,12 @@ import { useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { formatarTelefone } from "@/lib/atendimento";
 import { Meter } from "@/components/admin/dashboard/charts";
 import { authService } from "@/services/authService";
 import { TAMANHO_MAXIMO_FOTO, TIPOS_DE_FOTO, alterarSenha, atualizarPerfil, removerFotoPerfil, trocarFotoPerfil } from "@/services/session";
 
-const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-3";
+const CAMPO = "h-12 w-full rounded-xl border bg-card-2 px-3.5 text-base sm:text-sm text-ink outline-none transition-colors placeholder:text-ink-3";
 const borda = (erro) => (erro ? "border-danger" : "border-line focus:border-gold");
 
 function forca(s) {
@@ -23,7 +24,7 @@ function Campo({ rotulo, erro, children }) {
     <label className="block text-xs text-ink-2">
       {rotulo}
       <div className="mt-1.5">{children}</div>
-      {erro && <span className="mt-1 block text-[11px] text-danger">{erro}</span>}
+      {erro && <span className="mt-1 block text-[13px] text-danger">{erro}</span>}
     </label>
   );
 }
@@ -33,9 +34,11 @@ function CampoSenha({ rotulo, valor, onChange, erro, auto }) {
   return (
     <Campo rotulo={rotulo} erro={erro}>
       <div className="relative">
-        <input type={visivel ? "text" : "password"} value={valor} onChange={(e) => onChange(e.target.value)} autoComplete={auto} className={`${CAMPO} pr-24 ${borda(erro)}`} />
-        <button type="button" onClick={() => setVisivel((v) => !v)} aria-label={visivel ? "Ocultar senha" : "Mostrar senha"} className="absolute right-1.5 top-1.5 h-9 rounded-lg px-3 text-[12px] text-ink-2 transition-colors hover:text-ink">
-          {visivel ? "Ocultar" : "Mostrar"}
+        <input type={visivel ? "text" : "password"} value={valor} onChange={(e) => onChange(e.target.value)} autoComplete={auto} className={`${CAMPO} pr-12 ${borda(erro)}`} />
+        {/* Mesmo olho do login, para não ter dois jeitos de mostrar a senha. */}
+        <button type="button" onClick={() => setVisivel((v) => !v)} aria-label={visivel ? "Ocultar senha" : "Mostrar senha"} title={visivel ? "Ocultar senha" : "Mostrar senha"} aria-pressed={visivel}
+          className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-xl text-ink-3 transition-colors hover:text-gold">
+          <Icon name={visivel ? "eyeOff" : "eye"} className="size-[18px]" />
         </button>
       </div>
     </Campo>
@@ -48,6 +51,8 @@ export default function PerfilPage() {
   const navigate = useNavigate();
 
   const [nome, setNome] = useState(user.name);
+  const [telefone, setTelefone] = useState(() => formatarTelefone(user.telefone ?? ""));
+  const [erroTelefone, setErroTelefone] = useState("");
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
@@ -101,10 +106,12 @@ export default function PerfilPage() {
     setMensagem("");
     setErro("");
     try {
-      await atualizarPerfil({ nome });
+      setErroTelefone("");
+      await atualizarPerfil({ nome, telefone });
       setMensagem("Perfil atualizado.");
     } catch (err) {
-      setErro(err.message);
+      if (err.fieldErrors?.telefone) setErroTelefone(err.fieldErrors.telefone);
+      else setErro(err.message);
     } finally {
       setSalvando(false);
     }
@@ -166,7 +173,11 @@ export default function PerfilPage() {
       <form onSubmit={salvar} style={{ animationDelay: "70ms" }} className="animate-fade-up space-y-4 rounded-2xl border border-line bg-card p-5">
         <h2 className="text-[15px] font-semibold">Dados da conta</h2>
         <Campo rotulo="Nome"><input value={nome} onChange={(e) => setNome(e.target.value)} className={`${CAMPO} ${borda(false)}`} /></Campo>
-        <Campo rotulo="E-mail"><input value={user.email ?? ""} disabled className={`${CAMPO} border-line text-ink-3`} /></Campo>
+        <Campo rotulo="WhatsApp" erro={erroTelefone}>
+          <input type="tel" inputMode="tel" autoComplete="tel-national" placeholder="(81) 99999-9999" value={telefone}
+            onChange={(e) => setTelefone(e.target.value)} aria-invalid={erroTelefone ? true : undefined} className={`${CAMPO} ${borda(erroTelefone)}`} />
+        </Campo>
+        <Campo rotulo="E-mail (para trocar, fale com o admin)"><input value={user.email ?? ""} disabled className={`${CAMPO} border-line text-ink-3`} /></Campo>
         {mensagem && <p role="status" className="text-xs text-ok">{mensagem}</p>}
         {erro && <p role="alert" className="text-xs text-danger">{erro}</p>}
         <button type="submit" disabled={salvando || !nome.trim()} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">

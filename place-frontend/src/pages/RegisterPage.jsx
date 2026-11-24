@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -6,6 +6,7 @@ import { FormField, fieldInputClass } from "@/components/auth/FormField";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { authService, AuthError } from "@/services/authService";
 import PasswordField from "@/components/auth/PasswordField";
+import { useFocoNoPrimeiroErro } from "@/components/auth/useFocoNoPrimeiroErro";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -18,12 +19,14 @@ export default function RegisterPage() {
   usePageTitle("Criar conta");
 
   const [form, setForm] = useState({
-    name: "", email: "", role: "CORRETOR", vinculo: "", creci: "", uf: "", construtoraId: "", password: "", confirmPassword: "",
+    name: "", email: "", telefone: "", role: "CORRETOR", vinculo: "", creci: "", uf: "", construtoraId: "", password: "", confirmPassword: "",
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  const formRef = useRef(null);
+  useFocoNoPrimeiroErro(formRef, fieldErrors);
 
   const ehCorretor = form.role === "CORRETOR";
   const handleChange = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -66,7 +69,7 @@ export default function RegisterPage() {
           {ehCorretor && form.vinculo === "externo" ? " e conferir o seu CRECI" : ""}. Você poderá entrar assim que ele
           for aprovado.
         </p>
-        <Link to="/login" className="text-sm text-gold hover:underline">
+        <Link to="/login" className="inline-flex min-h-11 items-center text-sm text-gold hover:underline">
           Voltar para o login
         </Link>
       </Card>
@@ -78,7 +81,7 @@ export default function RegisterPage() {
       <h1 className="mb-1 text-xl font-medium">Criar conta</h1>
       <p className="mb-6 text-sm text-ink-2">Cadastro para corretores. A conta fica pendente até o administrador aprovar.</p>
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="Nome completo" error={fieldErrors.name}>
           <input value={form.name} onChange={handleChange("name")} className={fieldInputClass(fieldErrors.name)} />
         </FormField>
@@ -95,6 +98,18 @@ export default function RegisterPage() {
 
         {ehCorretor && (
           <>
+            <FormField label="WhatsApp" error={fieldErrors.telefone} hint="Com DDD. É por ele que o gerente fala com você.">
+              <input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                placeholder="(81) 99999-9999"
+                value={form.telefone}
+                onChange={handleChange("telefone")}
+                className={fieldInputClass(fieldErrors.telefone)}
+              />
+            </FormField>
+
             <FormField label="Você é" error={fieldErrors.vinculo}>
               <select value={form.vinculo} onChange={handleChange("vinculo")} className={fieldInputClass(fieldErrors.vinculo)}>
                 <option value="" disabled>
@@ -131,7 +146,7 @@ export default function RegisterPage() {
           </>
         )}
 
-        <FormField label="Senha" error={fieldErrors.password}>
+        <FormField label="Senha" error={fieldErrors.password} hint="Mínimo de 8 caracteres.">
           <PasswordField
             autoComplete="new-password"
             value={form.password}
@@ -160,17 +175,12 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-xs text-ink-3">
-        Cadastro recusado? Solicite ao administrador a reabertura da análise.
-        Não é necessário criar outra conta.
-      </p>
-
-      <p className="mt-6 text-center text-xs text-ink-2">
+      <p className="mt-4 text-center text-xs text-ink-2">
         Já tem conta?{" "}
-        <Link to="/login" className="text-gold hover:underline">
+        <Link to="/login" className="inline-flex min-h-11 items-center px-1 text-gold hover:underline">
           Entrar
         </Link>
       </p>
     </Card>
   );
-}
+}

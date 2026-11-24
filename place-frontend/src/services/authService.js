@@ -1,5 +1,6 @@
 import { setToken, clearToken, setRefreshToken } from "@/lib/authToken";
 import { apiRequest, API_URL } from "@/lib/apiClient";
+import { normalizarTelefone } from "@/lib/telefone";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -59,8 +60,9 @@ export class AuthService {
 
   /** @param {{ name?: string, email?: string, password?: string, confirmPassword?: string,
    * role?: string, vinculo?: string, creci?: string, uf?: string, construtoraId?: string }} payload */
-  validateRegister({ name, email, password, confirmPassword, role, vinculo, creci, uf, construtoraId } = {}) {
+  validateRegister({ name, email, telefone, password, confirmPassword, role, vinculo, creci, uf, construtoraId } = {}) {
     const errors = this.validateLogin({ email, password });
+    if (password && password.length < 8) errors.password = "A senha deve ter pelo menos 8 caracteres.";
     if (!name?.trim()) errors.name = "Informe o nome completo.";
     if (confirmPassword !== password) errors.confirmPassword = "As senhas não coincidem.";
     if (!role) errors.role = "Selecione um perfil.";
@@ -68,6 +70,8 @@ export class AuthService {
       if (!vinculo) errors.vinculo = "Informe se é corretor da Place ou parceiro externo.";
       if (vinculo === "externo" && !creci?.trim()) errors.creci = "CRECI é obrigatório para corretores externos.";
       if (vinculo === "externo" && !uf) errors.uf = "Informe o estado em que você atua.";
+      const fone = normalizarTelefone(telefone ?? "");
+      if (!fone.ok) errors.telefone = String(telefone ?? "").trim() ? fone.erro : "Informe o seu WhatsApp com DDD.";
     }
     if (role === "VIABILIZADOR" && !construtoraId) errors.construtoraId = "Selecione a construtora em que você trabalha.";
     return errors;
@@ -81,6 +85,7 @@ export class AuthService {
     return post("/auth/register", {
       nome: payload.name.trim(),
       email: payload.email.trim().toLowerCase(),
+      telefone: payload.role === "CORRETOR" ? payload.telefone : null,
       password: payload.password,
       confirmPassword: payload.confirmPassword,
       role: payload.role.toLowerCase(),

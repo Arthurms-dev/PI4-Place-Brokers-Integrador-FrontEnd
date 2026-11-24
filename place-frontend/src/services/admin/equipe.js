@@ -3,7 +3,7 @@ import { api } from "@/lib/apiClient";
 export const listarMembros = () => api.get("/equipe");
 export const atualizarMembro = (id, mudancas) => api.patch(`/equipe/${id}`, mudancas);
 export const criarGerente = (dados) => api.post("/equipe/gerentes", dados);
-/** Gerente, RH, recepção, diretor (com diretoriaId) ou cadastro. */
+/** Gerente, RH, recepção, diretor (com diretoriaId), cadastro ou viabilizador (com construtoraId). */
 export const criarUsuarioInterno = (dados) => api.post("/equipe/usuarios", dados);
 export const listarTimes = () => api.get("/equipe/times");
 export const criarTime = (dados) => api.post("/equipe/times", dados);

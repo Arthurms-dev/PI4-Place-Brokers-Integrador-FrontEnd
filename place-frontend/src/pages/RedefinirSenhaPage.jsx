@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFocoNoPrimeiroErro } from "@/components/auth/useFocoNoPrimeiroErro";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +13,7 @@ function LinkInvalido({ mensagem }) {
     <Card>
       <h1 className="mb-2 text-xl font-medium">Link inválido</h1>
       <p role="alert" className="text-sm leading-relaxed text-ink-2">{mensagem}</p>
-      <Link to="/esqueci-senha" className="mt-6 block text-center text-sm text-gold hover:underline">Pedir um novo link</Link>
+      <Link to="/esqueci-senha" className="mt-4 flex min-h-11 items-center justify-center text-sm text-gold hover:underline">Pedir um novo link</Link>
     </Card>
   );
 }
@@ -29,6 +30,8 @@ export default function RedefinirSenhaPage() {
   const [linkInvalido, setLinkInvalido] = useState(token ? "" : "Este endereço não tem o código de redefinição. Abra o link direto do e-mail ou peça um novo.");
   const [pronto, setPronto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef(null);
+  useFocoNoPrimeiroErro(formRef, fieldErrors);
 
   useEffect(() => {
     if (params.has("token")) navigate("/redefinir-senha", { replace: true });
@@ -74,8 +77,8 @@ export default function RedefinirSenhaPage() {
       <h1 className="mb-1 text-xl font-medium">Criar nova senha</h1>
       <p className="mb-6 text-sm text-ink-2">Use pelo menos 8 caracteres. Depois de salvar, as outras sessões abertas da sua conta são encerradas.</p>
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <FormField label="Nova senha" error={fieldErrors.novaSenha}>
+      <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        <FormField label="Nova senha" error={fieldErrors.novaSenha} hint="Mínimo de 8 caracteres.">
           <PasswordField autoComplete="new-password" autoFocus value={form.novaSenha} onChange={handleChange("novaSenha")} error={fieldErrors.novaSenha} />
         </FormField>
 

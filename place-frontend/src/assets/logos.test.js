@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 // Sem width/height no <svg>, a imagem não tem tamanho próprio e some (0x0) em
 // containers que se ajustam ao conteúdo, como o topo do menu lateral do painel.
-const LOGOS = { "logo.svg": [600, 258], "logo-pino.svg": [221, 258], "logo-texto-escuro.svg": [379, 258] };
+const LOGOS = { "logo.svg": [600, 258], "logo-sem-frase.svg": [600, 258], "logo-pino.svg": [221, 258], "logo-texto-escuro.svg": [379, 258] };
 
 describe("logos em SVG", () => {
   it.each(Object.entries(LOGOS))("%s declara largura e altura", (arquivo, [largura, altura]) => {
