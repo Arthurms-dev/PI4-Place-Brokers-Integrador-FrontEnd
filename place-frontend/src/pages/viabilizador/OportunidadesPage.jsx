@@ -4,7 +4,7 @@ import { Meter } from "@/components/admin/dashboard/charts";
 import { Selo, Vazio } from "@/components/admin/equipe/ui";
 import Contagem from "@/components/ui/Contagem";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { MSG_SEM_CONSTRUTORA, getOportunidades } from "@/services/viabilizador";
+import { ESCALA_MINIMA, MSG_SEM_CONSTRUTORA, getOportunidades } from "@/services/viabilizador";
 
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const PERIODOS = [[7, "7 dias"], [30, "30 dias"], [90, "90 dias"]];
@@ -25,7 +25,7 @@ export default function OportunidadesPage() {
   }, [dias]);
 
   const produtos = dados?.produtos ?? [];
-  const maior = Math.max(...produtos.map((p) => p.pontuacao), 1);
+  const maior = Math.max(...produtos.map((p) => p.pontuacao), ESCALA_MINIMA);
   const r = dados?.resumo;
 
   return (
@@ -70,22 +70,23 @@ export default function OportunidadesPage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-xl font-semibold text-gold">{p.pontuacao}</p>
-                    <p className="text-xs text-ink-3">pontos</p>
+                    <p className="text-xs text-ink-3">{p.pontuacao === 1 ? "ponto" : "pontos"}</p>
                   </div>
                 </div>
                 <Meter pct={(p.pontuacao / maior) * 100} atraso={i * 70} />
+                {/* No celular: 4 números em 2 colunas e o VGV na linha inteira. dt antes de dd (leitores de tela). */}
                 <dl className="grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
                   {[["Visualizações", p.visualizacoes], ["Leads", p.leads], ["Visitas", p.visitas], ["Vendas", p.vendas.confirmadas], ["VGV", brl(p.vendas.vgv)]].map(([rotulo, valor]) => (
-                    <div key={rotulo} className="rounded-xl bg-card-2 py-2">
-                      <dd className="text-[15px] font-semibold">{valor}</dd>
+                    <div key={rotulo} className={`flex flex-col-reverse rounded-xl bg-card-2 py-2 ${rotulo === "VGV" ? "col-span-2 sm:col-span-1" : ""}`}>
                       <dt className="text-xs text-ink-3">{rotulo}</dt>
+                      <dd className="text-[15px] font-semibold">{valor}</dd>
                     </div>
                   ))}
                 </dl>
                 {!p.disponivel && (p.leads > 0 || p.visitas > 0) && (
                   <p className="flex flex-wrap items-center gap-2 text-[13px] text-amber-300">
-                    <Selo tom="alerta">Atenção</Selo> Há procura, mas o produto está marcado como indisponível.
-                    <Link to="/viabilizador/produtos" className="text-gold hover:underline">Revisar</Link>
+                    <Selo tom="alerta">Atenção</Selo> Há procura, mas o produto está marcado como esgotado.
+                    <Link to="/viabilizador/produtos" className="inline-flex min-h-11 items-center text-gold hover:underline">Revisar</Link>
                   </p>
                 )}
               </li>
@@ -95,4 +96,4 @@ export default function OportunidadesPage() {
       )}
     </div>
   );
-}
+}

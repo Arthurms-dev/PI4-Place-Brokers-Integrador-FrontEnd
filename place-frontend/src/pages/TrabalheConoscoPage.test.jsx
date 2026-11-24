@@ -57,6 +57,30 @@ describe("Trabalhe conosco", () => {
     expect(await screen.findByText("Candidatura recebida")).toBeInTheDocument();
   });
 
+  it("mostra vínculo, quantidade, prazo e requisitos, com o prazo mais próximo primeiro", async () => {
+    const hoje = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    const emDias = (n) => new Date(hoje.getTime() + n * 86400000).toISOString().slice(0, 10);
+    listarVagasAbertas.mockResolvedValue([
+      { ...vaga, id: "a", titulo: "Sem prazo", prazo: null },
+      { ...vaga, id: "b", titulo: "Longe", prazo: emDias(30), vinculo: "clt", quantidade: 3, requisitos: "CRECI ativo\nCarro próprio\nSábados\nInglês" },
+      { ...vaga, id: "c", titulo: "Perto", prazo: emDias(3), vinculo: "autonomo", quantidade: 1 },
+    ]);
+    const u = abrir();
+
+    await screen.findByRole("button", { name: "Ver todos (4)" });
+    const opcoes = [...screen.getByLabelText("Vaga").querySelectorAll("option")].map((o) => o.textContent);
+    expect(opcoes).toEqual(["Banco de talentos", "Perto", "Longe", "Sem prazo"]);
+    expect(screen.getByText("Autônomo")).toBeInTheDocument();
+    expect(screen.getByText("1 vaga")).toBeInTheDocument();
+    expect(screen.getByText(/^Últimos dias · até/)).toBeInTheDocument();
+    expect(screen.getByText("CLT")).toBeInTheDocument();
+    expect(screen.getByText("3 vagas")).toBeInTheDocument();
+    expect(screen.getByText("CRECI ativo")).toBeInTheDocument();
+    expect(screen.queryByText("Inglês")).not.toBeInTheDocument();
+    await u.click(screen.getByRole("button", { name: "Ver todos (4)" }));
+    expect(screen.getByText("Inglês")).toBeInTheDocument();
+  });
+
   it("recusa currículo que não é PDF", async () => {
     const u = userEvent.setup({ applyAccept: false });
     render(<MemoryRouter><TrabalheConoscoPage /></MemoryRouter>);

@@ -363,12 +363,12 @@ export default function CatalogoPage({ modo = "catalogo" }) {
         </div>
         <div className={`grid gap-2 ${books ? "" : "grid-cols-2"} sm:max-w-md`}>
           <select value={cidade} onChange={(e) => setCidade(e.target.value)} aria-label="Cidade" className={`${CAMPO} border-line`}>
-            <option value="">Todas as cidades</option>
+            <option value="">Cidade: todas</option>
             {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           {!books && (
             <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Fase" className={`${CAMPO} border-line`}>
-              <option value="">Todas as fases</option>
+              <option value="">Fase: todas</option>
               {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           )}

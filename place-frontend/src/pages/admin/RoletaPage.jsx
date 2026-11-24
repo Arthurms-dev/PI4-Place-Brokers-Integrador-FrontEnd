@@ -263,7 +263,7 @@ export default function RoletaPage() {
 
       <p className="order-5 text-[12px] text-ink-3 lg:order-none">
         Os leads vão para o próximo apto da lista com foco no empreendimento; no fim da lista, recomeça do topo.
-        Os focos são definidos pelos gerentes{ehAdmin ? <> em <Link to="/admin/focos" className="text-gold hover:underline">Focos dos corretores</Link></> : null}.
+        Os focos são definidos pelos gerentes{ehAdmin ? <> em <Link to="/admin/focos" className="inline-flex min-h-11 items-center text-gold hover:underline">Focos dos corretores</Link></> : null}.
       </p>
     </div>
   );

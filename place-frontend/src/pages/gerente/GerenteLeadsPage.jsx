@@ -38,8 +38,8 @@ function Reatribuir({ lead, membros, onFeito, onErro, reatribuir = reatribuirLea
     }
   }
 
-  // Sem outro corretor ativo não há para quem passar: o card explica em vez de não mostrar nada.
-  if (opcoes.length === 0) return <p className="text-xs text-ink-3">Para repassar, a {escopo} precisa de outro corretor ativo.</p>;
+  // Sem outro corretor ativo não há para quem passar: o aviso aparece uma vez só, no topo da lista.
+  if (opcoes.length === 0) return null;
   const rotulo = rotuladorDePessoas(opcoes);
   return destino ? (
     <div className="animate-fade-in space-y-2 rounded-xl border border-gold/30 p-3">
@@ -83,6 +83,7 @@ export function LeadsDoTime({ membros, leads, carregando, erro, atualizarLead, t
       .filter((l) => (!corretorId || l.corretor?.id === corretorId) && (!status || l.status === status) && (!q || `${l.nome} ${l.email ?? ""} ${l.telefone ?? ""} ${l.empreendimento?.nome ?? ""}`.toLowerCase().includes(q)))
       .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
   }, [leads, busca, corretorId, status]);
+  const semParaQuemPassar = membros.filter((m) => m.ativo).length < 2;
 
   return (
     <div className="space-y-5">
@@ -93,6 +94,9 @@ export function LeadsDoTime({ membros, leads, carregando, erro, atualizarLead, t
       </div>
       {(erro || falha) && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro || falha}</p>}
       {aviso && <p role="status" className="animate-fade-in rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{aviso}</p>}
+      {!carregando && leads.length > 0 && semParaQuemPassar && (
+        <p className="rounded-xl border border-line bg-card px-4 py-3 text-[13px] text-ink-2">Para repassar leads, a {escopo} precisa de mais de um corretor ativo.</p>
+      )}
 
       <div className="grid gap-2 sm:grid-cols-[1fr_14rem_12rem]">
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, contato ou empreendimento" aria-label="Buscar" className={`${CAMPO} border-line focus:border-gold`} />
@@ -144,4 +148,4 @@ export function LeadsDoTime({ membros, leads, carregando, erro, atualizarLead, t
       )}
     </div>
   );
-}
+}

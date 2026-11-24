@@ -30,7 +30,7 @@ export function Campo({ rotulo, erro, children }) {
     <label className="block text-xs text-ink-2">
       {rotulo}
       <div className="mt-1.5">{children}</div>
-      {erro && <span className="mt-1 block text-[11px] text-danger">{erro}</span>}
+      {erro && <span className="mt-1 block text-xs text-danger">{erro}</span>}
     </label>
   );
 }

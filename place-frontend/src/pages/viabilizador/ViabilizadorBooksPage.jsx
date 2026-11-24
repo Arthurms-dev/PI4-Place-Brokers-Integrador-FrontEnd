@@ -3,22 +3,32 @@ import { Icon } from "@/components/ui/Icon";
 import { Selo, Vazio } from "@/components/admin/equipe/ui";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { urlDoDocumento } from "@/services/empreendimentos";
-import { MSG_SEM_CONSTRUTORA, enviarDocumento, getProdutos } from "@/services/viabilizador";
+import { Confirmar } from "@/components/viabilizador/Confirmar";
+import { MSG_SEM_CONSTRUTORA, desatualizado as estaVelho, enviarDocumento, getProdutos } from "@/services/viabilizador";
 
 const MAX = 15 * 1024 * 1024;
+const tamanho = (bytes) => `${(bytes / 1024 / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
 const dataCurta = (iso) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
 function Documento({ produto, tipo, rotulo, tem, onAtualizado }) {
   const entrada = useRef(null);
   const [estado, setEstado] = useState("parado");
   const [erro, setErro] = useState("");
-  const desatualizado = tem && produto.pendencias.includes("documentos_desatualizados");
+  const [escolhido, setEscolhido] = useState(null);
+  const enviadoEm = tipo === "book" ? produto.bookAtualizadoEm : produto.tabelaAtualizadoEm;
+  const desatualizado = tem && estaVelho(enviadoEm);
 
-  async function enviar(arquivo) {
+  // Arquivo novo vai direto; substituir pede confirmação, porque troca o PDF de todos os corretores na hora.
+  function escolher(arquivo) {
     if (!arquivo) return;
     setErro("");
     if (arquivo.type !== "application/pdf") return setErro("Envie um arquivo PDF.");
     if (arquivo.size > MAX) return setErro("O arquivo passa de 15 MB.");
+    if (tem) setEscolhido(arquivo);
+    else enviar(arquivo);
+  }
+
+  async function enviar(arquivo) {
     setEstado("enviando");
     try {
       onAtualizado(await enviarDocumento(produto.id, tipo, arquivo));
@@ -26,6 +36,7 @@ function Documento({ produto, tipo, rotulo, tem, onAtualizado }) {
       setErro(e.fieldErrors?.arquivo ?? e.message);
     } finally {
       setEstado("parado");
+      setEscolhido(null);
     }
   }
 
@@ -53,6 +64,7 @@ function Documento({ produto, tipo, rotulo, tem, onAtualizado }) {
         <span className="text-sm font-medium">{rotulo}</span>
         {!tem ? <Selo tom="perigo">Falta enviar</Selo> : desatualizado ? <Selo tom="alerta">Desatualizado</Selo> : <Selo tom="ok">Em dia</Selo>}
       </div>
+      {tem && <p className="text-xs text-ink-3">{enviadoEm ? `Enviado em ${dataCurta(enviadoEm)}` : "Sem data de envio"}</p>}
       <div className="grid grid-cols-2 gap-2">
         <button type="button" disabled={!tem || estado !== "parado"} onClick={abrir} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line text-[13px] text-ink-2 transition-colors hover:border-gold hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">
           <Icon name="book" className="size-4" /> {estado === "abrindo" ? "Abrindo..." : "Abrir"}
@@ -61,8 +73,20 @@ function Documento({ produto, tipo, rotulo, tem, onAtualizado }) {
           {estado === "enviando" ? "Enviando..." : tem ? "Substituir PDF" : "Enviar PDF"}
         </button>
       </div>
-      <input ref={entrada} type="file" accept="application/pdf" className="hidden" onChange={(e) => { enviar(e.target.files?.[0]); e.target.value = ""; }} />
+      <input ref={entrada} type="file" accept="application/pdf" className="hidden" onChange={(e) => { escolher(e.target.files?.[0]); e.target.value = ""; }} />
       {erro && <p role="alert" className="text-[12px] text-danger">{erro}</p>}
+      {escolhido && (
+        <Confirmar
+          titulo={`Substituir ${rotulo.toLowerCase()} do ${produto.nome}?`}
+          rotulo="Substituir"
+          ocupado={estado === "enviando"}
+          onConfirmar={() => enviar(escolhido)}
+          onClose={() => estado !== "enviando" && setEscolhido(null)}
+        >
+          <p>O arquivo <b className="break-all text-ink">{escolhido.name}</b> ({tamanho(escolhido.size)}) vai substituir o atual.</p>
+          <p>Todos os corretores passam a ver o novo PDF na hora.</p>
+        </Confirmar>
+      )}
     </div>
   );
 }
@@ -106,7 +130,7 @@ export default function ViabilizadorBooksPage() {
                   <h3 className="truncate font-semibold">{p.nome}</h3>
                   <p className="truncate text-[13px] text-ink-2">{p.bairro} · {p.cidade}/{p.uf}</p>
                 </div>
-                <span className="text-[12px] text-ink-3">{p.documentosAtualizadosEm ? `Documentos atualizados em ${dataCurta(p.documentosAtualizadosEm)}` : "Documentos nunca atualizados por aqui"}</span>
+                <span className="text-[12px] text-ink-3">{p.documentosAtualizadosEm ? `Última atualização em ${dataCurta(p.documentosAtualizadosEm)}` : p.temBook || p.temTabela ? "Sem data de envio" : "Nenhum documento enviado ainda"}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Documento produto={p} tipo="book" rotulo="Book" tem={p.temBook} onAtualizado={trocar} />
@@ -118,4 +142,4 @@ export default function ViabilizadorBooksPage() {
       )}
     </div>
   );
-}
+}

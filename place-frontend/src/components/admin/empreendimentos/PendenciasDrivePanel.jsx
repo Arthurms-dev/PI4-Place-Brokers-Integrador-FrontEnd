@@ -41,7 +41,7 @@ export default function PendenciasDrivePanel({ onAbrirEmpreendimento }) {
       {carregando && <p className="mt-3 text-sm text-ink-3">Carregando pendências...</p>}
       {!carregando && !erro && dados.itens.length === 0 && (
         <p role="status" className="mt-3 rounded-xl bg-card-2 p-3 text-sm text-ink-2">
-          Nenhuma pendência registrada. As verificações do Drive continuam sendo executadas pelo script no Back-end.
+          Nenhuma pendência registrada. O Drive continua sendo conferido automaticamente; o que precisar de conferência aparece aqui.
         </p>
       )}
       {!carregando && !erro && dados.itens.length > 0 && (

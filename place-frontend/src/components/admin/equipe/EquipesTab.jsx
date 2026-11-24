@@ -82,14 +82,14 @@ export default function EquipesTab({ times, diretorias, corretoresPlace, gerente
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={onNovaEquipe} className="h-11 rounded-xl bg-gold-gradient px-5 text-sm font-semibold text-[#1a1408] transition hover:brightness-110">Nova equipe</button>
-        <button type="button" onClick={onNovaDiretoria} className="h-11 rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Nova diretoria</button>
-        <button type="button" onClick={onNovoGerente} className="h-11 rounded-xl border border-line px-5 text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Novo gerente</button>
+      <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+        <button type="button" onClick={onNovaEquipe} className="h-11 rounded-xl bg-gold-gradient px-2 text-[13px] font-semibold sm:px-5 sm:text-sm text-[#1a1408] transition hover:brightness-110">Nova equipe</button>
+        <button type="button" onClick={onNovaDiretoria} className="h-11 rounded-xl border border-line px-2 text-[13px] sm:px-5 sm:text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Nova diretoria</button>
+        <button type="button" onClick={onNovoGerente} className="h-11 rounded-xl border border-line px-2 text-[13px] sm:px-5 sm:text-sm text-ink-2 transition-colors hover:border-gold hover:text-ink">Novo gerente</button>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Sede">
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0" role="group" aria-label="Sede">
           {["", ...SEDES].map((s) => (
             <button key={s || "todas"} type="button" onClick={() => setSede(s)} aria-pressed={sede === s}
               className={`h-11 shrink-0 rounded-full border px-4 text-[13px] transition-colors ${sede === s ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
@@ -132,4 +132,4 @@ export default function EquipesTab({ times, diretorias, corretoresPlace, gerente
       )}
     </div>
   );
-}
+}

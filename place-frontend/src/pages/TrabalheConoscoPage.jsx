@@ -5,7 +5,9 @@ import Reveal from "@/components/site/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { normalizarTelefone } from "@/lib/telefone";
-import { AREAS, LIMITE_CURRICULO, NOME_DA_AREA, UNIDADES, enviarCandidatura, listarVagasAbertas } from "@/services/trabalheConosco";
+import {
+  AREAS, LIMITE_CURRICULO, NOME_DA_AREA, UNIDADES, detalhesDaVaga, enviarCandidatura, itensDosRequisitos, listarVagasAbertas, ordenarVagas,
+} from "@/services/trabalheConosco";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LINKEDIN_REGEX = /^https:\/\/([a-z]{2,3}\.)?linkedin\.com\/\S+$/i;
@@ -16,6 +18,42 @@ const MOTIVOS = [
   ["refresh", "Leads todos os dias", "Os contatos dos anúncios chegam pela roleta, na ordem de chegada da equipe."],
   ["mapPin", "Recife, Caruaru e Paulista", "Escolha a unidade mais perto de você."],
 ];
+
+const REQUISITOS_VISIVEIS = 3;
+
+function Chips({ vaga }) {
+  const chips = detalhesDaVaga(vaga);
+  if (!chips.length) return null;
+  return (
+    <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Detalhes da vaga">
+      {chips.map((c) => (
+        <li key={c.texto} className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.urgente ? "bg-gold/15 text-gold" : "bg-white/8 text-ink-2"}`}>{c.texto}</li>
+      ))}
+    </ul>
+  );
+}
+
+function Requisitos({ texto }) {
+  const [todos, setTodos] = useState(false);
+  const itens = itensDosRequisitos(texto);
+  if (!itens.length) return null;
+  const mostrados = todos ? itens : itens.slice(0, REQUISITOS_VISIVEIS);
+  return (
+    <div className="mt-3">
+      <p className="text-[13px] font-medium text-ink">Requisitos</p>
+      <ul className="mt-1 space-y-1 text-[13px] leading-relaxed text-ink-2">
+        {mostrados.map((r) => (
+          <li key={r} className="flex gap-2"><span aria-hidden="true" className="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-gold/70" />{r}</li>
+        ))}
+      </ul>
+      {itens.length > REQUISITOS_VISIVEIS && (
+        <button type="button" onClick={() => setTodos((v) => !v)} aria-expanded={todos} className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">
+          {todos ? "Ver menos" : `Ver todos (${itens.length})`}
+        </button>
+      )}
+    </div>
+  );
+}
 
 const vazio = { vagaId: BANCO, area: "", unidade: "", nome: "", telefone: "", email: "", creci: "", linkedin: "", mensagem: "", website: "", aceite: false };
 
@@ -31,7 +69,7 @@ export default function TrabalheConoscoPage() {
   const formulario = useRef(null);
 
   useEffect(() => {
-    listarVagasAbertas().then(setVagas).catch(() => setVagas([]));
+    listarVagasAbertas().then((v) => setVagas(ordenarVagas(v ?? []))).catch(() => setVagas([]));
   }, []);
 
   const set = (campo) => (e) => setF((s) => ({ ...s, [campo]: campo === "telefone" ? mascarar(e.target.value) : e.target.value }));
@@ -134,11 +172,13 @@ export default function TrabalheConoscoPage() {
                         <p className="text-[12px] text-ink-3">{NOME_DA_AREA[v.area]}{v.unidade ? ` · ${v.unidade}` : ""}</p>
                       </div>
                       <button type="button" onClick={() => escolherVaga(v)}
-                        className="h-10 shrink-0 rounded-full border border-gold/60 px-4 text-[13px] font-medium text-gold transition-colors hover:bg-gold/10">
+                        className="h-11 shrink-0 rounded-full border border-gold/60 px-4 text-[13px] font-medium text-gold transition-colors hover:bg-gold/10">
                         {f.vagaId === v.id ? "Selecionada" : "Candidatar-se"}
                       </button>
                     </div>
-                    {v.descricao && <p className="mt-2 whitespace-pre-line text-[13px] leading-relaxed text-ink-2">{v.descricao}</p>}
+                    <Chips vaga={v} />
+                    {v.descricao && <p className="mt-3 whitespace-pre-line text-[13px] leading-relaxed text-ink-2">{v.descricao}</p>}
+                    <Requisitos texto={v.requisitos} />
                   </li>
                 ))}
               </ul>
@@ -170,6 +210,11 @@ export default function TrabalheConoscoPage() {
                       {vagas.map((v) => <option key={v.id} value={v.id}>{v.titulo}</option>)}
                     </select>
                   </Campo>
+                  {vaga && (
+                    <p className="-mt-2 text-xs text-ink-3">
+                      {[NOME_DA_AREA[vaga.area], vaga.unidade, ...detalhesDaVaga(vaga).map((c) => c.texto)].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
                   <div className="grid gap-3.5 sm:grid-cols-2">
                     <Campo rotulo="Área de interesse" erro={erros.area}>
                       <select value={area} onChange={set("area")} disabled={Boolean(vaga)} className={`${CAMPO} ${borda(erros.area)} disabled:opacity-70`}>

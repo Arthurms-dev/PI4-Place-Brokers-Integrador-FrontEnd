@@ -177,10 +177,10 @@ export default function RegisterPage() {
 
       <p className="mt-4 text-center text-xs text-ink-2">
         Já tem conta?{" "}
-        <Link to="/login" className="inline-flex min-h-11 items-center px-1 text-gold hover:underline">
+        <Link to="/login" className="inline-flex min-h-11 min-w-11 items-center justify-center px-1 text-gold hover:underline">
           Entrar
         </Link>
       </p>
     </Card>
   );
-}
+}

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Meter } from "@/components/admin/dashboard/charts";
-import { Selo, Vazio } from "@/components/admin/equipe/ui";
+import { Vazio } from "@/components/admin/equipe/ui";
+import { Pendencias } from "@/components/viabilizador/Pendencias";
 import Contagem from "@/components/ui/Contagem";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { MSG_SEM_CONSTRUTORA, ROTULO_PENDENCIA, getOportunidades } from "@/services/viabilizador";
+import { ESCALA_MINIMA, MSG_SEM_CONSTRUTORA, getOportunidades, plural } from "@/services/viabilizador";
 
 const brl = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
@@ -43,7 +44,7 @@ export default function ViabilizadorInicioPage() {
   const produtos = dados?.produtos ?? [];
   const pendentes = produtos.filter((p) => p.pendencias.length > 0);
   const top = produtos.slice(0, 3);
-  const maior = Math.max(...top.map((p) => p.pontuacao), 1);
+  const maior = Math.max(...top.map((p) => p.pontuacao), ESCALA_MINIMA);
   const r = dados?.resumo;
 
   return (
@@ -75,15 +76,15 @@ export default function ViabilizadorInicioPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bloco titulo={pendentes.length ? `Para atualizar (${pendentes.length})` : "Tudo em dia"} atraso={140} acao={pendentes.length > 0 && <Link to="/viabilizador/books" className="inline-flex min-h-11 items-center text-[13px] text-gold hover:underline">Atualizar</Link>}>
+            <Bloco titulo={pendentes.length ? `Para atualizar (${pendentes.length})` : "Tudo em dia"} atraso={140} acao={null}>
               {pendentes.length === 0 ? (
                 <p className="py-6 text-center text-sm text-ink-3">Nenhuma pendência nos seus produtos. Bom trabalho!</p>
               ) : (
                 <ul className="divide-y divide-line-soft">
                   {pendentes.map((p) => (
-                    <li key={p.id} className="space-y-2 py-3 first:pt-0 last:pb-0">
+                    <li key={p.id} className="space-y-1 py-3 first:pt-0 last:pb-0">
                       <p className="truncate text-sm font-medium">{p.nome}</p>
-                      <div className="flex flex-wrap gap-1.5">{p.pendencias.map((k) => <Selo key={k} tom="alerta">{ROTULO_PENDENCIA[k]}</Selo>)}</div>
+                      <Pendencias lista={p.pendencias} />
                     </li>
                   ))}
                 </ul>
@@ -94,9 +95,9 @@ export default function ViabilizadorInicioPage() {
               <ul className="space-y-4">
                 {top.map((p, i) => (
                   <li key={p.id}>
-                    <div className="flex items-baseline justify-between gap-3 text-sm">
-                      <span className="truncate">{p.nome}</span>
-                      <span className="shrink-0 text-[12px] text-ink-3">{p.visualizacoes} visualizações · {p.leads} leads · {p.visitas} visitas</span>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
+                      <span className="min-w-0 truncate">{p.nome}</span>
+                      <span className="text-[12px] text-ink-3">{plural(p.visualizacoes, "visualização", "visualizações")} · {plural(p.leads, "lead", "leads")} · {plural(p.visitas, "visita", "visitas")}</span>
                     </div>
                     <Meter pct={(p.pontuacao / maior) * 100} atraso={i * 80} className="mt-1.5" />
                   </li>
@@ -108,4 +109,4 @@ export default function ViabilizadorInicioPage() {
       )}
     </div>
   );
-}
+}

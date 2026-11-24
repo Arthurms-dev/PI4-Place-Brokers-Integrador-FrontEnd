@@ -372,7 +372,7 @@ export default function EmpreendimentosPage() {
           aria-label="Publicação"
           className={`${CAMPO} border-line`}
         >
-          <option value="">Publicados e rascunhos</option>
+          <option value="">Site e rascunhos</option>
           <option value="publicado">Só publicados</option>
           <option value="rascunho">Só rascunhos</option>
         </select>

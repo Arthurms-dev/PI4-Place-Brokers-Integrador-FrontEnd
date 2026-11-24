@@ -68,7 +68,7 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
                 )}
               >
                 <td className="whitespace-nowrap py-3.5 pl-5 pr-3">
-                  <button type="button" onClick={() => onSelect(lead.id)} aria-label={`Ver detalhes de ${lead.nome}`} className="flex cursor-pointer items-center gap-2.5 text-left text-ink hover:text-gold">
+                  <button type="button" onClick={() => onSelect(lead.id)} aria-label={`Ver detalhes de ${lead.nome}`} className="flex min-h-11 cursor-pointer items-center gap-2.5 text-left text-ink hover:text-gold">
                     <Avatar name={lead.nome} className="size-7 text-xs" />
                     <span className="font-medium">{lead.nome}</span>
                     {needsAttention(lead) && (
@@ -135,4 +135,4 @@ export function LeadsTable({ leads, selectedId, onSelect, emptyMessage }) {
       </div>
     </>
   );
-}
+}

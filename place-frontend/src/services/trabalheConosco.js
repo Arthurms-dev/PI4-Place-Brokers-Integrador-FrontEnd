@@ -10,6 +10,36 @@ export const AREAS = [
 ];
 export const NOME_DA_AREA = Object.fromEntries(AREAS);
 export const UNIDADES = ["Recife", "Caruaru", "Paulista"];
+export const NOME_DO_VINCULO = { autonomo: "Autônomo", clt: "CLT", estagio: "Estágio" };
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+/** Hoje no horário de Recife (AAAA-MM-DD), para comparar com o prazo da vaga. */
+export const hojeRecife = () => new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
+export const diaMes = (iso) => `${Number(iso.slice(8, 10))} ${MESES[Number(iso.slice(5, 7)) - 1]}`;
+export const diasAte = (iso, hoje = hojeRecife()) => Math.round((new Date(`${iso}T12:00:00Z`) - new Date(`${hoje}T12:00:00Z`)) / 86400000);
+
+/** Requisitos digitados pelo RH (um por linha ou separados por ";") viram itens de lista. */
+export const itensDosRequisitos = (texto) =>
+  (texto ?? "").split(/\n|;/).map((r) => r.replace(/^\s*[-•*]\s*/, "").trim()).filter(Boolean);
+
+/** Prazo mais próximo primeiro; vagas sem prazo no fim. */
+export const ordenarVagas = (vagas) => [...vagas].sort((a, b) => (a.prazo ?? "9999") < (b.prazo ?? "9999") ? -1 : (a.prazo ?? "9999") > (b.prazo ?? "9999") ? 1 : 0);
+
+/** Chips da vaga: vínculo, quantidade e prazo (o prazo avisa quando faltam 7 dias ou menos). */
+export function detalhesDaVaga(v, hoje = hojeRecife()) {
+  const chips = [];
+  if (v.vinculo && NOME_DO_VINCULO[v.vinculo]) chips.push({ texto: NOME_DO_VINCULO[v.vinculo] });
+  if (v.quantidade) chips.push({ texto: `${v.quantidade} ${Number(v.quantidade) === 1 ? "vaga" : "vagas"}` });
+  if (v.prazo) {
+    const faltam = diasAte(v.prazo, hoje);
+    chips.push(
+      faltam <= 0 ? { texto: "Último dia: inscrições até hoje", urgente: true }
+        : faltam <= 7 ? { texto: `Últimos dias · até ${diaMes(v.prazo)}`, urgente: true }
+          : { texto: `Inscrições até ${diaMes(v.prazo)}` },
+    );
+  }
+  return chips;
+}
 export const LIMITE_CURRICULO = 5 * 1024 * 1024;
 
 export const STATUS_CANDIDATURA = [

@@ -104,7 +104,8 @@ export default function EquipePage() {
 
       {erro && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{erro}</p>}
 
-      <div className="flex flex-wrap gap-2" role="tablist">
+      {/* No celular as abas correm de lado (uma linha só) em vez de ocupar 4 linhas. */}
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0" role="tablist">
         {abas.map(([id, rotulo, n]) => (
           <button key={id} type="button" role="tab" aria-selected={aba === id} onClick={() => setAba(id)}
             className={`flex h-11 shrink-0 items-center gap-2 rounded-xl border px-4 text-sm transition-colors ${aba === id ? "border-gold bg-gold/15 text-gold" : "border-line text-ink-2 hover:text-ink"}`}>
@@ -144,4 +145,4 @@ export default function EquipePage() {
       )}
     </div>
   );
-}
+}
