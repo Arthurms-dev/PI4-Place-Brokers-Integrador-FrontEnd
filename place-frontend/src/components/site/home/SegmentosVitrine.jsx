@@ -3,6 +3,19 @@ import { Icon } from "@/components/ui/Icon";
 import { resumirProntos, resumirSegmentos } from "@/lib/catalogoHome";
 import Reveal from "../Reveal";
 
+const FILEIRA =
+  "max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-4 max-sm:gap-3 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-2";
+const ITEM_FILEIRA = "max-sm:w-[80vw] max-sm:max-w-[320px] max-sm:shrink-0 max-sm:snap-start";
+
+/**
+ * No PC (a partir de 1280 px) os 4 perfis ficam numa fileira e o de nome mais longo (Minha Casa Minha Vida) ganha uma
+ * coluna um pouco mais larga, para nada quebrar linha. Entre 1024 e 1279 px ficam 2 por linha, que também não quebra.
+ */
+export function colunasNoPc(segmentos) {
+  const maior = Math.max(...segmentos.map((s) => s.rotulo.length));
+  return segmentos.map((s) => (s.rotulo.length === maior && maior > 14 ? "1.3fr" : "1fr")).join(" ");
+}
+
 /** Atalhos por perfil: quanto custa para entrar e quantos imóveis há em cada um. */
 export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo = false, onPronto, onBuscarUsado }) {
   const segmentos = useMemo(() => resumirSegmentos(itens), [itens]);
@@ -18,20 +31,25 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
         </h2>
       </Reveal>
 
-      <div className={`grid gap-3 sm:grid-cols-2 ${segmentos.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+      {/* No celular os perfis viram uma fileira que desliza para o lado; do tablet para cima, a grade de sempre. */}
+      <div className={FILEIRA}>
+      <div
+        className={`grid gap-3 max-sm:contents sm:grid-cols-2 ${segmentos.length === 3 ? "lg:grid-cols-3" : "xl:grid-cols-(--pb-colunas)"}`}
+        style={{ "--pb-colunas": colunasNoPc(segmentos) }}
+      >
         {segmentos.map((segmento, posicao) => {
           const selecionado = ativo === segmento.id;
           return (
-            <Reveal key={segmento.id} atraso={posicao * 70}>
+            <Reveal key={segmento.id} atraso={posicao * 70} className={ITEM_FILEIRA}>
               <button
                 type="button"
                 onClick={() => onEscolher(selecionado ? "" : segmento.id)}
                 aria-pressed={selecionado}
-                className={`pb-c-filter group flex w-full items-center gap-3.5 rounded-2xl border bg-white p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                className={`pb-c-filter group flex h-full w-full items-center gap-3.5 rounded-2xl border bg-white p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg xl:gap-3 ${
                   selecionado ? "border-[#c99041] ring-2 ring-[#e9ad5a]/40" : "border-[#dee6ef] hover:border-[#d6af78]"
                 }`}
               >
-                <span className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-[#eef3f8]">
+                <span className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-[#eef3f8] xl:size-16">
                   {segmento.capa?.image ? (
                     <img src={segmento.capa.miniatura || segmento.capa.image} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
@@ -39,9 +57,9 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <strong className="block text-[15px] leading-tight text-[#102843]">{segmento.rotulo}</strong>
+                  <strong className="block text-[15px] leading-tight text-[#102843] xl:whitespace-nowrap">{segmento.rotulo}</strong>
                   {segmento.chamadaPreco && (
-                    <span className="mt-1 block text-[12px] text-[#61748b]">
+                    <span className="mt-1 block text-[12px] text-[#61748b] xl:whitespace-nowrap">
                       {segmento.chamadaPreco.rotulo}{" "}
                       <b className="font-extrabold text-[#9a6a2c]">{segmento.chamadaPreco.valor}</b>
                     </span>
@@ -58,9 +76,9 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
       </div>
 
       {((prontos && onPronto) || onBuscarUsado) && (
-        <div className={`mt-3 grid gap-3 ${prontos && onPronto && onBuscarUsado ? "md:grid-cols-2" : ""}`}>
+        <div className={`mt-3 grid gap-3 max-sm:contents ${prontos && onPronto && onBuscarUsado ? "md:grid-cols-2" : ""}`}>
           {prontos && onPronto && (
-            <Reveal className="h-full">
+            <Reveal className={`h-full ${ITEM_FILEIRA}`}>
               <button
                 type="button"
                 onClick={onPronto}
@@ -80,7 +98,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
             </Reveal>
           )}
           {onBuscarUsado && (
-            <Reveal atraso={70} className="h-full">
+            <Reveal atraso={70} className={`h-full ${ITEM_FILEIRA}`}>
               <button
                 type="button"
                 onClick={onBuscarUsado}
@@ -99,6 +117,7 @@ export default function SegmentosVitrine({ itens, ativo, onEscolher, prontoAtivo
           )}
         </div>
       )}
+      </div>
     </section>
   );
 }

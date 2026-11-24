@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { useAcessoExclusivo } from "@/hooks/useAcessoExclusivo";
+import { acessoLiberado } from "@/lib/catalogoHome";
+import { rolarAteSecao } from "@/lib/rolagem";
 import FormularioContato from "../FormularioContato";
 import Reveal from "../Reveal";
 
@@ -13,9 +16,33 @@ const BENEFICIOS = [
 /** Faixa de captação: o visitante se cadastra para ver o material completo. */
 export default function AcessoExclusivo({ opcoes }) {
   const liberado = useAcessoExclusivo();
+  // Quem já chegou cadastrado vê, no celular, só uma faixa curta. Quem acabou de se cadastrar continua vendo a
+  // confirmação no lugar do formulário (a seção não some debaixo do dedo).
+  const [jaChegouLiberado] = useState(acessoLiberado);
 
   return (
-    <section id="acesso-exclusivo" aria-labelledby="pb-d-exclusivo" className="mx-auto max-w-7xl scroll-mt-24 px-4 pt-16 sm:px-6 sm:pt-20">
+    <>
+    {jaChegouLiberado && (
+      <section aria-labelledby="pb-d-exclusivo-curto" className="mx-auto max-w-7xl px-4 pt-10 sm:hidden">
+        <div className="pb-d-exclusivo flex items-center gap-3 rounded-2xl p-4 text-white">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#0f8a5f]/25 text-[#7fe0b8]">
+            <Icon name="star" className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 id="pb-d-exclusivo-curto" className="text-[16px]! font-extrabold leading-tight">Acesso liberado</h2>
+            <p className="mt-0.5 text-[13px] leading-snug text-white/75">Galeria completa, plantas e condições em cada empreendimento.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => rolarAteSecao("lista")}
+            className="min-h-11 shrink-0 rounded-full bg-gold-gradient px-4 text-[13px] font-bold text-[#1a1408]"
+          >
+            Ver imóveis
+          </button>
+        </div>
+      </section>
+    )}
+    <section id="acesso-exclusivo" aria-labelledby="pb-d-exclusivo" className={`mx-auto max-w-7xl scroll-mt-24 px-4 pt-16 sm:px-6 sm:pt-20 ${jaChegouLiberado ? "max-sm:hidden" : ""}`}>
       <Reveal>
         <div className="pb-d-exclusivo relative overflow-hidden rounded-[28px] p-6 text-white sm:p-10 lg:p-12">
           <div className="pointer-events-none absolute -right-32 -top-32 size-96 rounded-full bg-[#e9ad5a]/20 blur-3xl" aria-hidden="true" />
@@ -68,5 +95,6 @@ export default function AcessoExclusivo({ opcoes }) {
         </div>
       </Reveal>
     </section>
+    </>
   );
 }

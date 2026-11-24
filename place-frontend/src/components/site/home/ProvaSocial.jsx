@@ -61,6 +61,10 @@ const TEMAS = {
 };
 const temaDe = (tema) => TEMAS[tema] ?? TEMAS.claro;
 
+// No celular, prêmios e clientes deslizam para o lado (a próxima foto aparece cortada na borda); do tablet para cima, grade.
+const CARROSSEL =
+  "max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-2";
+
 function LinkMais({ href, children, tema }) {
   return (
     <a href={href} target="_blank" rel="noreferrer" className={`inline-flex min-h-11 items-center gap-1.5 text-[14px] font-semibold underline-offset-4 hover:underline ${temaDe(tema).link}`}>
@@ -147,9 +151,9 @@ export function Premiacoes({ tema = "claro" }) {
         <h3 className={`text-xl font-extrabold tracking-tight sm:text-2xl ${t.titulo}`}>Reconhecida pelas construtoras</h3>
         <LinkMais href={DESTAQUES.premiacoes} tema={tema}>Ver as premiações</LinkMais>
       </div>
-      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <ul className={`grid grid-cols-2 gap-3 lg:grid-cols-4 ${CARROSSEL}`} aria-label="Prêmios da Place Brokers">
         {PREMIACOES.map((p, i) => (
-          <li key={p.id} className="h-full">
+          <li key={p.id} className="h-full max-sm:w-[58vw] max-sm:max-w-[240px] max-sm:shrink-0 max-sm:snap-start">
             <Reveal atraso={i * 70} className={`group h-full overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 hover:shadow-xl ${t.caixa} ${t.hover}`}>
               <img src={IMAGENS[p.imagem]} alt={`Place Brokers premiada pela ${p.construtora}: ${p.titulo} (${p.quando})`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105" />
               <div className="p-3 sm:p-4">
@@ -180,9 +184,9 @@ export function SonhosRealizados({ tema = "claro" }) {
           <LinkMais href={DESTAQUES.clientes} tema={tema}>Ver mais clientes</LinkMais>
         </div>
       </div>
-      <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+      <ul className={`grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6 ${CARROSSEL}`} aria-label="Clientes da Place Brokers">
         {SONHOS_REALIZADOS.map((s, i) => (
-          <li key={s.id}>
+          <li key={s.id} className="max-sm:w-[44vw] max-sm:max-w-[200px] max-sm:shrink-0 max-sm:snap-start">
             <Reveal atraso={i * 60} className="overflow-hidden rounded-2xl">
               <img src={IMAGENS[s.imagem]} alt={`Clientes da Place Brokers: ${s.legenda}`} width="400" height="400" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
             </Reveal>
