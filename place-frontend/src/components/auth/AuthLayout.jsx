@@ -11,7 +11,7 @@ function FotoDeDestaque() {
   const { itens } = useEmpreendimentosPublicos();
   const foto = itens.find((i) => i.destaque && i.image) ?? itens.find((i) => i.image) ?? null;
   return (
-    <aside aria-hidden="true" className="relative hidden overflow-hidden lg:block">
+    <aside aria-hidden="true" className="relative hidden overflow-hidden lg:sticky lg:top-0 lg:block lg:h-screen">
       {foto && (
         <img src={foto.image} alt="" decoding="async" className="animate-fade-in absolute inset-0 size-full object-cover" />
       )}

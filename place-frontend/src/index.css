@@ -458,7 +458,6 @@ select:-webkit-autofill {
 .pb-auth {
   background: radial-gradient(ellipse at 30% 0%, rgb(233 173 90 / .07), transparent 52%), var(--color-page);
 }
-.pb-auth > div { max-width: 430px; }
 .pb-auth :is(input, select, textarea) { min-height: 46px; font-size: 14px; }
 .pb-auth :is(input, select, textarea):focus-visible { border-color: var(--color-gold); outline: none; box-shadow: 0 0 0 3px var(--pb-gold-muted); }
 .pb-auth :is(.border.border-line.bg-linear-to-b, .border.border-line.bg-card) { box-shadow: var(--pb-elevation-2); }
