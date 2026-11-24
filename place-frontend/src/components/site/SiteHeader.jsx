@@ -90,7 +90,7 @@ export default function SiteHeader() {
   const compacto = rolou || menu;
 
   const linkDesktop = (item) =>
-    `relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors ${item.soTelaGrande ? "hidden xl:block" : ""} after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
+    `relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[14px] min-[1440px]:px-2 font-medium transition-colors ${item.soTelaGrande ? "hidden xl:block" : ""} after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-gold after:transition-transform after:duration-300 hover:text-ink hover:after:scale-x-100 ${
       ativo(item) ? "text-ink after:scale-x-100" : "text-ink-2 after:scale-x-0"
     }`;
 
@@ -103,7 +103,7 @@ export default function SiteHeader() {
       <div className={`mx-auto flex max-w-7xl items-center gap-3 px-4 transition-[height] duration-500 sm:px-6 ${compacto || esconderLogo ? "h-[72px]" : "h-[84px] lg:h-[104px]"}`}>
         {/* Logo grande à esquerda (pedido da diretoria); diminui um pouco ao rolar a página. */}
         <Link to="/" aria-label="Place Brokers - início" aria-hidden={esconderLogo || undefined} tabIndex={esconderLogo ? -1 : undefined}
-          className={`mr-2 shrink-0 transition-[opacity,transform] duration-500 lg:mr-6 ${esconderLogo ? "pointer-events-none -translate-y-2 scale-90 opacity-0" : "opacity-100"}`}>
+          className={`mr-2 shrink-0 transition-[opacity,transform] duration-500 lg:max-[1440px]:mr-6 min-[1440px]:mr-4 ${esconderLogo ? "pointer-events-none -translate-y-2 scale-90 opacity-0" : "opacity-100"}`}>
           <Logo className={`transition-[height] duration-500 ${compacto ? "h-12 sm:h-[52px]" : "h-14 sm:h-16 lg:h-[76px]"}`} />
         </Link>
 
@@ -128,8 +128,9 @@ export default function SiteHeader() {
             className="inline-flex h-11 items-center gap-2 rounded-full bg-gold-gradient px-4 text-[13px] font-semibold text-[#1a1408] shadow-[0_8px_20px_-10px_rgba(201,165,76,0.8)] transition hover:-translate-y-0.5 hover:brightness-110 active:scale-95 sm:px-5 sm:text-[14px]"
           >
             <Icon name="messageCircle" className="size-4.5" />
-            <span className="hidden whitespace-nowrap sm:inline">Fale com especialista</span>
-            <span className="sm:hidden">Especialista</span>
+            {/* Texto curto no celular e de 1024 a 1439 px: com as abas e a barra de rolagem do Windows, o texto longo passava da tela. */}
+            <span className="hidden whitespace-nowrap sm:inline lg:max-[1440px]:hidden">Fale com especialista</span>
+            <span className="sm:hidden lg:max-[1440px]:inline">Especialista</span>
           </button>
           <button
             type="button"
