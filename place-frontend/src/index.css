@@ -498,9 +498,9 @@ select:-webkit-autofill {
 }
 
 .pb-site-eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: .23em;
+  letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--color-gold);
   margin-bottom: 10px;

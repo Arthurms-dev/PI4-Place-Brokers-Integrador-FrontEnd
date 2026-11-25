@@ -11,7 +11,7 @@ export function Foto({ p, className = "", sizes = "(min-width: 768px) 360px, 90v
         }}
       >
         <Icon name="building" className="size-10 text-gold/40" />
-        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-wide text-ink-3/70">
+        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-ink-3/70">
           Foto em breve
         </span>
       </div>
@@ -46,7 +46,7 @@ const SEGMENTO_CURTO = {
   litoral: "Litoral",
 };
 
-export function Etiquetas({ p, comSegmento = false, tamanho = "text-[11px]" }) {
+export function Etiquetas({ p, comSegmento = false, tamanho = "text-xs" }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       <span className={`rounded-full px-3 py-1 ${tamanho} font-bold shadow-sm ${COR_ETAPA[p.tag] ?? "bg-[#08152b]/80 text-[#f3c47a]"}`}>

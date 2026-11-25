@@ -100,7 +100,7 @@
   background: radial-gradient(ellipse at 82% 3%, #e1eaf0 0%, transparent 50%), linear-gradient(180deg, #f3f5f6, #edf3f8);
 }
 .pb-site .pb-c-hero::after {display:none}
-.pb-c-overline { display:flex; align-items:center; gap:.7rem; color:#aa772f; font-size:10px; font-weight:800; letter-spacing:.14em; }
+.pb-c-overline { display:flex; align-items:center; gap:.7rem; color:#aa772f; font-size:12px; font-weight:800; letter-spacing:.12em; }
 .pb-c-hero .pb-c-photo img { animation: pb-c-photo-in .65s ease both; }
 @keyframes pb-c-photo-in { from { opacity:.35; transform:scale(1.04); } to { opacity:1; transform:scale(1); } }
 .pb-site .pb-c-hero form select,.pb-site .pb-c-hero form input { color-scheme:light; }

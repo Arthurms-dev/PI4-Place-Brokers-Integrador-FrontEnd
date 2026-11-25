@@ -31,7 +31,7 @@ function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, temFatos, onLi
   return (
     <div className="pb-d-bloqueio relative overflow-hidden rounded-2xl border border-[#e9ad5a]/50 p-5 sm:p-6">
       <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-[#e9ad5a]/15 blur-2xl" aria-hidden="true" />
-      <p className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[#b07a35]">Material exclusivo</p>
+      <p className="text-xs font-extrabold uppercase tracking-[.14em] text-[#b07a35]">Material exclusivo</p>
       <h2 className="mt-1 text-xl font-extrabold tracking-tight">Veja o empreendimento por completo</h2>
       <ul className="mt-3 flex flex-wrap gap-2">
         {itens.map((texto) => (
@@ -43,7 +43,7 @@ function ConteudoExclusivo({ fotosOcultas, plantas, temAndamento, temFatos, onLi
       <button type="button" onClick={onLiberar} className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gold-gradient px-5 text-sm font-extrabold text-[#1a1408] transition hover:brightness-110">
         Liberar acesso gratuito <Icon name="arrowRight" className="size-4" />
       </button>
-      <p className="mt-2 text-[11.5px] text-ink-3">Cadastro rápido. Um especialista te apresenta os valores do mês do jeito que você preferir: numa conversa ou tudo online.</p>
+      <p className="mt-2 text-xs text-ink-3">Cadastro rápido. Um especialista te apresenta os valores do mês do jeito que você preferir: numa conversa ou tudo online.</p>
     </div>
   );
 }
@@ -286,7 +286,7 @@ export default function EmpreendimentoModal({ item, onClose }) {
 
         <div className="flex items-center gap-3 border-t border-line-soft bg-page/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] uppercase tracking-wide text-ink-3">{item.precoRotulo}</p>
+            <p className="text-xs uppercase tracking-wide text-ink-3">{item.precoRotulo}</p>
             <p className="truncate text-lg font-semibold text-gold">{item.precoValor}</p>
           </div>
           {umClique && pedido.estado === "enviado" ? (
@@ -297,8 +297,8 @@ export default function EmpreendimentoModal({ item, onClose }) {
                 className="min-h-12 rounded-xl bg-gold-gradient px-4 text-sm font-semibold text-[#1a1408] disabled:opacity-60 sm:px-6">
                 {pedido.estado === "enviando" ? "Enviando..." : <><span className="sm:hidden">Solicitar condições</span><span className="hidden sm:inline">Solicitar condições deste imóvel</span></>}
               </button>
-              {pedido.erro && <span role="alert" className="max-w-[220px] text-right text-[11px] text-danger">{pedido.erro}</span>}
-              <button type="button" onClick={() => { pedido.usarOutrosDados(); abrirContato(sobre, "detalhe do empreendimento"); }} className="text-[11px] text-ink-3 underline underline-offset-2">
+              {pedido.erro && <span role="alert" className="max-w-[220px] text-right text-xs text-danger">{pedido.erro}</span>}
+              <button type="button" onClick={() => { pedido.usarOutrosDados(); abrirContato(sobre, "detalhe do empreendimento"); }} className="inline-flex min-h-11 items-center text-xs text-ink-3 underline underline-offset-2">
                 Usar outros dados
               </button>
             </div>

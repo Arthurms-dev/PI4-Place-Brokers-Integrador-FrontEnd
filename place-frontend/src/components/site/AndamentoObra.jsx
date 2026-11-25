@@ -39,7 +39,7 @@ export default function AndamentoObra({ andamento, interno = false }) {
       {interno && andamento.fonte && (
         <a href={andamento.fonte} target="_blank" rel="noreferrer" className="inline-block text-[12px] text-gold underline">Ver na página da construtora</a>
       )}
-      {!interno && <p className="text-[11.5px] text-ink-3">Percentual informado pela construtora.</p>}
+      {!interno && <p className="text-xs text-ink-3">Percentual informado pela construtora.</p>}
     </section>
   );
 }

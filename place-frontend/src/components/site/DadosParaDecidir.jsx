@@ -23,7 +23,7 @@ export default function DadosParaDecidir({ andamento = null, procura = null, evo
         pessoas viram este empreendimento {procura.periodo === "semana" ? "nos últimos 7 dias" : "nos últimos 30 dias"}
       </Numero>
     ),
-    ev && <Numero key="evolucao" grande={ev.titulo}>{ev.detalhe} <span className="text-[11.5px] text-ink-3">Histórico da Place. Resultado passado não garante o futuro.</span></Numero>,
+    ev && <Numero key="evolucao" grande={ev.titulo}>{ev.detalhe} <span className="text-xs text-ink-3">Histórico da Place. Resultado passado não garante o futuro.</span></Numero>,
     andamento && <AndamentoObra key="andamento" andamento={andamento} interno={interno} />,
     fatos.length > 0 && (
       <section key="fatos" aria-labelledby="titulo-fatos" className="space-y-2.5">
