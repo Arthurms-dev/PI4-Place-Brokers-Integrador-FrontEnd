@@ -1,8 +1,12 @@
+import { createPortal } from "react-dom";
 import { Folha } from "@/components/admin/equipe/ui";
 
-/** Pede confirmação antes de uma ação que os corretores veem na hora. */
+/**
+ * Pede confirmação antes de uma ação que os corretores veem na hora.
+ * Abre no corpo da página: dentro de um card animado, o "fixed" ficaria preso no card.
+ */
 export function Confirmar({ titulo, children, rotulo, perigo = false, ocupado = false, onConfirmar, onClose }) {
-  return (
+  return createPortal(
     <Folha titulo={titulo} onClose={onClose}>
       <div className="space-y-5">
         <div className="space-y-2 text-sm text-ink-2">{children}</div>
@@ -18,6 +22,7 @@ export function Confirmar({ titulo, children, rotulo, perigo = false, ocupado = 
           </button>
         </div>
       </div>
-    </Folha>
+    </Folha>,
+    document.body,
   );
 }

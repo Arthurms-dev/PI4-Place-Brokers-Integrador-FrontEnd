@@ -57,7 +57,7 @@ describe("Meus produtos", () => {
     const parcela = screen.getByLabelText(/Parcelas a partir de/);
     await user.clear(parcela);
     await user.type(parcela, "65000");
-    await user.click(screen.getByRole("button", { name: "Salvar preço" }));
+    await user.click(screen.getByRole("button", { name: "Salvar preço e parcela" }));
     expect(atualizarProduto).toHaveBeenCalledWith("p1", expect.objectContaining({ parcelaMin: 650 }));
   });
 });

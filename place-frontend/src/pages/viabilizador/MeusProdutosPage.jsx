@@ -49,7 +49,7 @@ function EditarPreco({ produto, onClose, onSalvo }) {
           </Campo>
         )}
         {erroGeral && <p role="alert" className="text-xs text-danger">{erroGeral}</p>}
-        <button type="submit" disabled={salvando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">{salvando ? "Salvando..." : "Salvar preço"}</button>
+        <button type="submit" disabled={salvando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:opacity-60">{salvando ? "Salvando..." : mcmv ? "Salvar preço e parcela" : "Salvar preço"}</button>
       </form>
     </Folha>
   );
