@@ -270,16 +270,16 @@ export default function TrabalheConoscoPage() {
                       aria-invalid={Boolean(erros.aceite)} className="mt-0.5 size-4.5 shrink-0 accent-[#c9a54c]" />
                     <span>
                       Autorizo a Place Brokers a guardar meus dados e meu currículo para processos seletivos, conforme a{" "}
-                      <Link to="/privacidade" target="_blank" className="text-gold underline">política de privacidade</Link>.
+                      <Link to="/privacidade" target="_blank" className="-my-3.5 inline-block py-3.5 text-gold underline">política de privacidade</Link>.
                     </span>
                   </label>
-                  {erros.aceite && <span className="block text-[11px] text-danger">{erros.aceite}</span>}
+                  {erros.aceite && <span className="block text-xs text-danger">{erros.aceite}</span>}
 
                   {erroGeral && !Object.keys(erros).length && <p role="alert" className="text-xs text-danger">{erroGeral}</p>}
                   <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">
                     {enviando ? "Enviando..." : "Enviar candidatura"}
                   </button>
-                  <p className="text-center text-[11px] text-ink-3">Você pode pedir para apagar seus dados quando quiser.</p>
+                  <p className="text-center text-xs text-ink-3">Você pode pedir para apagar seus dados quando quiser.</p>
                 </form>
               </>
             )}

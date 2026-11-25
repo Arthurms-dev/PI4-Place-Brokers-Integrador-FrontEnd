@@ -134,16 +134,16 @@ export default function FormularioVenda({ canal = CANAL_VENDA }) {
           aria-invalid={Boolean(erros.aceite)} className="mt-0.5 size-4.5 shrink-0 accent-[#c9a54c]" />
         <span>
           Autorizo a Place Brokers a usar meus dados para falar comigo sobre a venda do imóvel, conforme a{" "}
-          <Link to="/privacidade" target="_blank" className="text-gold underline">política de privacidade</Link>.
+          <Link to="/privacidade" target="_blank" className="-my-3.5 inline-block py-3.5 text-gold underline">política de privacidade</Link>.
         </span>
       </label>
-      {erros.aceite && <span className="block text-[11px] text-danger">{erros.aceite}</span>}
+      {erros.aceite && <span className="block text-xs text-danger">{erros.aceite}</span>}
 
       {erroGeral && <p role="alert" className="text-xs text-danger">{erroGeral}</p>}
       <button type="submit" disabled={enviando} className="h-12 w-full rounded-xl bg-gold-gradient text-sm font-semibold text-[#1a1408] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">
         {enviando ? "Enviando..." : "Quero uma avaliação do meu imóvel"}
       </button>
-      <p className="text-center text-[11px] text-ink-3">Sem custo e sem compromisso. A Place só anuncia depois de combinar tudo com você.</p>
+      <p className="text-center text-xs text-ink-3">Sem custo e sem compromisso. A Place só anuncia depois de combinar tudo com você.</p>
     </form>
   );
 }
