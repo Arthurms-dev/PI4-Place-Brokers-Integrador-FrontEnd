@@ -16,7 +16,7 @@ export function Delta({ value, className }) {
       )}
     >
       <Icon name={up ? "arrowUp" : "arrowDown"} className="size-3.5" strokeWidth={2.2} />
-      {Math.abs(value)}%
+      {Math.abs(value).toLocaleString("pt-BR")}%
     </span>
   );
 }
