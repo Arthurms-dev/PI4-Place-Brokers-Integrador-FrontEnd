@@ -227,7 +227,7 @@ export default function ListaEmpreendimentos({
           onClick={() => setLimite((atual) => atual + porPagina())}
           className="mx-auto mt-8 block min-h-12 rounded-full border border-line bg-white px-8 text-sm font-bold text-[#0d203b] transition-colors hover:border-[#c89650]"
         >
-          Ver mais {Math.min(porPagina(), lista.length - limite)} de {lista.length - limite} empreendimentos
+          Ver mais {Math.min(porPagina(), lista.length - limite)} empreendimentos (faltam {lista.length - limite})
         </button>
       )}
     </section>

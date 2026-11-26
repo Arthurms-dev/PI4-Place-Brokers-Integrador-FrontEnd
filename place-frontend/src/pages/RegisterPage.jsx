@@ -83,7 +83,7 @@ export default function RegisterPage() {
 
       <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <FormField label="Nome completo" error={fieldErrors.name}>
-          <input value={form.name} onChange={handleChange("name")} className={fieldInputClass(fieldErrors.name)} />
+          <input autoComplete="name" value={form.name} onChange={handleChange("name")} className={fieldInputClass(fieldErrors.name)} />
         </FormField>
 
         <FormField label="E-mail" error={fieldErrors.email}>
