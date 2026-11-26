@@ -241,7 +241,7 @@ export default function RoletaPage() {
       <Card className="order-4 lg:order-none">
         <CardHeader
           title={`Leads aguardando corretor (${painel.aguardando.length})`}
-          description={painel.aguardando.length ? motivoAguardando(painel) : "Nenhum lead parado. Quem chega pelo site entra na roleta na hora."}
+          description={painel.aguardando.length ? motivoAguardando(painel) : semRoletaHoje ? "Nenhum lead parado. Sem roleta hoje: lead novo do site espera o admin distribuir em Leads." : "Nenhum lead parado. Quem chega pelo site entra na roleta na hora."}
           action={ehAdmin ? <Link to="/admin/leads" className="inline-flex min-h-11 items-center text-[12px] text-gold hover:underline">Abrir Leads</Link> : null}
         />
         {painel.aguardando.length > 0 && (
